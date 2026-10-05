@@ -113,6 +113,91 @@ class SoundEngine {
       osc.stop(this.ctx.currentTime + i * 0.12 + 0.85);
     });
   }
+
+  playWhistle() {
+    if (this.isMuted) return;
+    this.init();
+    if (!this.ctx) return;
+
+    // Double whistle (pi-piiit!)
+    [0, 0.14].forEach((delay, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      const dur = idx === 0 ? 0.08 : 0.22;
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(2600, this.ctx.currentTime + delay);
+      osc.frequency.linearRampToValueAtTime(2800, this.ctx.currentTime + delay + dur);
+
+      gain.gain.setValueAtTime(0.2, this.ctx.currentTime + delay);
+      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + delay + dur);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(this.ctx.currentTime + delay);
+      osc.stop(this.ctx.currentTime + delay + dur + 0.02);
+    });
+  }
+
+  playGoalHorn() {
+    if (this.isMuted) return;
+    this.init();
+    if (!this.ctx) return;
+
+    // Powerful stadium brass/horn blast
+    const freqs = [220, 277.18, 329.63, 440];
+    freqs.forEach(freq => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+
+      gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 1.2);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(this.ctx.currentTime);
+      osc.stop(this.ctx.currentTime + 1.25);
+    });
+  }
+
+  playCrowdCheer() {
+    if (this.isMuted) return;
+    this.init();
+    if (!this.ctx) return;
+
+    // Stadium roar using modulated noise
+    const bufferSize = this.ctx.sampleRate * 1.5;
+    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * 0.15;
+    }
+
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = buffer;
+
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(800, this.ctx.currentTime);
+    filter.Q.setValueAtTime(1.5, this.ctx.currentTime);
+
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.25, this.ctx.currentTime + 0.3);
+    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 1.5);
+
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    noise.start(this.ctx.currentTime);
+    noise.stop(this.ctx.currentTime + 1.55);
+  }
 }
 
 window.soundEngine = new SoundEngine();

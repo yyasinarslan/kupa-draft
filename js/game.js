@@ -118,6 +118,7 @@ class FutDraftGame {
     await this.loadTeams();
     this.bindEvents();
     this.setFormation('4-3-3');
+    this.tournament = new TournamentEngine(this);
     
     // Show formation selector initially
     document.getElementById('formationModal').style.display = 'flex';
@@ -238,9 +239,19 @@ class FutDraftGame {
     this.updateStatsDisplay();
     document.getElementById('btnDownloadSquad').style.display = 'none';
 
+    if (this.tournament) {
+      this.tournament.currentRoundIndex = 0;
+      this.tournament.activeOpponent = null;
+      this.tournament.updateHeaderButton(false);
+    }
+
     setTimeout(() => {
       this.openCaptainDraftModal();
     }, 250);
+  }
+
+  resetGame() {
+    this.resetDraft();
   }
 
   // ==========================================
@@ -598,9 +609,7 @@ class FutDraftGame {
     document.getElementById('squadCountDisplay').textContent = `${count} / 11`;
 
     if (count > 0) {
-      const avgRating = Math.round(
-        filledSlots.reduce((sum, s) => sum + s.player.rating, 0) / count
-      );
+      const avgRating = this.calculateAverageRating(this.squadSlots);
       document.getElementById('squadRatingDisplay').textContent = avgRating;
 
       const chem = this.calculateChemistry(filledSlots);
@@ -609,6 +618,16 @@ class FutDraftGame {
       document.getElementById('squadRatingDisplay').textContent = '--';
       document.getElementById('squadChemDisplay').textContent = '0 / 33';
     }
+
+    if (this.tournament) {
+      this.tournament.updateHeaderButton(count === 11);
+    }
+  }
+
+  calculateAverageRating(slots) {
+    const filled = slots.filter(s => s.player);
+    if (filled.length === 0) return 0;
+    return Math.round(filled.reduce((sum, s) => sum + s.player.rating, 0) / filled.length);
   }
 
   calculateChemistry(filledSlots) {

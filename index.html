@@ -43,6 +43,10 @@
           <span class="stat-label">DİZİLİŞ</span>
           <span class="stat-val form-val" id="currentFormationBadge">4-3-3 ▾</span>
         </button>
+        <button class="btn-change-formation btn-header-tournament" id="btnHeaderTournament" disabled title="Önce 11 kişilik kadroyu tamamla!">
+          <span class="stat-label">TURNUVA</span>
+          <span class="stat-val tournament-badge" id="headerTournamentBadge">🏆 KUPA (0/4)</span>
+        </button>
       </div>
     </header>
 
@@ -154,7 +158,10 @@
         </div>
 
         <div class="victory-actions">
-          <button id="btnVictoryDownload" class="btn-primary btn-glow">
+          <button id="btnStartTournamentFromVictory" class="btn-primary btn-glow btn-tournament-cta">
+            <span>🏆 DÜNYA KUPASI TURNUVASINA BAŞLA! ➔</span>
+          </button>
+          <button id="btnVictoryDownload" class="btn-secondary">
             <span>📸 Kadro Kartını İndir</span>
           </button>
           <button id="btnVictoryClose" class="btn-secondary">
@@ -167,6 +174,256 @@
       </div>
     </div>
 
+    <!-- ==========================================
+         WORLD CUP TOURNAMENT & MATCH ENGINE MODAL
+         4-Round Knockout: Son 16 -> Çeyrek -> Yarı -> BÜYÜK FİNAL
+         ========================================== -->
+    <div id="tournamentModal" class="modal-overlay" style="display: none;">
+      <div class="modal-content tournament-modal-content">
+        
+        <!-- Tournament Stepper Header -->
+        <div class="tournament-header">
+          <div class="tournament-title-wrap">
+            <span class="tournament-badge-tag">🏆 2026 DÜNYA KUPASI</span>
+            <h2 id="tournamentRoundTitle">Son 16 Turu</h2>
+          </div>
+          <button class="btn-close-modal" id="btnCloseTournamentModal" aria-label="Kapat">✕</button>
+        </div>
+
+        <!-- 4-Stage Progress Stepper -->
+        <div class="tournament-stepper">
+          <div class="step-item active" id="stepSon16">
+            <span class="step-num">1</span>
+            <span class="step-label">Son 16</span>
+          </div>
+          <div class="step-connector"></div>
+          <div class="step-item" id="stepCeyrek">
+            <span class="step-num">2</span>
+            <span class="step-label">Çeyrek Final</span>
+          </div>
+          <div class="step-connector"></div>
+          <div class="step-item" id="stepYari">
+            <span class="step-num">3</span>
+            <span class="step-label">Yarı Final</span>
+          </div>
+          <div class="step-connector"></div>
+          <div class="step-item" id="stepFinal">
+            <span class="step-num">🏆</span>
+            <span class="step-label">BÜYÜK FİNAL</span>
+          </div>
+        </div>
+
+        <!-- VIEW 1: MATCH PREVIEW (Rakip Tanıtımı & Maça Başla) -->
+        <div id="tournamentPreviewView" class="tournament-view">
+          <div class="matchup-banner">
+            <!-- User Dream Team -->
+            <div class="matchup-card user-team-card">
+              <div class="team-flag-large">⭐</div>
+              <div class="team-meta">
+                <span class="team-sub">SENİN KADRON</span>
+                <h3 class="team-name" id="previewUserTeamName">Rüya Takım 26</h3>
+                <div class="team-badges-row">
+                  <span class="badge-ovr" id="previewUserOvr">88 GÜÇ</span>
+                  <span class="badge-chem" id="previewUserChem">33 KİMYA</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="matchup-vs-badge">
+              <span class="vs-text">VS</span>
+            </div>
+
+            <!-- Opponent Team -->
+            <div class="matchup-card opp-team-card">
+              <div class="team-flag-large" id="previewOppFlag">🇯🇵</div>
+              <div class="team-meta">
+                <span class="team-sub">RAKİP MİLLİ TAKIM</span>
+                <h3 class="team-name" id="previewOppName">Japonya</h3>
+                <div class="team-badges-row">
+                  <span class="badge-ovr" id="previewOppOvr">82 GÜÇ</span>
+                  <span class="badge-star" id="previewOppStar">⭐ Kubo, Mitoma</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="round-intel-box">
+            <p id="roundIntelText">
+              🔥 <strong>Son 16 Karşılaşması:</strong> Kazanan takım doğrudan Çeyrek Finale yükselir. Kadronun gücünü sahada göster!
+            </p>
+          </div>
+
+          <div class="tournament-actions">
+            <button id="btnStartMatch" class="btn-primary btn-glow btn-large">
+              <span>⚽ SAHAYA ÇIK VE MAÇI BAŞLAT!</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- VIEW 2: INTERACTIVE LIVE MATCH (Canlı Heyecan & Karar Anları) -->
+        <div id="tournamentMatchView" class="tournament-view" style="display: none;">
+          <!-- Scoreboard Header -->
+          <div class="live-scoreboard">
+            <div class="sb-team sb-user">
+              <span class="sb-flag">⭐</span>
+              <span class="sb-name">RÜYA TAKIM</span>
+              <span class="sb-score" id="sbUserScore">0</span>
+            </div>
+            
+            <div class="sb-center">
+              <div class="sb-timer-badge">
+                <span class="sb-live-dot">●</span>
+                <span id="sbMatchMinute">0'</span>
+              </div>
+              <span class="sb-round-tag" id="sbRoundTag">SON 16</span>
+            </div>
+
+            <div class="sb-team sb-opp">
+              <span class="sb-score" id="sbOppScore">0</span>
+              <span class="sb-name" id="sbOppName">JAPONYA</span>
+              <span class="sb-flag" id="sbOppFlag">🇯🇵</span>
+            </div>
+          </div>
+
+          <!-- Mini Pitch Radar & Ball Animation -->
+          <div class="mini-pitch-radar">
+            <div class="radar-line center-line"></div>
+            <div class="radar-line center-circle"></div>
+            <div class="radar-ball" id="radarBall">⚽</div>
+            <div class="radar-team-tag left" id="radarLeftTag">HÜCUM ALANI</div>
+            <div class="radar-team-tag right" id="radarRightTag">SAVUNMA ALANI</div>
+          </div>
+
+          <!-- Commentary Action Feed -->
+          <div class="commentary-container">
+            <div class="commentary-header">
+              <span>🎙️ CANLI SPİKER ANLATIMI</span>
+              <span class="commentary-sound-icon">🔊</span>
+            </div>
+            <div class="commentary-feed" id="commentaryFeed">
+              <div class="comm-line intro">
+                <span class="comm-min">0'</span>
+                <span class="comm-txt">Hakem düdüğünü çaldı ve büyük heyecan başladı! Her iki takıma da başarılar.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- CRITICAL DECISION MODAL (Kritik Karar Anı Pop-up) -->
+          <div class="decision-overlay" id="decisionOverlay" style="display: none;">
+            <div class="decision-card">
+              <div class="decision-badge">⚡ KRİTİK GOL FIRSATI!</div>
+              <h4 class="decision-title" id="decisionTitle">72. DAKİKA: Ceza Sahası Çizgisi!</h4>
+              <p class="decision-desc" id="decisionDesc">
+                [Mbappé] müthiş bir çalımla kaleciyle karşı karşıya kaldı! Ne yapacaksın?
+              </p>
+              <div class="decision-buttons">
+                <button class="btn-decision btn-plase" id="btnChoicePlase">
+                  <span class="dec-icon">🎯</span>
+                  <div class="dec-text-wrap">
+                    <strong>Plase Köşeye Vur</strong>
+                    <small>Falso & Teknik Şut</small>
+                  </div>
+                </button>
+                <button class="btn-decision btn-power" id="btnChoicePower">
+                  <span class="dec-icon">⚡</span>
+                  <div class="dec-text-wrap">
+                    <strong>Sert Şut Patlat</strong>
+                    <small>Üst Direk Altına Füze</small>
+                  </div>
+                </button>
+                <button class="btn-decision btn-pass" id="btnChoicePass">
+                  <span class="dec-icon">👟</span>
+                  <div class="dec-text-wrap">
+                    <strong>Boştaki Arkadaşına Çıkar</strong>
+                    <small>Boş Kaleye Pas & Asist</small>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 3: MATCH RESULT (Tur Atladın / Elendin) -->
+        <div id="tournamentResultView" class="tournament-view" style="display: none;">
+          <div class="result-banner" id="resultBanner">
+            <div class="result-icon-large" id="resultIcon">🎉</div>
+            <h3 class="result-title" id="resultTitle">TURU GEÇTİN!</h3>
+            <p class="result-subtitle" id="resultSubtitle">Muhteşem bir maç çıkardın ve rakibini turnuva dışına ittin!</p>
+          </div>
+
+          <div class="result-score-card">
+            <div class="r-team">
+              <span class="r-flag">⭐</span>
+              <span class="r-name">Rüya Takım</span>
+              <span class="r-final-score" id="resultUserScore">3</span>
+            </div>
+            <div class="r-divider">-</div>
+            <div class="r-team">
+              <span class="r-final-score" id="resultOppScore">1</span>
+              <span class="r-name" id="resultOppName">Japonya</span>
+              <span class="r-flag" id="resultOppFlag">🇯🇵</span>
+            </div>
+          </div>
+
+          <!-- Goal Scorers List -->
+          <div class="match-scorers-box" id="matchScorersBox">
+            <!-- Injected by JS -->
+          </div>
+
+          <div class="tournament-actions">
+            <button id="btnNextRound" class="btn-primary btn-glow btn-large">
+              <span>🏆 BİR SONRAKİ TURA GEÇ ➔</span>
+            </button>
+            <button id="btnRetryMatch" class="btn-secondary btn-large" style="display: none;">
+              <span>🔄 MAÇI TEKRAR OYNA</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- VIEW 4: GRAND CHAMPION CELEBRATION (Dünya Şampiyonluğu & Kupa Töreni) -->
+        <div id="tournamentTrophyView" class="tournament-view" style="display: none;">
+          <div class="trophy-hero">
+            <div class="trophy-glow-circle">
+              <span class="trophy-emoji">🏆</span>
+            </div>
+            <span class="champion-sup">2026 DÜNYA KUPASI</span>
+            <h2 class="champion-title">DÜNYA ŞAMPİYONU!</h2>
+            <p class="champion-subtitle">
+              Kurduğun rüya kadro tüm rakiplerini tek tek dize getirerek Dünya Kupası'nı müzesine götürdü!
+            </p>
+          </div>
+
+          <div class="tournament-awards-row">
+            <div class="award-card">
+              <span class="award-icon">🥇</span>
+              <span class="award-label">TURNUVA MVP'Sİ</span>
+              <strong class="award-val" id="awardMvpName">Kylian Mbappé</strong>
+            </div>
+            <div class="award-card">
+              <span class="award-icon">⚽</span>
+              <span class="award-label">GOL KRALI</span>
+              <strong class="award-val" id="awardGoldenBoot">Mbappé (7 Gol)</strong>
+            </div>
+            <div class="award-card">
+              <span class="award-icon">🛡️</span>
+              <span class="award-label">TURNUVA KİMYASI</span>
+              <strong class="award-val chem-val" id="awardChemVal">33 / 33</strong>
+            </div>
+          </div>
+
+          <div class="tournament-actions trophy-actions">
+            <button id="btnDownloadChampionCard" class="btn-primary btn-glow">
+              <span>📸 Şampiyonluk Kartını İndir</span>
+            </button>
+            <button id="btnNewDraftAfterTrophy" class="btn-secondary">
+              <span>🔄 Yeni Rüya Takım Kur</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
     <!-- Hidden Canvas for PNG Export -->
     <canvas id="exportCanvas" style="display: none;"></canvas>
   </div>
@@ -174,6 +431,7 @@
   <script src="js/audio.js"></script>
   <script src="js/confetti.js"></script>
   <script src="data/teams_data.js"></script>
+  <script src="js/tournament.js"></script>
   <script src="js/game.js"></script>
 </body>
 </html>
