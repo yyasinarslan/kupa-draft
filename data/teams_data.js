@@ -138,7 +138,7 @@ window.TEAMS_DATA = [
       {
         "id": "arg_molina",
         "name": "Nahuel Molina",
-        "rating": 81,
+        "rating": 82,
         "position": "DEF",
         "detailedPosition": "SĞB",
         "club": "Atlético Madrid",
@@ -228,7 +228,7 @@ window.TEAMS_DATA = [
       {
         "id": "fra_camavinga",
         "name": "Eduardo Camavinga",
-        "rating": 85,
+        "rating": 83,
         "position": "MID",
         "detailedPosition": "MO",
         "club": "Real Madrid",
@@ -276,7 +276,7 @@ window.TEAMS_DATA = [
       {
         "id": "fra_saliba",
         "name": "William Saliba",
-        "rating": 88,
+        "rating": 87,
         "position": "DEF",
         "detailedPosition": "STP",
         "club": "Arsenal",
@@ -350,7 +350,7 @@ window.TEAMS_DATA = [
       {
         "id": "esp_yamal",
         "name": "Lamine Yamal",
-        "rating": 89,
+        "rating": 81,
         "position": "FWD",
         "detailedPosition": "SĞK",
         "club": "FC Barcelona",
@@ -430,7 +430,7 @@ window.TEAMS_DATA = [
       {
         "id": "esp_olmo",
         "name": "Dani Olmo",
-        "rating": 86,
+        "rating": 84,
         "position": "MID",
         "detailedPosition": "MOO",
         "club": "FC Barcelona",
@@ -446,7 +446,7 @@ window.TEAMS_DATA = [
       {
         "id": "esp_carvajal",
         "name": "Dani Carvajal",
-        "rating": 87,
+        "rating": 86,
         "position": "DEF",
         "detailedPosition": "SĞB",
         "club": "Real Madrid",
@@ -536,7 +536,7 @@ window.TEAMS_DATA = [
       {
         "id": "eng_saka",
         "name": "Bukayo Saka",
-        "rating": 88,
+        "rating": 87,
         "position": "FWD",
         "detailedPosition": "SĞK",
         "club": "Arsenal",
@@ -552,7 +552,7 @@ window.TEAMS_DATA = [
       {
         "id": "eng_foden",
         "name": "Phil Foden",
-        "rating": 89,
+        "rating": 88,
         "position": "FWD",
         "detailedPosition": "SLK",
         "club": "Manchester City",
@@ -568,7 +568,7 @@ window.TEAMS_DATA = [
       {
         "id": "eng_bellingham",
         "name": "Jude Bellingham",
-        "rating": 91,
+        "rating": 90,
         "position": "MID",
         "detailedPosition": "MOO",
         "club": "Real Madrid",
@@ -600,7 +600,7 @@ window.TEAMS_DATA = [
       {
         "id": "eng_palmer",
         "name": "Cole Palmer",
-        "rating": 88,
+        "rating": 85,
         "position": "MID",
         "detailedPosition": "MOO",
         "club": "Chelsea",
@@ -690,7 +690,7 @@ window.TEAMS_DATA = [
       {
         "id": "bra_vinicius",
         "name": "Vinícius Júnior",
-        "rating": 91,
+        "rating": 90,
         "position": "FWD",
         "detailedPosition": "SLK",
         "club": "Real Madrid",
@@ -706,7 +706,7 @@ window.TEAMS_DATA = [
       {
         "id": "bra_rodrygo",
         "name": "Rodrygo",
-        "rating": 87,
+        "rating": 86,
         "position": "FWD",
         "detailedPosition": "SĞK",
         "club": "Real Madrid",
@@ -722,7 +722,7 @@ window.TEAMS_DATA = [
       {
         "id": "bra_endrick",
         "name": "Endrick",
-        "rating": 81,
+        "rating": 77,
         "position": "FWD",
         "detailedPosition": "SNT",
         "club": "Real Madrid",
@@ -802,7 +802,7 @@ window.TEAMS_DATA = [
       {
         "id": "bra_gabriel",
         "name": "Gabriel Magalhães",
-        "rating": 87,
+        "rating": 86,
         "position": "DEF",
         "detailedPosition": "STP",
         "club": "Arsenal",
@@ -940,7 +940,7 @@ window.TEAMS_DATA = [
       {
         "id": "por_vitinha",
         "name": "Vitinha",
-        "rating": 87,
+        "rating": 85,
         "position": "MID",
         "detailedPosition": "MO",
         "club": "Paris Saint-Germain",
@@ -988,7 +988,7 @@ window.TEAMS_DATA = [
       {
         "id": "por_cancelo",
         "name": "João Cancelo",
-        "rating": 85,
+        "rating": 86,
         "position": "DEF",
         "detailedPosition": "SĞB",
         "club": "Al-Hilal",
@@ -1030,7 +1030,7 @@ window.TEAMS_DATA = [
       {
         "id": "ger_musiala",
         "name": "Jamal Musiala",
-        "rating": 89,
+        "rating": 87,
         "position": "MID",
         "detailedPosition": "MOO",
         "club": "Bayern München",
@@ -1046,7 +1046,7 @@ window.TEAMS_DATA = [
       {
         "id": "ger_wirtz",
         "name": "Florian Wirtz",
-        "rating": 89,
+        "rating": 88,
         "position": "MID",
         "detailedPosition": "MOO",
         "club": "Bayer Leverkusen",
@@ -1110,7 +1110,7 @@ window.TEAMS_DATA = [
       {
         "id": "ger_andrich",
         "name": "Robert Andrich",
-        "rating": 82,
+        "rating": 83,
         "position": "MID",
         "detailedPosition": "MDO",
         "club": "Bayer Leverkusen",
@@ -1232,7 +1232,7 @@ window.TEAMS_DATA = [
       {
         "id": "ned_simons",
         "name": "Xavi Simons",
-        "rating": 86,
+        "rating": 83,
         "position": "MID",
         "detailedPosition": "MOO",
         "club": "RB Leipzig",
@@ -1280,7 +1280,7 @@ window.TEAMS_DATA = [
       {
         "id": "ned_frimpong",
         "name": "Jeremie Frimpong",
-        "rating": 85,
+        "rating": 84,
         "position": "DEF",
         "detailedPosition": "SĞB",
         "club": "Bayer Leverkusen",
@@ -1296,9 +1296,9 @@ window.TEAMS_DATA = [
       {
         "id": "ned_ake",
         "name": "Nathan Aké",
-        "rating": 82,
+        "rating": 81,
         "position": "DEF",
-        "detailedPosition": "STP",
+        "detailedPosition": "SLB",
         "club": "Manchester City",
         "stats": {
           "pac": 76,
@@ -1434,7 +1434,7 @@ window.TEAMS_DATA = [
       {
         "id": "ita_calafiori",
         "name": "Riccardo Calafiori",
-        "rating": 82,
+        "rating": 78,
         "position": "DEF",
         "detailedPosition": "STP",
         "club": "Arsenal",
@@ -1450,7 +1450,7 @@ window.TEAMS_DATA = [
       {
         "id": "ita_pellegrini",
         "name": "Lorenzo Pellegrini",
-        "rating": 83,
+        "rating": 81,
         "position": "MID",
         "detailedPosition": "MOO",
         "club": "AS Roma",
@@ -1620,7 +1620,7 @@ window.TEAMS_DATA = [
       {
         "id": "bel_tielemans",
         "name": "Youri Tielemans",
-        "rating": 82,
+        "rating": 81,
         "position": "MID",
         "detailedPosition": "MO",
         "club": "Aston Villa",
@@ -1652,7 +1652,7 @@ window.TEAMS_DATA = [
       {
         "id": "bel_faes",
         "name": "Wout Faes",
-        "rating": 78,
+        "rating": 77,
         "position": "DEF",
         "detailedPosition": "STP",
         "club": "Leicester City",
@@ -1710,7 +1710,7 @@ window.TEAMS_DATA = [
       {
         "id": "tur_arda",
         "name": "Arda Güler",
-        "rating": 83,
+        "rating": 78,
         "position": "MID",
         "detailedPosition": "MOO",
         "club": "Real Madrid",
@@ -1726,7 +1726,7 @@ window.TEAMS_DATA = [
       {
         "id": "tur_hakan",
         "name": "Hakan Çalhanoğlu",
-        "rating": 87,
+        "rating": 86,
         "position": "MID",
         "detailedPosition": "MDO",
         "club": "Inter",
@@ -1742,9 +1742,9 @@ window.TEAMS_DATA = [
       {
         "id": "tur_baris",
         "name": "Barış Alper Yılmaz",
-        "rating": 81,
+        "rating": 78,
         "position": "FWD",
-        "detailedPosition": "SĞK",
+        "detailedPosition": "SĞO",
         "club": "Galatasaray",
         "stats": {
           "pac": 92,
@@ -1758,9 +1758,9 @@ window.TEAMS_DATA = [
       {
         "id": "tur_kerem",
         "name": "Kerem Aktürkoğlu",
-        "rating": 82,
+        "rating": 80,
         "position": "FWD",
-        "detailedPosition": "SLK",
+        "detailedPosition": "SLO",
         "club": "Benfica",
         "stats": {
           "pac": 89,
@@ -1774,7 +1774,7 @@ window.TEAMS_DATA = [
       {
         "id": "tur_ferdi",
         "name": "Ferdi Kadıoğlu",
-        "rating": 83,
+        "rating": 81,
         "position": "DEF",
         "detailedPosition": "SLB",
         "club": "Brighton",
@@ -1790,7 +1790,7 @@ window.TEAMS_DATA = [
       {
         "id": "tur_merih",
         "name": "Merih Demiral",
-        "rating": 80,
+        "rating": 79,
         "position": "DEF",
         "detailedPosition": "STP",
         "club": "Al-Ahli",
@@ -1806,7 +1806,7 @@ window.TEAMS_DATA = [
       {
         "id": "tur_kenan",
         "name": "Kenan Yıldız",
-        "rating": 82,
+        "rating": 79,
         "position": "FWD",
         "detailedPosition": "SLK",
         "club": "Juventus",
@@ -1822,7 +1822,7 @@ window.TEAMS_DATA = [
       {
         "id": "tur_ugurcan",
         "name": "Uğurcan Çakır",
-        "rating": 80,
+        "rating": 78,
         "position": "GK",
         "detailedPosition": "KL",
         "club": "Trabzonspor",
@@ -1848,7 +1848,7 @@ window.TEAMS_DATA = [
       {
         "id": "uru_valverde",
         "name": "Federico Valverde",
-        "rating": 89,
+        "rating": 88,
         "position": "MID",
         "detailedPosition": "MO",
         "club": "Real Madrid",
@@ -1970,7 +1970,7 @@ window.TEAMS_DATA = [
       {
         "id": "cro_gvardiol",
         "name": "Joško Gvardiol",
-        "rating": 85,
+        "rating": 83,
         "position": "DEF",
         "detailedPosition": "SLB",
         "club": "Manchester City",
@@ -2484,9 +2484,9 @@ window.TEAMS_DATA = [
       {
         "id": "sui_xhaka",
         "name": "Granit Xhaka",
-        "rating": 86,
+        "rating": 84,
         "position": "MID",
-        "detailedPosition": "MO",
+        "detailedPosition": "MDO",
         "club": "Bayer Leverkusen",
         "stats": {
           "pac": 55,
@@ -2712,7 +2712,7 @@ window.TEAMS_DATA = [
       {
         "id": "pol_zielinski",
         "name": "Piotr Zieliński",
-        "rating": 82,
+        "rating": 81,
         "position": "MID",
         "detailedPosition": "MO",
         "club": "Inter",
@@ -3120,7 +3120,7 @@ window.TEAMS_DATA = [
       {
         "id": "swe_gyokeres",
         "name": "Viktor Gyökeres",
-        "rating": 87,
+        "rating": 84,
         "position": "FWD",
         "detailedPosition": "SNT",
         "club": "Sporting CP",
@@ -3154,7 +3154,7 @@ window.TEAMS_DATA = [
         "name": "Dejan Kulusevski",
         "rating": 82,
         "position": "MID",
-        "detailedPosition": "SĞK",
+        "detailedPosition": "SĞO",
         "club": "Tottenham Hotspur",
         "stats": {
           "pac": 79,
@@ -3440,7 +3440,7 @@ window.TEAMS_DATA = [
         "name": "Christian Pulisic",
         "rating": 83,
         "position": "FWD",
-        "detailedPosition": "SĞK",
+        "detailedPosition": "SĞO",
         "club": "AC Milan",
         "stats": {
           "pac": 86,
@@ -3758,7 +3758,7 @@ window.TEAMS_DATA = [
         "name": "Takefusa Kubo",
         "rating": 82,
         "position": "FWD",
-        "detailedPosition": "SĞK",
+        "detailedPosition": "SĞO",
         "club": "Real Sociedad",
         "stats": {
           "pac": 84,
@@ -3774,7 +3774,7 @@ window.TEAMS_DATA = [
         "name": "Kaoru Mitoma",
         "rating": 81,
         "position": "FWD",
-        "detailedPosition": "SLK",
+        "detailedPosition": "SLO",
         "club": "Brighton",
         "stats": {
           "pac": 85,
@@ -3896,7 +3896,7 @@ window.TEAMS_DATA = [
         "name": "Lee Kang-in",
         "rating": 79,
         "position": "MID",
-        "detailedPosition": "SĞK",
+        "detailedPosition": "MOO",
         "club": "Paris Saint-Germain",
         "stats": {
           "pac": 76,
@@ -4302,7 +4302,7 @@ window.TEAMS_DATA = [
       {
         "id": "egy_marmoush",
         "name": "Omar Marmoush",
-        "rating": 81,
+        "rating": 79,
         "position": "FWD",
         "detailedPosition": "SNT",
         "club": "Eintracht Frankfurt",
