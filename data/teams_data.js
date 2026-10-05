@@ -187,7 +187,7 @@ window.TEAMS_DATA = [
         "stats": {
           "pac": 97,
           "sho": 90,
-          "pas": 80,
+          "pas": 81,
           "dri": 92,
           "def": 36,
           "phy": 78
@@ -228,16 +228,16 @@ window.TEAMS_DATA = [
       {
         "id": "fra_camavinga",
         "name": "Eduardo Camavinga",
-        "rating": 83,
+        "rating": 85,
         "position": "MID",
         "detailedPosition": "MO",
         "club": "Real Madrid",
         "stats": {
-          "pac": 81,
-          "sho": 68,
-          "pas": 82,
+          "pac": 82,
+          "sho": 71,
+          "pas": 83,
           "dri": 84,
-          "def": 82,
+          "def": 83,
           "phy": 82
         }
       },
@@ -276,17 +276,17 @@ window.TEAMS_DATA = [
       {
         "id": "fra_saliba",
         "name": "William Saliba",
-        "rating": 87,
+        "rating": 88,
         "position": "DEF",
         "detailedPosition": "STP",
         "club": "Arsenal",
         "stats": {
-          "pac": 82,
+          "pac": 83,
           "sho": 40,
-          "pas": 72,
-          "dri": 74,
-          "def": 87,
-          "phy": 83
+          "pas": 74,
+          "dri": 78,
+          "def": 89,
+          "phy": 84
         }
       },
       {
@@ -350,17 +350,17 @@ window.TEAMS_DATA = [
       {
         "id": "esp_yamal",
         "name": "Lamine Yamal",
-        "rating": 84,
+        "rating": 89,
         "position": "FWD",
         "detailedPosition": "SĞK",
         "club": "FC Barcelona",
         "stats": {
-          "pac": 85,
-          "sho": 78,
-          "pas": 82,
-          "dri": 86,
+          "pac": 92,
+          "sho": 84,
+          "pas": 87,
+          "dri": 91,
           "def": 33,
-          "phy": 54
+          "phy": 68
         }
       },
       {
@@ -430,33 +430,33 @@ window.TEAMS_DATA = [
       {
         "id": "esp_olmo",
         "name": "Dani Olmo",
-        "rating": 84,
+        "rating": 86,
         "position": "MID",
         "detailedPosition": "MOO",
         "club": "FC Barcelona",
         "stats": {
-          "pac": 77,
-          "sho": 80,
-          "pas": 82,
-          "dri": 86,
+          "pac": 78,
+          "sho": 82,
+          "pas": 85,
+          "dri": 88,
           "def": 53,
-          "phy": 64
+          "phy": 66
         }
       },
       {
         "id": "esp_carvajal",
         "name": "Dani Carvajal",
-        "rating": 86,
+        "rating": 87,
         "position": "DEF",
         "detailedPosition": "SĞB",
         "club": "Real Madrid",
         "stats": {
           "pac": 81,
           "sho": 58,
-          "pas": 79,
-          "dri": 80,
-          "def": 82,
-          "phy": 81
+          "pas": 80,
+          "dri": 82,
+          "def": 85,
+          "phy": 82
         }
       },
       {
@@ -536,49 +536,49 @@ window.TEAMS_DATA = [
       {
         "id": "eng_saka",
         "name": "Bukayo Saka",
-        "rating": 87,
+        "rating": 88,
         "position": "FWD",
         "detailedPosition": "SĞK",
         "club": "Arsenal",
         "stats": {
-          "pac": 86,
-          "sho": 83,
-          "pas": 82,
-          "dri": 87,
+          "pac": 87,
+          "sho": 84,
+          "pas": 84,
+          "dri": 89,
           "def": 65,
-          "phy": 76
+          "phy": 77
         }
       },
       {
         "id": "eng_foden",
         "name": "Phil Foden",
-        "rating": 88,
+        "rating": 89,
         "position": "FWD",
         "detailedPosition": "SLK",
         "club": "Manchester City",
         "stats": {
-          "pac": 85,
-          "sho": 86,
-          "pas": 87,
-          "dri": 89,
+          "pac": 86,
+          "sho": 87,
+          "pas": 88,
+          "dri": 90,
           "def": 57,
-          "phy": 64
+          "phy": 67
         }
       },
       {
         "id": "eng_bellingham",
         "name": "Jude Bellingham",
-        "rating": 90,
+        "rating": 91,
         "position": "MID",
         "detailedPosition": "MOO",
         "club": "Real Madrid",
         "stats": {
-          "pac": 80,
-          "sho": 87,
-          "pas": 83,
-          "dri": 88,
-          "def": 78,
-          "phy": 83
+          "pac": 82,
+          "sho": 88,
+          "pas": 85,
+          "dri": 89,
+          "def": 80,
+          "phy": 84
         }
       },
       {
@@ -600,17 +600,17 @@ window.TEAMS_DATA = [
       {
         "id": "eng_palmer",
         "name": "Cole Palmer",
-        "rating": 85,
+        "rating": 88,
         "position": "MID",
         "detailedPosition": "MOO",
         "club": "Chelsea",
         "stats": {
-          "pac": 80,
-          "sho": 82,
-          "pas": 83,
-          "dri": 85,
+          "pac": 81,
+          "sho": 86,
+          "pas": 88,
+          "dri": 88,
           "def": 50,
-          "phy": 68
+          "phy": 72
         }
       },
       {
@@ -690,15 +690,15 @@ window.TEAMS_DATA = [
       {
         "id": "bra_vinicius",
         "name": "Vinícius Júnior",
-        "rating": 90,
+        "rating": 91,
         "position": "FWD",
         "detailedPosition": "SLK",
         "club": "Real Madrid",
         "stats": {
-          "pac": 95,
-          "sho": 84,
+          "pac": 96,
+          "sho": 86,
           "pas": 81,
-          "dri": 91,
+          "dri": 92,
           "def": 34,
           "phy": 69
         }
@@ -706,33 +706,33 @@ window.TEAMS_DATA = [
       {
         "id": "bra_rodrygo",
         "name": "Rodrygo",
-        "rating": 86,
+        "rating": 87,
         "position": "FWD",
         "detailedPosition": "SĞK",
         "club": "Real Madrid",
         "stats": {
           "pac": 89,
-          "sho": 82,
-          "pas": 81,
-          "dri": 88,
+          "sho": 83,
+          "pas": 82,
+          "dri": 89,
           "def": 33,
-          "phy": 64
+          "phy": 68
         }
       },
       {
         "id": "bra_endrick",
         "name": "Endrick",
-        "rating": 79,
+        "rating": 81,
         "position": "FWD",
         "detailedPosition": "SNT",
         "club": "Real Madrid",
         "stats": {
-          "pac": 86,
+          "pac": 87,
           "sho": 80,
-          "pas": 68,
-          "dri": 81,
+          "pas": 70,
+          "dri": 83,
           "def": 36,
-          "phy": 80
+          "phy": 78
         }
       },
       {
@@ -802,17 +802,17 @@ window.TEAMS_DATA = [
       {
         "id": "bra_gabriel",
         "name": "Gabriel Magalhães",
-        "rating": 86,
+        "rating": 87,
         "position": "DEF",
         "detailedPosition": "STP",
         "club": "Arsenal",
         "stats": {
-          "pac": 72,
-          "sho": 40,
-          "pas": 65,
-          "dri": 68,
-          "def": 86,
-          "phy": 84
+          "pac": 70,
+          "sho": 39,
+          "pas": 68,
+          "dri": 72,
+          "def": 88,
+          "phy": 85
         }
       },
       {
@@ -940,17 +940,17 @@ window.TEAMS_DATA = [
       {
         "id": "por_vitinha",
         "name": "Vitinha",
-        "rating": 85,
+        "rating": 87,
         "position": "MID",
         "detailedPosition": "MO",
         "club": "Paris Saint-Germain",
         "stats": {
-          "pac": 75,
-          "sho": 74,
-          "pas": 84,
-          "dri": 86,
-          "def": 73,
-          "phy": 68
+          "pac": 78,
+          "sho": 77,
+          "pas": 87,
+          "dri": 89,
+          "def": 75,
+          "phy": 73
         }
       },
       {
@@ -1030,33 +1030,33 @@ window.TEAMS_DATA = [
       {
         "id": "ger_musiala",
         "name": "Jamal Musiala",
-        "rating": 87,
+        "rating": 89,
         "position": "MID",
         "detailedPosition": "MOO",
         "club": "Bayern München",
         "stats": {
-          "pac": 84,
-          "sho": 81,
-          "pas": 81,
-          "dri": 90,
+          "pac": 86,
+          "sho": 83,
+          "pas": 83,
+          "dri": 93,
           "def": 65,
-          "phy": 64
+          "phy": 67
         }
       },
       {
         "id": "ger_wirtz",
         "name": "Florian Wirtz",
-        "rating": 88,
+        "rating": 89,
         "position": "MID",
         "detailedPosition": "MOO",
         "club": "Bayer Leverkusen",
         "stats": {
-          "pac": 81,
-          "sho": 81,
-          "pas": 87,
-          "dri": 89,
+          "pac": 83,
+          "sho": 84,
+          "pas": 89,
+          "dri": 91,
           "def": 53,
-          "phy": 68
+          "phy": 70
         }
       },
       {
@@ -1133,10 +1133,10 @@ window.TEAMS_DATA = [
         "stats": {
           "pac": 82,
           "sho": 55,
-          "pas": 71,
-          "dri": 68,
-          "def": 86,
-          "phy": 86
+          "pas": 72,
+          "dri": 72,
+          "def": 87,
+          "phy": 87
         }
       },
       {
@@ -1232,17 +1232,17 @@ window.TEAMS_DATA = [
       {
         "id": "ned_simons",
         "name": "Xavi Simons",
-        "rating": 83,
+        "rating": 86,
         "position": "MID",
         "detailedPosition": "MOO",
         "club": "RB Leipzig",
         "stats": {
-          "pac": 84,
-          "sho": 78,
-          "pas": 81,
-          "dri": 85,
+          "pac": 87,
+          "sho": 81,
+          "pas": 84,
+          "dri": 87,
           "def": 55,
-          "phy": 72
+          "phy": 73
         }
       },
       {
@@ -1280,17 +1280,17 @@ window.TEAMS_DATA = [
       {
         "id": "ned_frimpong",
         "name": "Jeremie Frimpong",
-        "rating": 84,
+        "rating": 85,
         "position": "DEF",
         "detailedPosition": "SĞB",
         "club": "Bayer Leverkusen",
         "stats": {
-          "pac": 95,
-          "sho": 74,
-          "pas": 79,
-          "dri": 85,
+          "pac": 96,
+          "sho": 76,
+          "pas": 80,
+          "dri": 86,
           "def": 74,
-          "phy": 69
+          "phy": 73
         }
       },
       {
@@ -1440,11 +1440,11 @@ window.TEAMS_DATA = [
         "club": "Arsenal",
         "stats": {
           "pac": 76,
-          "sho": 62,
+          "sho": 60,
           "pas": 76,
-          "dri": 76,
-          "def": 82,
-          "phy": 81
+          "dri": 78,
+          "def": 83,
+          "phy": 80
         }
       },
       {
@@ -1710,129 +1710,129 @@ window.TEAMS_DATA = [
       {
         "id": "tur_arda",
         "name": "Arda Güler",
-        "rating": 79,
+        "rating": 83,
         "position": "MID",
         "detailedPosition": "MOO",
         "club": "Real Madrid",
         "stats": {
-          "pac": 73,
-          "sho": 77,
-          "pas": 82,
-          "dri": 84,
-          "def": 52,
-          "phy": 56
+          "pac": 77,
+          "sho": 81,
+          "pas": 85,
+          "dri": 86,
+          "def": 55,
+          "phy": 62
         }
       },
       {
         "id": "tur_hakan",
         "name": "Hakan Çalhanoğlu",
-        "rating": 86,
+        "rating": 87,
         "position": "MID",
         "detailedPosition": "MDO",
         "club": "Inter",
         "stats": {
-          "pac": 68,
-          "sho": 81,
-          "pas": 88,
-          "dri": 82,
-          "def": 74,
-          "phy": 70
+          "pac": 69,
+          "sho": 83,
+          "pas": 90,
+          "dri": 83,
+          "def": 76,
+          "phy": 72
         }
       },
       {
         "id": "tur_baris",
         "name": "Barış Alper Yılmaz",
-        "rating": 78,
+        "rating": 81,
         "position": "FWD",
         "detailedPosition": "SĞK",
         "club": "Galatasaray",
         "stats": {
-          "pac": 89,
-          "sho": 75,
-          "pas": 72,
-          "dri": 78,
-          "def": 58,
-          "phy": 84
+          "pac": 92,
+          "sho": 78,
+          "pas": 75,
+          "dri": 81,
+          "def": 62,
+          "phy": 86
         }
       },
       {
         "id": "tur_kerem",
         "name": "Kerem Aktürkoğlu",
-        "rating": 80,
+        "rating": 82,
         "position": "FWD",
         "detailedPosition": "SLK",
         "club": "Benfica",
         "stats": {
-          "pac": 88,
-          "sho": 76,
-          "pas": 77,
-          "dri": 82,
-          "def": 44,
-          "phy": 65
+          "pac": 89,
+          "sho": 79,
+          "pas": 79,
+          "dri": 84,
+          "def": 45,
+          "phy": 68
         }
       },
       {
         "id": "tur_ferdi",
         "name": "Ferdi Kadıoğlu",
-        "rating": 81,
+        "rating": 83,
         "position": "DEF",
         "detailedPosition": "SLB",
         "club": "Brighton",
         "stats": {
-          "pac": 85,
-          "sho": 68,
-          "pas": 78,
-          "dri": 83,
-          "def": 77,
-          "phy": 75
+          "pac": 86,
+          "sho": 70,
+          "pas": 80,
+          "dri": 84,
+          "def": 79,
+          "phy": 77
         }
       },
       {
         "id": "tur_merih",
         "name": "Merih Demiral",
-        "rating": 79,
+        "rating": 80,
         "position": "DEF",
         "detailedPosition": "STP",
         "club": "Al-Ahli",
         "stats": {
           "pac": 76,
           "sho": 45,
-          "pas": 58,
+          "pas": 59,
           "dri": 60,
-          "def": 80,
-          "phy": 82
+          "def": 81,
+          "phy": 83
         }
       },
       {
         "id": "tur_kenan",
         "name": "Kenan Yıldız",
-        "rating": 79,
+        "rating": 82,
         "position": "FWD",
         "detailedPosition": "SLK",
         "club": "Juventus",
         "stats": {
-          "pac": 83,
-          "sho": 76,
-          "pas": 75,
-          "dri": 82,
-          "def": 41,
-          "phy": 68
+          "pac": 85,
+          "sho": 79,
+          "pas": 78,
+          "dri": 85,
+          "def": 44,
+          "phy": 72
         }
       },
       {
         "id": "tur_ugurcan",
         "name": "Uğurcan Çakır",
-        "rating": 78,
+        "rating": 80,
         "position": "GK",
         "detailedPosition": "KL",
         "club": "Trabzonspor",
         "stats": {
-          "pac": 79,
-          "sho": 76,
-          "pas": 74,
-          "dri": 80,
-          "def": 50,
-          "phy": 77
+          "pac": 80,
+          "sho": 78,
+          "pas": 76,
+          "dri": 81,
+          "def": 52,
+          "phy": 79
         }
       }
     ]
@@ -1848,17 +1848,17 @@ window.TEAMS_DATA = [
       {
         "id": "uru_valverde",
         "name": "Federico Valverde",
-        "rating": 88,
+        "rating": 89,
         "position": "MID",
         "detailedPosition": "MO",
         "club": "Real Madrid",
         "stats": {
           "pac": 88,
-          "sho": 83,
+          "sho": 84,
           "pas": 85,
-          "dri": 84,
+          "dri": 85,
           "def": 81,
-          "phy": 83
+          "phy": 84
         }
       },
       {
@@ -1970,16 +1970,16 @@ window.TEAMS_DATA = [
       {
         "id": "cro_gvardiol",
         "name": "Joško Gvardiol",
-        "rating": 83,
+        "rating": 85,
         "position": "DEF",
         "detailedPosition": "SLB",
         "club": "Manchester City",
         "stats": {
-          "pac": 80,
-          "sho": 62,
-          "pas": 75,
-          "dri": 78,
-          "def": 83,
+          "pac": 82,
+          "sho": 65,
+          "pas": 78,
+          "dri": 80,
+          "def": 85,
           "phy": 84
         }
       },
@@ -2279,8 +2279,8 @@ window.TEAMS_DATA = [
         "stats": {
           "pac": 89,
           "sho": 93,
-          "pas": 68,
-          "dri": 80,
+          "pas": 70,
+          "dri": 81,
           "def": 45,
           "phy": 88
         }
@@ -3120,17 +3120,17 @@ window.TEAMS_DATA = [
       {
         "id": "swe_gyokeres",
         "name": "Viktor Gyökeres",
-        "rating": 85,
+        "rating": 87,
         "position": "FWD",
         "detailedPosition": "SNT",
         "club": "Sporting CP",
         "stats": {
           "pac": 88,
-          "sho": 85,
-          "pas": 74,
-          "dri": 82,
+          "sho": 88,
+          "pas": 76,
+          "dri": 84,
           "def": 45,
-          "phy": 88
+          "phy": 89
         }
       },
       {
