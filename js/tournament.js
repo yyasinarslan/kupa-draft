@@ -516,8 +516,8 @@ class TournamentEngine {
     const btnRetry = document.getElementById('btnRetryMatch');
 
     if (isWinner) {
-      window.soundEngine.playVictory();
-      window.confettiManager.fire();
+      window.soundEngine?.playVictory();
+      window.confettiEngine?.fire(120, 3500);
 
       if (isGrandFinal) {
         setTimeout(() => this.showTrophyView(), 1500);
@@ -540,6 +540,7 @@ class TournamentEngine {
   }
 
   nextRound() {
+    window.soundEngine?.playClick();
     this.currentRoundIndex++;
     this.activeOpponent = null;
 
@@ -554,8 +555,8 @@ class TournamentEngine {
   showTrophyView() {
     this.hideMatchUi();
     this.showOverlay('tournamentTrophyView');
-    window.soundEngine.playVictory();
-    window.confettiManager.fire();
+    window.soundEngine?.playVictory();
+    window.confettiEngine?.fire(200, 5000);
 
     let topScorerName = 'Kylian Mbappé';
     let maxGoals = 0;
@@ -574,8 +575,8 @@ class TournamentEngine {
     document.getElementById('awardGoldenBoot').textContent = `${topScorerName} (${maxGoals} Gol)`;
     document.getElementById('awardChemVal').textContent = `${this.game.calculateChemistry(this.game.squadSlots)} / 33`;
 
-    setTimeout(() => window.confettiManager.fire(), 800);
-    setTimeout(() => window.confettiManager.fire(), 1800);
+    setTimeout(() => window.confettiEngine?.fire(100, 3000), 800);
+    setTimeout(() => window.confettiEngine?.fire(100, 3000), 1800);
   }
 
   downloadChampionCard() {
