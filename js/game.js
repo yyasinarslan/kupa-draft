@@ -180,13 +180,16 @@ class FutDraftGame {
       document.getElementById('formationModal').style.display = 'flex';
     });
 
-    // Close Draft Pick Modal
-    document.getElementById('btnCloseDraftModal').addEventListener('click', () => {
-      window.soundEngine.playClick();
-      document.getElementById('draftPickModal').style.display = 'none';
-      this.isCaptainDraft = false;
-      this.activeDraftSlotIndex = null;
-    });
+    // Close Draft Pick Modal (if button exists)
+    const btnCloseDraft = document.getElementById('btnCloseDraftModal');
+    if (btnCloseDraft) {
+      btnCloseDraft.addEventListener('click', () => {
+        window.soundEngine.playClick();
+        document.getElementById('draftPickModal').style.display = 'none';
+        this.isCaptainDraft = false;
+        this.activeDraftSlotIndex = null;
+      });
+    }
 
     // Reset Draft Button
     document.getElementById('btnResetDraft').addEventListener('click', () => {
@@ -228,13 +231,19 @@ class FutDraftGame {
     }));
 
     this.captainPicked = false;
+    this.captainCandidates = null;
     this.renderPitch();
     this.updateStatsDisplay();
   }
 
   resetDraft() {
     this.captainPicked = false;
-    this.squadSlots.forEach(slot => slot.player = null);
+    this.captainCandidates = null;
+    this.activeDraftSlotIndex = null;
+    this.squadSlots.forEach(slot => {
+      slot.player = null;
+      slot.candidates = null;
+    });
     this.renderPitch();
     this.updateStatsDisplay();
     document.getElementById('btnDownloadSquad').style.display = 'none';
@@ -269,6 +278,7 @@ class FutDraftGame {
       slotDiv.style.top = `${slot.y}%`;
 
       if (slot.player) {
+        slotDiv.classList.add('slot-filled');
         // Filled Card on pitch
         const p = slot.player;
         const isElite = p.rating >= 87;
@@ -300,8 +310,13 @@ class FutDraftGame {
         `;
       }
 
-      // Clicking slot opens draft pick modal
+      // Clicking slot opens draft pick modal (only if slot is empty and match not active)
       slotDiv.addEventListener('click', () => {
+        // Prevent clicks during match simulation
+        if (this.tournament && this.tournament.isMatchActive) return;
+        // Prevent re-drafting/changing once player is picked for this slot
+        if (slot.player) return;
+
         window.soundEngine.playClick();
         if (!this.captainPicked) {
           // If captain not chosen yet, direct to captain selection
@@ -328,39 +343,42 @@ class FutDraftGame {
     document.querySelector('#draftPickModal .draft-pick-header p').textContent = 
       'Takımına liderlik edecek bir süperstar seç. Seçtiğin kaptan ilk 11\'deki mevkisine yerleşecektir:';
 
-    // 5 World-class superstars (87-91) across different formation positions
-    const superstars = this.allPlayers
-      .filter(p => p.rating >= 86)
-      .sort(() => 0.5 - Math.random());
+    if (!this.captainCandidates) {
+      // 5 World-class superstars (87-91) across different formation positions
+      const superstars = this.allPlayers
+        .filter(p => p.rating >= 86)
+        .sort(() => 0.5 - Math.random());
 
-    const candidates = [];
-    const usedPositions = new Set();
-    const usedNations = new Set();
+      const candidates = [];
+      const usedPositions = new Set();
+      const usedNations = new Set();
 
-    for (let p of superstars) {
-      if (candidates.length >= 5) break;
-      const matchingSlot = this.squadSlots.find(s => 
-        s.detailed === p.detailedPosition || 
-        (COMPATIBLE_POSITIONS[s.detailed] && COMPATIBLE_POSITIONS[s.detailed].includes(p.detailedPosition))
-      );
-      if (matchingSlot && !usedPositions.has(p.detailedPosition) && !usedNations.has(p.teamName)) {
-        candidates.push({ ...p, isCaptain: true });
-        usedPositions.add(p.detailedPosition);
-        usedNations.add(p.teamName);
-      }
-    }
-
-    // Fallback if needed
-    if (candidates.length < 5) {
       for (let p of superstars) {
         if (candidates.length >= 5) break;
-        if (!candidates.some(c => c.id === p.id)) {
+        const matchingSlot = this.squadSlots.find(s => 
+          s.detailed === p.detailedPosition || 
+          (COMPATIBLE_POSITIONS[s.detailed] && COMPATIBLE_POSITIONS[s.detailed].includes(p.detailedPosition))
+        );
+        if (matchingSlot && !usedPositions.has(p.detailedPosition) && !usedNations.has(p.teamName)) {
           candidates.push({ ...p, isCaptain: true });
+          usedPositions.add(p.detailedPosition);
+          usedNations.add(p.teamName);
         }
       }
+
+      // Fallback if needed
+      if (candidates.length < 5) {
+        for (let p of superstars) {
+          if (candidates.length >= 5) break;
+          if (!candidates.some(c => c.id === p.id)) {
+            candidates.push({ ...p, isCaptain: true });
+          }
+        }
+      }
+      this.captainCandidates = candidates;
     }
 
-    this.renderCandidateCards(candidates);
+    this.renderCandidateCards(this.captainCandidates);
     document.getElementById('draftPickModal').style.display = 'flex';
   }
 
@@ -379,9 +397,11 @@ class FutDraftGame {
     document.querySelector('#draftPickModal .draft-pick-header p').textContent = 
       'Aşağıdaki 5 futbolcu arasından bu mevki için en iyi tercihi yap:';
 
-    // Pick 5 candidates matching this position with tiered ratings
-    const candidates = this.getCandidatesForSlot(slot);
-    this.renderCandidateCards(candidates);
+    // Pick 5 candidates matching this position with tiered ratings (cached on slot)
+    if (!slot.candidates) {
+      slot.candidates = this.getCandidatesForSlot(slot);
+    }
+    this.renderCandidateCards(slot.candidates);
 
     const modal = document.getElementById('draftPickModal');
     modal.style.display = 'flex';
@@ -555,6 +575,7 @@ class FutDraftGame {
     window.soundEngine.playVictory();
     this.captainPicked = true;
     this.isCaptainDraft = false;
+    this.captainCandidates = null;
 
     // Place into matching slot in current formation using COMPATIBLE_POSITIONS
     let targetSlot = this.squadSlots.find(s => !s.player && s.detailed === player.detailedPosition);
@@ -570,6 +591,7 @@ class FutDraftGame {
 
     if (targetSlot) {
       targetSlot.player = { ...player, isCaptain: true };
+      targetSlot.candidates = null;
     }
 
     document.getElementById('draftPickModal').style.display = 'none';
@@ -582,6 +604,7 @@ class FutDraftGame {
 
     window.soundEngine.playCardPick();
     this.squadSlots[this.activeDraftSlotIndex].player = player;
+    this.squadSlots[this.activeDraftSlotIndex].candidates = null;
 
     // Close modal
     document.getElementById('draftPickModal').style.display = 'none';

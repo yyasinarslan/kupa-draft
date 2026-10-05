@@ -13,6 +13,7 @@ class TournamentEngine {
   constructor(gameInstance) {
     this.game = gameInstance;
     this.currentRoundIndex = 0;
+    this.isMatchActive = false;
     this.rounds = [
       {
         id: 'son16',
@@ -204,6 +205,7 @@ class TournamentEngine {
   }
 
   showMatchUi() {
+    this.isMatchActive = true;
     document.querySelector('.pitch-wrapper')?.classList.add('match-compact-mode');
     document.getElementById('pitchScoreboard').style.display = 'flex';
     document.getElementById('pitchCommentaryBar').style.display = 'flex';
@@ -211,6 +213,7 @@ class TournamentEngine {
   }
 
   hideMatchUi() {
+    this.isMatchActive = false;
     document.querySelector('.pitch-wrapper')?.classList.remove('match-compact-mode');
     document.getElementById('pitchScoreboard').style.display = 'none';
     document.getElementById('pitchCommentaryBar').style.display = 'none';

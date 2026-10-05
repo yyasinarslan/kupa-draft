@@ -467,6 +467,15 @@ body {
   padding: 1px 5px;
 }
 
+.pitch-wrapper.match-compact-mode .pitch-slot {
+  pointer-events: none !important;
+  cursor: default !important;
+}
+
+.pitch-slot.slot-filled {
+  cursor: default !important;
+}
+
 .pitch-action-bar {
   display: flex;
   justify-content: center;
