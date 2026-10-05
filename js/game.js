@@ -77,6 +77,30 @@ const POSITION_NAMES = {
   'FWD': 'Forvet'
 };
 
+const COMPATIBLE_POSITIONS = {
+  // Kaleci: Sadece Kaleciler
+  'KL': ['KL'],
+
+  // Defanslar: Sadece kendi mevkileri
+  'STP': ['STP'],
+  'SLB': ['SLB'],
+  'SĞB': ['SĞB'],
+
+  // Orta Sahalar:
+  'MDO': ['MDO'], // Sadece Defansif Orta Saha
+  'MO': ['MO', 'MDO', 'MOO'], // Merkez Orta Saha
+  'MOO': ['MOO', 'MO'], // Ofansif Orta Saha
+
+  // Kanatlar ve Kanat Orta Sahaları:
+  'SLO': ['SLO', 'SLK'], // Sol Orta Saha -> Sol Kanat / Sol Orta oyuncuları
+  'SLK': ['SLK', 'SLO'], // Sol Kanat -> Sol Kanat / Sol Orta oyuncuları
+  'SĞO': ['SĞO', 'SĞK'], // Sağ Orta Saha -> Sağ Kanat / Sağ Orta oyuncuları
+  'SĞK': ['SĞK', 'SĞO'], // Sağ Kanat -> Sağ Kanat / Sağ Orta oyuncuları
+
+  // Forvet: Sadece Santraforlar
+  'SNT': ['SNT']
+};
+
 class FutDraftGame {
   constructor() {
     this.teams = [];
@@ -237,7 +261,7 @@ class FutDraftGame {
         // Filled Card on pitch
         const p = slot.player;
         const isElite = p.rating >= 87;
-        const posText = p.detailedPosition || slot.label;
+        const posText = slot.label;
         const lastName = p.name.split(' ').pop();
         const captainBadgeHtml = p.isCaptain ? `<span class="p-card-captain-tag">© C</span>` : '';
 
@@ -304,10 +328,13 @@ class FutDraftGame {
 
     for (let p of superstars) {
       if (candidates.length >= 5) break;
-      const matchingSlot = this.squadSlots.find(s => s.category === p.position || s.detailed === p.detailedPosition);
-      if (matchingSlot && !usedPositions.has(p.position) && !usedNations.has(p.teamName)) {
+      const matchingSlot = this.squadSlots.find(s => 
+        s.detailed === p.detailedPosition || 
+        (COMPATIBLE_POSITIONS[s.detailed] && COMPATIBLE_POSITIONS[s.detailed].includes(p.detailedPosition))
+      );
+      if (matchingSlot && !usedPositions.has(p.detailedPosition) && !usedNations.has(p.teamName)) {
         candidates.push({ ...p, isCaptain: true });
-        usedPositions.add(p.position);
+        usedPositions.add(p.detailedPosition);
         usedNations.add(p.teamName);
       }
     }
@@ -354,24 +381,26 @@ class FutDraftGame {
       this.squadSlots.filter(s => s.player).map(s => s.player.id)
     );
 
-    // Filter available players matching general category
-    let pool = this.allPlayers.filter(p => p.position === slot.category && !chosenIds.has(p.id));
+    // Strictly match compatible positions (e.g. SĞO -> ['SĞO', 'SĞK'], MDO -> ['MDO'], etc.)
+    const allowedPositions = COMPATIBLE_POSITIONS[slot.detailed] || [slot.detailed];
+    let pool = this.allPlayers.filter(p => 
+      allowedPositions.includes(p.detailedPosition) && !chosenIds.has(p.id)
+    );
 
-    // Prefer detailed position matches if enough options
-    let detailedPool = pool.filter(p => p.detailedPosition === slot.detailed);
-    if (detailedPool.length < 8) {
-      detailedPool = pool;
+    // Fallback if squad picked almost everyone in pool
+    if (pool.length < 5) {
+      pool = this.allPlayers.filter(p => allowedPositions.includes(p.detailedPosition));
     }
 
     // Realistic FUT Draft Rating Tiers:
-    // Slot 1: Star / Walkout chance (~18% chance of 86-91, otherwise 82-85)
+    // Slot 1: Star / Walkout chance (~20% chance of 85-92, otherwise 82-85)
     // Slot 2: Solid High Gold (80-84)
     // Slot 3: Mid Gold (78-82)
     // Slot 4: Common Gold (75-79)
     // Slot 5: Wildcard / Underdog (71-77)
-    const hasWalkout = Math.random() < 0.18;
+    const hasWalkout = Math.random() < 0.20;
     const tierSpecs = [
-      hasWalkout ? { min: 86, max: 92 } : { min: 82, max: 85 },
+      hasWalkout ? { min: 85, max: 92 } : { min: 82, max: 85 },
       { min: 80, max: 84 },
       { min: 78, max: 82 },
       { min: 75, max: 79 },
@@ -384,7 +413,7 @@ class FutDraftGame {
 
     tierSpecs.forEach(spec => {
       // Find matching players in this rating range
-      let eligible = detailedPool.filter(p => 
+      let eligible = pool.filter(p => 
         !usedIds.has(p.id) && 
         p.rating >= spec.min && 
         p.rating <= spec.max
@@ -399,7 +428,7 @@ class FutDraftGame {
       } else if (eligible.length > 0) {
         pick = eligible[Math.floor(Math.random() * eligible.length)];
       } else {
-        // Fallback to broader pool if tier is empty
+        // Fallback strictly within compatible position pool
         let broader = pool.filter(p => !usedIds.has(p.id));
         let broadFresh = broader.filter(p => !usedNations.has(p.teamName));
         pick = broadFresh.length > 0 
@@ -446,7 +475,9 @@ class FutDraftGame {
 
       card.className = `fut-card ${tierClass}`;
 
-      const posLabel = player.detailedPosition || player.position;
+      const posLabel = this.isCaptainDraft 
+        ? (player.detailedPosition || player.position) 
+        : (this.activeDraftSlotIndex !== null ? this.squadSlots[this.activeDraftSlotIndex].label : (player.detailedPosition || player.position));
       const captainTagHtml = player.isCaptain ? `<span class="captain-tag">© KAPTAN</span>` : '';
 
       card.innerHTML = `
@@ -514,8 +545,11 @@ class FutDraftGame {
     this.captainPicked = true;
     this.isCaptainDraft = false;
 
-    // Place into matching slot in current formation
+    // Place into matching slot in current formation using COMPATIBLE_POSITIONS
     let targetSlot = this.squadSlots.find(s => !s.player && s.detailed === player.detailedPosition);
+    if (!targetSlot) {
+      targetSlot = this.squadSlots.find(s => !s.player && COMPATIBLE_POSITIONS[s.detailed] && COMPATIBLE_POSITIONS[s.detailed].includes(player.detailedPosition));
+    }
     if (!targetSlot) {
       targetSlot = this.squadSlots.find(s => !s.player && s.category === player.position);
     }
