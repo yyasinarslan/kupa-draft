@@ -204,12 +204,14 @@ class TournamentEngine {
   }
 
   showMatchUi() {
+    document.querySelector('.pitch-wrapper')?.classList.add('match-compact-mode');
     document.getElementById('pitchScoreboard').style.display = 'flex';
     document.getElementById('pitchCommentaryBar').style.display = 'flex';
     document.getElementById('pitchMatchBall').style.display = 'block';
   }
 
   hideMatchUi() {
+    document.querySelector('.pitch-wrapper')?.classList.remove('match-compact-mode');
     document.getElementById('pitchScoreboard').style.display = 'none';
     document.getElementById('pitchCommentaryBar').style.display = 'none';
     document.getElementById('pitchMatchBall').style.display = 'none';

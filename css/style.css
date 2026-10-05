@@ -188,31 +188,32 @@ body {
 
 /* ==========================================================================
    MAIN FOOTBALL PITCH DISPLAY
-   Compact & Viewport-Fitted for Desktop & Tablet
+   Comfortable & Spacious for Drafting, Dynamically Compact for Matches
    ========================================================================== */
 .pitch-wrapper {
-  max-width: 580px;
+  max-width: 730px;
   width: 100%;
-  margin: 0 auto 8px;
+  margin: 0 auto 12px;
   position: relative;
+  transition: max-width 0.35s ease-in-out;
 }
 
 .football-pitch {
   width: 100%;
-  aspect-ratio: 3.35 / 4;
-  max-height: calc(100vh - 150px);
+  aspect-ratio: 3.3 / 4;
   background: repeating-linear-gradient(
     0deg,
     var(--pitch-green),
-    var(--pitch-green) 30px,
-    var(--pitch-stripe) 30px,
-    var(--pitch-stripe) 60px
+    var(--pitch-green) 36px,
+    var(--pitch-stripe) 36px,
+    var(--pitch-stripe) 72px
   );
   border: 3px solid rgba(255, 255, 255, 0.65);
-  border-radius: 16px;
+  border-radius: 18px;
   position: relative;
-  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.8), inset 0 0 40px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.8), inset 0 0 45px rgba(0, 0, 0, 0.5);
   overflow: hidden;
+  transition: all 0.35s ease-in-out;
 }
 
 /* Pitch Markings */
@@ -232,8 +233,8 @@ body {
 .pitch-line.center-circle {
   top: 50%;
   left: 50%;
-  width: 90px;
-  height: 90px;
+  width: 110px;
+  height: 110px;
   border-radius: 50%;
   transform: translate(-50%, -50%);
 }
@@ -259,9 +260,9 @@ body {
 .pitch-line.penalty-arc {
   bottom: 15%;
   left: 50%;
-  width: 64px;
-  height: 32px;
-  border-radius: 64px 64px 0 0;
+  width: 74px;
+  height: 37px;
+  border-radius: 74px 74px 0 0;
   transform: translateX(-50%);
   border-bottom: none;
 }
@@ -293,18 +294,18 @@ body {
 
 /* Empty Slot Design on Pitch */
 .pitch-card-empty {
-  width: 54px;
-  height: 76px;
+  width: 65px;
+  height: 92px;
   background: rgba(10, 20, 35, 0.75);
   backdrop-filter: blur(4px);
-  border: 1.5px dashed rgba(255, 215, 0, 0.65);
-  border-radius: 8px;
+  border: 2px dashed rgba(255, 215, 0, 0.65);
+  border-radius: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
-  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+  transition: all 0.25s ease;
   position: relative;
   overflow: hidden;
 }
@@ -312,11 +313,11 @@ body {
 .pitch-slot:hover .pitch-card-empty {
   border-color: #ffffff;
   background: rgba(255, 215, 0, 0.25);
-  box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+  box-shadow: 0 0 18px rgba(255, 215, 0, 0.6);
 }
 
 .empty-plus {
-  font-size: 1.3rem;
+  font-size: 1.6rem;
   color: var(--gold-primary);
   line-height: 1;
   font-weight: 300;
@@ -330,28 +331,28 @@ body {
 
 .empty-pos-text {
   font-family: var(--font-fut);
-  font-size: 0.65rem;
+  font-size: 0.72rem;
   font-weight: 800;
   color: #fff;
-  margin-top: 1px;
+  margin-top: 2px;
 }
 
 /* Filled Card Design on Pitch */
 .pitch-card-filled {
-  width: 54px;
-  height: 76px;
+  width: 65px;
+  height: 92px;
   background: var(--fut-gold-card);
-  border: 1.5px solid #ffffff;
-  border-radius: 8px;
-  padding: 3px;
+  border: 2px solid #ffffff;
+  border-radius: 10px;
+  padding: 4px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   text-align: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.7);
   position: relative;
   overflow: hidden;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
 }
 
 .pitch-card-filled.elite {
@@ -360,7 +361,7 @@ body {
 }
 
 .pitch-slot:hover .pitch-card-filled {
-  box-shadow: 0 0 16px rgba(255, 215, 0, 0.7);
+  box-shadow: 0 0 18px rgba(255, 215, 0, 0.7);
 }
 
 .p-card-top {
@@ -372,7 +373,7 @@ body {
 
 .p-card-rating {
   font-family: var(--font-fut);
-  font-size: 0.92rem;
+  font-size: 1.1rem;
   font-weight: 900;
   color: #111;
 }
@@ -383,7 +384,7 @@ body {
 
 .p-card-pos {
   font-family: var(--font-fut);
-  font-size: 0.6rem;
+  font-size: 0.68rem;
   font-weight: 800;
   color: #3b2a05;
 }
@@ -393,11 +394,11 @@ body {
 }
 
 .p-card-flag {
-  font-size: 0.75rem;
+  font-size: 0.9rem;
 }
 
 .p-card-avatar {
-  font-size: 1.3rem;
+  font-size: 1.6rem;
   line-height: 1;
   color: rgba(0, 0, 0, 0.35);
   margin: -2px 0;
@@ -408,27 +409,62 @@ body {
 }
 
 .p-card-name {
-  font-size: 0.55rem;
+  font-size: 0.62rem;
   font-weight: 800;
   color: #000;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   background: rgba(255, 255, 255, 0.85);
-  border-radius: 3px;
-  padding: 1px 2px;
+  border-radius: 4px;
+  padding: 1px 3px;
 }
 
 .slot-pos-badge {
   background: rgba(0, 0, 0, 0.8);
   color: #fff;
-  font-size: 0.55rem;
+  font-size: 0.62rem;
   font-weight: 800;
-  padding: 1px 5px;
+  padding: 1px 6px;
   border-radius: 6px;
-  margin-top: 2px;
+  margin-top: 3px;
   letter-spacing: 0.5px;
   border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* ==========================================================================
+   DYNAMIC MATCH COMPACT MODE
+   Applied during live match simulation so everything fits on screen!
+   ========================================================================== */
+.pitch-wrapper.match-compact-mode {
+  max-width: 580px;
+}
+
+.pitch-wrapper.match-compact-mode .football-pitch {
+  max-height: calc(100vh - 150px);
+}
+
+.pitch-wrapper.match-compact-mode .pitch-card-empty,
+.pitch-wrapper.match-compact-mode .pitch-card-filled {
+  width: 52px;
+  height: 74px;
+}
+
+.pitch-wrapper.match-compact-mode .p-card-rating {
+  font-size: 0.9rem;
+}
+
+.pitch-wrapper.match-compact-mode .p-card-avatar {
+  font-size: 1.25rem;
+}
+
+.pitch-wrapper.match-compact-mode .p-card-name {
+  font-size: 0.52rem;
+}
+
+.pitch-wrapper.match-compact-mode .slot-pos-badge {
+  font-size: 0.52rem;
+  padding: 1px 5px;
 }
 
 .pitch-action-bar {
