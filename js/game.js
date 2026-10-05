@@ -10,9 +10,9 @@ const FORMATIONS = {
     { id: 'cb1', label: 'STP', category: 'DEF', detailed: 'STP', x: 38, y: 73 },
     { id: 'cb2', label: 'STP', category: 'DEF', detailed: 'STP', x: 62, y: 73 },
     { id: 'rb', label: 'SĞB', category: 'DEF', detailed: 'SĞB', x: 84, y: 70 },
-    { id: 'cm1', label: 'MO', category: 'MID', detailed: 'MO', x: 28, y: 48 },
-    { id: 'cm2', label: 'MDO', category: 'MID', detailed: 'MDO', x: 50, y: 44 },
-    { id: 'cm3', label: 'MO', category: 'MID', detailed: 'MO', x: 72, y: 48 },
+    { id: 'cm1', label: 'MO', category: 'MID', detailed: 'MO', x: 28, y: 50 },
+    { id: 'cam', label: 'MOO', category: 'MID', detailed: 'MOO', x: 50, y: 39 },
+    { id: 'cm2', label: 'MO', category: 'MID', detailed: 'MO', x: 72, y: 50 },
     { id: 'lw', label: 'SLK', category: 'FWD', detailed: 'SLK', x: 20, y: 22 },
     { id: 'st', label: 'SNT', category: 'FWD', detailed: 'SNT', x: 50, y: 16 },
     { id: 'rw', label: 'SĞK', category: 'FWD', detailed: 'SĞK', x: 80, y: 22 }
