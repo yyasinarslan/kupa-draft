@@ -483,6 +483,11 @@ body {
   margin-top: 10px;
 }
 
+body.match-running .pitch-action-bar,
+body.match-running #btnOpenFormationModal {
+  display: none !important;
+}
+
 /* ==========================================================================
    MODAL BACKDROP & CARD CONTAINERS
    ========================================================================== */

@@ -206,6 +206,7 @@ class TournamentEngine {
 
   showMatchUi() {
     this.isMatchActive = true;
+    document.body.classList.add('match-running');
     document.querySelector('.pitch-wrapper')?.classList.add('match-compact-mode');
     document.getElementById('pitchScoreboard').style.display = 'flex';
     document.getElementById('pitchCommentaryBar').style.display = 'flex';
@@ -214,6 +215,7 @@ class TournamentEngine {
 
   hideMatchUi() {
     this.isMatchActive = false;
+    document.body.classList.remove('match-running');
     document.querySelector('.pitch-wrapper')?.classList.remove('match-compact-mode');
     document.getElementById('pitchScoreboard').style.display = 'none';
     document.getElementById('pitchCommentaryBar').style.display = 'none';

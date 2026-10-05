@@ -176,6 +176,7 @@ class FutDraftGame {
 
     // Open Formation Modal button in header
     document.getElementById('btnOpenFormationModal').addEventListener('click', () => {
+      if (this.tournament && this.tournament.isMatchActive) return;
       window.soundEngine.playClick();
       document.getElementById('formationModal').style.display = 'flex';
     });
@@ -193,6 +194,7 @@ class FutDraftGame {
 
     // Reset Draft Button
     document.getElementById('btnResetDraft').addEventListener('click', () => {
+      if (this.tournament && this.tournament.isMatchActive) return;
       window.soundEngine.playClick();
       this.resetDraft();
     });
