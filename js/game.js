@@ -1,0 +1,772 @@
+/**
+ * KUPA DRAFT 26 - Dünya Kupası Kadro Kurma Oyunu
+ * EA FC Türkçe Mevkiler (KL, SLB, STP, SĞB, MDO, MO, MOO, SLO, SĞO, SLK, SĞK, SNT)
+ */
+
+const FORMATIONS = {
+  '4-3-3': [
+    { id: 'gk', label: 'KL', category: 'GK', detailed: 'KL', x: 50, y: 88 },
+    { id: 'lb', label: 'SLB', category: 'DEF', detailed: 'SLB', x: 16, y: 70 },
+    { id: 'cb1', label: 'STP', category: 'DEF', detailed: 'STP', x: 38, y: 73 },
+    { id: 'cb2', label: 'STP', category: 'DEF', detailed: 'STP', x: 62, y: 73 },
+    { id: 'rb', label: 'SĞB', category: 'DEF', detailed: 'SĞB', x: 84, y: 70 },
+    { id: 'cm1', label: 'MO', category: 'MID', detailed: 'MO', x: 28, y: 48 },
+    { id: 'cm2', label: 'MDO', category: 'MID', detailed: 'MDO', x: 50, y: 44 },
+    { id: 'cm3', label: 'MO', category: 'MID', detailed: 'MO', x: 72, y: 48 },
+    { id: 'lw', label: 'SLK', category: 'FWD', detailed: 'SLK', x: 20, y: 22 },
+    { id: 'st', label: 'SNT', category: 'FWD', detailed: 'SNT', x: 50, y: 16 },
+    { id: 'rw', label: 'SĞK', category: 'FWD', detailed: 'SĞK', x: 80, y: 22 }
+  ],
+  '4-4-2': [
+    { id: 'gk', label: 'KL', category: 'GK', detailed: 'KL', x: 50, y: 88 },
+    { id: 'lb', label: 'SLB', category: 'DEF', detailed: 'SLB', x: 16, y: 70 },
+    { id: 'cb1', label: 'STP', category: 'DEF', detailed: 'STP', x: 38, y: 73 },
+    { id: 'cb2', label: 'STP', category: 'DEF', detailed: 'STP', x: 62, y: 73 },
+    { id: 'rb', label: 'SĞB', category: 'DEF', detailed: 'SĞB', x: 84, y: 70 },
+    { id: 'lm', label: 'SLO', category: 'MID', detailed: 'SLO', x: 18, y: 45 },
+    { id: 'cm1', label: 'MO', category: 'MID', detailed: 'MO', x: 40, y: 48 },
+    { id: 'cm2', label: 'MO', category: 'MID', detailed: 'MO', x: 60, y: 48 },
+    { id: 'rm', label: 'SĞO', category: 'MID', detailed: 'SĞO', x: 82, y: 45 },
+    { id: 'st1', label: 'SNT', category: 'FWD', detailed: 'SNT', x: 38, y: 18 },
+    { id: 'st2', label: 'SNT', category: 'FWD', detailed: 'SNT', x: 62, y: 18 }
+  ],
+  '4-2-3-1': [
+    { id: 'gk', label: 'KL', category: 'GK', detailed: 'KL', x: 50, y: 88 },
+    { id: 'lb', label: 'SLB', category: 'DEF', detailed: 'SLB', x: 16, y: 70 },
+    { id: 'cb1', label: 'STP', category: 'DEF', detailed: 'STP', x: 38, y: 73 },
+    { id: 'cb2', label: 'STP', category: 'DEF', detailed: 'STP', x: 62, y: 73 },
+    { id: 'rb', label: 'SĞB', category: 'DEF', detailed: 'SĞB', x: 84, y: 70 },
+    { id: 'cdm1', label: 'MDO', category: 'MID', detailed: 'MDO', x: 35, y: 55 },
+    { id: 'cdm2', label: 'MDO', category: 'MID', detailed: 'MDO', x: 65, y: 55 },
+    { id: 'lam', label: 'SLO', category: 'MID', detailed: 'SLO', x: 20, y: 35 },
+    { id: 'cam', label: 'MOO', category: 'MID', detailed: 'MOO', x: 50, y: 32 },
+    { id: 'ram', label: 'SĞO', category: 'MID', detailed: 'SĞO', x: 80, y: 35 },
+    { id: 'st', label: 'SNT', category: 'FWD', detailed: 'SNT', x: 50, y: 15 }
+  ],
+  '3-4-3': [
+    { id: 'gk', label: 'KL', category: 'GK', detailed: 'KL', x: 50, y: 88 },
+    { id: 'cb1', label: 'STP', category: 'DEF', detailed: 'STP', x: 26, y: 70 },
+    { id: 'cb2', label: 'STP', category: 'DEF', detailed: 'STP', x: 50, y: 72 },
+    { id: 'cb3', label: 'STP', category: 'DEF', detailed: 'STP', x: 74, y: 70 },
+    { id: 'lm', label: 'SLO', category: 'MID', detailed: 'SLO', x: 15, y: 46 },
+    { id: 'cm1', label: 'MO', category: 'MID', detailed: 'MO', x: 38, y: 48 },
+    { id: 'cm2', label: 'MO', category: 'MID', detailed: 'MO', x: 62, y: 48 },
+    { id: 'rm', label: 'SĞO', category: 'MID', detailed: 'SĞO', x: 85, y: 46 },
+    { id: 'lw', label: 'SLK', category: 'FWD', detailed: 'SLK', x: 20, y: 22 },
+    { id: 'st', label: 'SNT', category: 'FWD', detailed: 'SNT', x: 50, y: 16 },
+    { id: 'rw', label: 'SĞK', category: 'FWD', detailed: 'SĞK', x: 80, y: 22 }
+  ]
+};
+
+const POSITION_NAMES = {
+  'KL': 'Kaleci',
+  'SLB': 'Sol Bek',
+  'STP': 'Stoper',
+  'SĞB': 'Sağ Bek',
+  'MDO': 'Merkez Defansif Orta Saha',
+  'MO': 'Merkez Orta Saha',
+  'MOO': 'Merkez Ofansif Orta Saha',
+  'SLO': 'Sol Orta Saha',
+  'SĞO': 'Sağ Orta Saha',
+  'SLK': 'Sol Kanat',
+  'SĞK': 'Sağ Kanat',
+  'SNT': 'Santrafor',
+  'GK': 'Kaleci',
+  'DEF': 'Defans',
+  'MID': 'Orta Saha',
+  'FWD': 'Forvet'
+};
+
+class FutDraftGame {
+  constructor() {
+    this.teams = [];
+    this.allPlayers = [];
+    this.currentFormation = '4-3-3';
+    this.squadSlots = [];
+    this.activeDraftSlotIndex = null;
+    this.captainPicked = false;
+    this.isCaptainDraft = false;
+
+    this.init();
+  }
+
+  async init() {
+    await this.loadTeams();
+    this.bindEvents();
+    this.setFormation('4-3-3');
+    
+    // Show formation selector initially
+    document.getElementById('formationModal').style.display = 'flex';
+  }
+
+  async loadTeams() {
+    if (window.TEAMS_DATA && Array.isArray(window.TEAMS_DATA) && window.TEAMS_DATA.length > 0) {
+      this.teams = window.TEAMS_DATA;
+    } else {
+      try {
+        const res = await fetch('data/teams.json');
+        this.teams = await res.json();
+      } catch (e) {
+        console.error('Failed to load teams.json', e);
+      }
+    }
+
+    // Flatten all players with team metadata for quick querying
+    this.allPlayers = [];
+    this.teams.forEach(team => {
+      team.players.forEach(p => {
+        this.allPlayers.push({
+          ...p,
+          teamName: team.name,
+          teamFlag: team.flag,
+          teamCode: team.code,
+          isTop10: team.isTop10
+        });
+      });
+    });
+  }
+
+  bindEvents() {
+    // Formation options click in modal
+    document.querySelectorAll('.formation-card-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.formation-card-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.currentFormation = btn.dataset.formation;
+        window.soundEngine.playClick();
+      });
+    });
+
+    // Confirm formation button
+    document.getElementById('btnConfirmFormation').addEventListener('click', () => {
+      window.soundEngine.playClick();
+      document.getElementById('formationModal').style.display = 'none';
+      this.setFormation(this.currentFormation);
+      
+      // Right after formation, trigger Step 1: Captain Pick!
+      setTimeout(() => {
+        this.openCaptainDraftModal();
+      }, 300);
+    });
+
+    // Open Formation Modal button in header
+    document.getElementById('btnOpenFormationModal').addEventListener('click', () => {
+      window.soundEngine.playClick();
+      document.getElementById('formationModal').style.display = 'flex';
+    });
+
+    // Close Draft Pick Modal
+    document.getElementById('btnCloseDraftModal').addEventListener('click', () => {
+      window.soundEngine.playClick();
+      document.getElementById('draftPickModal').style.display = 'none';
+      this.isCaptainDraft = false;
+      this.activeDraftSlotIndex = null;
+    });
+
+    // Reset Draft Button
+    document.getElementById('btnResetDraft').addEventListener('click', () => {
+      window.soundEngine.playClick();
+      this.resetDraft();
+    });
+
+    // Victory Modal Buttons
+    document.getElementById('btnVictoryClose').addEventListener('click', () => {
+      window.soundEngine.playClick();
+      document.getElementById('completionModal').style.display = 'none';
+    });
+
+    document.getElementById('btnVictoryRestart').addEventListener('click', () => {
+      window.soundEngine.playClick();
+      document.getElementById('completionModal').style.display = 'none';
+      this.resetDraft();
+    });
+
+    document.getElementById('btnVictoryDownload').addEventListener('click', () => {
+      window.soundEngine.playClick();
+      this.exportSquadCard();
+    });
+
+    document.getElementById('btnDownloadSquad').addEventListener('click', () => {
+      window.soundEngine.playClick();
+      this.exportSquadCard();
+    });
+  }
+
+  setFormation(formationKey) {
+    this.currentFormation = formationKey;
+    document.getElementById('currentFormationBadge').textContent = `${formationKey} ▾`;
+
+    const template = FORMATIONS[formationKey] || FORMATIONS['4-3-3'];
+    this.squadSlots = template.map(slot => ({
+      ...slot,
+      player: null
+    }));
+
+    this.captainPicked = false;
+    this.renderPitch();
+    this.updateStatsDisplay();
+  }
+
+  resetDraft() {
+    this.captainPicked = false;
+    this.squadSlots.forEach(slot => slot.player = null);
+    this.renderPitch();
+    this.updateStatsDisplay();
+    document.getElementById('btnDownloadSquad').style.display = 'none';
+
+    setTimeout(() => {
+      this.openCaptainDraftModal();
+    }, 250);
+  }
+
+  // ==========================================
+  // PITCH RENDERING & INTERACTIVE SLOTS
+  // ==========================================
+  renderPitch() {
+    const pitchLayer = document.getElementById('pitchPlayersLayer');
+    if (!pitchLayer) return;
+
+    pitchLayer.innerHTML = '';
+    this.squadSlots.forEach((slot, index) => {
+      const slotDiv = document.createElement('div');
+      slotDiv.className = 'pitch-slot';
+      slotDiv.style.left = `${slot.x}%`;
+      slotDiv.style.top = `${slot.y}%`;
+
+      if (slot.player) {
+        // Filled Card on pitch
+        const p = slot.player;
+        const isElite = p.rating >= 87;
+        const posText = p.detailedPosition || slot.label;
+        const lastName = p.name.split(' ').pop();
+        const captainBadgeHtml = p.isCaptain ? `<span class="p-card-captain-tag">© C</span>` : '';
+
+        slotDiv.innerHTML = `
+          <div class="pitch-card-filled ${isElite ? 'elite' : ''}">
+            ${captainBadgeHtml}
+            <div class="p-card-top">
+              <span class="p-card-rating">${p.rating}</span>
+              <span class="p-card-pos">${posText}</span>
+              <span class="p-card-flag">${p.teamFlag}</span>
+            </div>
+            <div class="p-card-avatar">👤</div>
+            <div class="p-card-name">${lastName}</div>
+          </div>
+          <div class="slot-pos-badge">${slot.label}</div>
+        `;
+      } else {
+        // Empty slot with +
+        slotDiv.innerHTML = `
+          <div class="pitch-card-empty">
+            <span class="empty-plus">+</span>
+            <span class="empty-pos-text">${slot.label}</span>
+          </div>
+          <div class="slot-pos-badge">${slot.label}</div>
+        `;
+      }
+
+      // Clicking slot opens draft pick modal
+      slotDiv.addEventListener('click', () => {
+        window.soundEngine.playClick();
+        if (!this.captainPicked) {
+          // If captain not chosen yet, direct to captain selection
+          this.openCaptainDraftModal();
+        } else {
+          this.openDraftPickModal(index);
+        }
+      });
+
+      pitchLayer.appendChild(slotDiv);
+    });
+  }
+
+  // ==========================================
+  // STEP 1: CAPTAIN SELECTION MODAL
+  // 5 World-Class Superstars to lead the squad
+  // ==========================================
+  openCaptainDraftModal() {
+    this.isCaptainDraft = true;
+    this.activeDraftSlotIndex = null;
+
+    document.getElementById('draftModalPosBadge').textContent = '🌟 1. ADIM: KAPTANINI SEÇ';
+    document.getElementById('draftModalTitle').textContent = 'Rüya Takımının Kaptanı Kim Olsun?';
+    document.querySelector('#draftPickModal .draft-pick-header p').textContent = 
+      'Takımına liderlik edecek bir süperstar seç. Seçtiğin kaptan ilk 11\'deki mevkisine yerleşecektir:';
+
+    // 5 World-class superstars (87-91) across different formation positions
+    const superstars = this.allPlayers
+      .filter(p => p.rating >= 86)
+      .sort(() => 0.5 - Math.random());
+
+    const candidates = [];
+    const usedPositions = new Set();
+    const usedNations = new Set();
+
+    for (let p of superstars) {
+      if (candidates.length >= 5) break;
+      const matchingSlot = this.squadSlots.find(s => s.category === p.position || s.detailed === p.detailedPosition);
+      if (matchingSlot && !usedPositions.has(p.position) && !usedNations.has(p.teamName)) {
+        candidates.push({ ...p, isCaptain: true });
+        usedPositions.add(p.position);
+        usedNations.add(p.teamName);
+      }
+    }
+
+    // Fallback if needed
+    if (candidates.length < 5) {
+      for (let p of superstars) {
+        if (candidates.length >= 5) break;
+        if (!candidates.some(c => c.id === p.id)) {
+          candidates.push({ ...p, isCaptain: true });
+        }
+      }
+    }
+
+    this.renderCandidateCards(candidates);
+    document.getElementById('draftPickModal').style.display = 'flex';
+  }
+
+  // ==========================================
+  // STEP 2: REGULAR POSITION DRAFT MODAL
+  // Tiered probabilities & country diversity
+  // ==========================================
+  openDraftPickModal(slotIndex) {
+    this.isCaptainDraft = false;
+    this.activeDraftSlotIndex = slotIndex;
+    const slot = this.squadSlots[slotIndex];
+
+    const posDetailedName = POSITION_NAMES[slot.detailed] || POSITION_NAMES[slot.category] || slot.label;
+    document.getElementById('draftModalPosBadge').textContent = `${slot.label} • ${posDetailedName.toUpperCase()}`;
+    document.getElementById('draftModalTitle').textContent = `${posDetailedName} Seçimi`;
+    document.querySelector('#draftPickModal .draft-pick-header p').textContent = 
+      'Aşağıdaki 5 futbolcu arasından bu mevki için en iyi tercihi yap:';
+
+    // Pick 5 candidates matching this position with tiered ratings
+    const candidates = this.getCandidatesForSlot(slot);
+    this.renderCandidateCards(candidates);
+
+    const modal = document.getElementById('draftPickModal');
+    modal.style.display = 'flex';
+  }
+
+  getCandidatesForSlot(slot) {
+    const chosenIds = new Set(
+      this.squadSlots.filter(s => s.player).map(s => s.player.id)
+    );
+
+    // Filter available players matching general category
+    let pool = this.allPlayers.filter(p => p.position === slot.category && !chosenIds.has(p.id));
+
+    // Prefer detailed position matches if enough options
+    let detailedPool = pool.filter(p => p.detailedPosition === slot.detailed);
+    if (detailedPool.length < 8) {
+      detailedPool = pool;
+    }
+
+    // Realistic FUT Draft Rating Tiers:
+    // Slot 1: Star / Walkout chance (~18% chance of 86-91, otherwise 82-85)
+    // Slot 2: Solid High Gold (80-84)
+    // Slot 3: Mid Gold (78-82)
+    // Slot 4: Common Gold (75-79)
+    // Slot 5: Wildcard / Underdog (71-77)
+    const hasWalkout = Math.random() < 0.18;
+    const tierSpecs = [
+      hasWalkout ? { min: 86, max: 92 } : { min: 82, max: 85 },
+      { min: 80, max: 84 },
+      { min: 78, max: 82 },
+      { min: 75, max: 79 },
+      { min: 71, max: 77 }
+    ];
+
+    const candidates = [];
+    const usedIds = new Set();
+    const usedNations = new Set();
+
+    tierSpecs.forEach(spec => {
+      // Find matching players in this rating range
+      let eligible = detailedPool.filter(p => 
+        !usedIds.has(p.id) && 
+        p.rating >= spec.min && 
+        p.rating <= spec.max
+      );
+
+      // Prioritize different nations
+      let freshNation = eligible.filter(p => !usedNations.has(p.teamName));
+      let pick = null;
+
+      if (freshNation.length > 0) {
+        pick = freshNation[Math.floor(Math.random() * freshNation.length)];
+      } else if (eligible.length > 0) {
+        pick = eligible[Math.floor(Math.random() * eligible.length)];
+      } else {
+        // Fallback to broader pool if tier is empty
+        let broader = pool.filter(p => !usedIds.has(p.id));
+        let broadFresh = broader.filter(p => !usedNations.has(p.teamName));
+        pick = broadFresh.length > 0 
+          ? broadFresh[Math.floor(Math.random() * broadFresh.length)]
+          : (broader.length > 0 ? broader[Math.floor(Math.random() * broader.length)] : null);
+      }
+
+      if (pick) {
+        candidates.push(pick);
+        usedIds.add(pick.id);
+        usedNations.add(pick.teamName);
+      }
+    });
+
+    // Shuffle final 5 so the highest rating isn't always in slot 1
+    return candidates.sort(() => 0.5 - Math.random());
+  }
+
+  // ==========================================
+  // CANDIDATE CARDS BUILDER
+  // ==========================================
+  renderCandidateCards(candidates) {
+    const container = document.getElementById('draftCandidatesRow');
+    container.innerHTML = '';
+
+    candidates.forEach(player => {
+      const card = document.createElement('div');
+      
+      // Determine Tier Class
+      let tierClass = 'rare-gold';
+      if (player.rating >= 87) {
+        tierClass = 'elite';
+      } else if (player.rating >= 82) {
+        tierClass = 'rare-gold';
+      } else if (player.rating >= 77) {
+        tierClass = 'common-gold';
+      } else {
+        tierClass = 'underdog';
+      }
+
+      if (player.isCaptain) {
+        tierClass += ' captain';
+      }
+
+      card.className = `fut-card ${tierClass}`;
+
+      const posLabel = player.detailedPosition || player.position;
+      const captainTagHtml = player.isCaptain ? `<span class="captain-tag">© KAPTAN</span>` : '';
+
+      card.innerHTML = `
+        ${captainTagHtml}
+        <div class="card-top">
+          <div class="card-meta-left">
+            <div class="card-rating">${player.rating}</div>
+            <div class="card-position">${posLabel}</div>
+            <div class="card-meta-flag">${player.teamFlag}</div>
+          </div>
+          <div class="card-avatar-wrap">
+            <div class="card-silhouette">👤</div>
+          </div>
+        </div>
+        
+        <div class="card-mid">
+          <div class="card-name">${player.name}</div>
+          <div class="card-club">${player.club}</div>
+        </div>
+
+        <div class="card-stats-grid">
+          <div class="stat-row">
+            <span class="stat-label-fut">PAC</span>
+            <span class="stat-val-fut">${player.stats.pac}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label-fut">DRI</span>
+            <span class="stat-val-fut">${player.stats.dri}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label-fut">SHO</span>
+            <span class="stat-val-fut">${player.stats.sho}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label-fut">DEF</span>
+            <span class="stat-val-fut">${player.stats.def}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label-fut">PAS</span>
+            <span class="stat-val-fut">${player.stats.pas}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label-fut">PHY</span>
+            <span class="stat-val-fut">${player.stats.phy}</span>
+          </div>
+        </div>
+
+        <button class="btn-select-card">KADROYA SEÇ ➔</button>
+      `;
+
+      card.addEventListener('click', () => {
+        if (this.isCaptainDraft) {
+          this.selectCaptainForSquad(player);
+        } else {
+          this.selectPlayerForActiveSlot(player);
+        }
+      });
+
+      container.appendChild(card);
+    });
+  }
+
+  selectCaptainForSquad(player) {
+    window.soundEngine.playVictory();
+    this.captainPicked = true;
+    this.isCaptainDraft = false;
+
+    // Place into matching slot in current formation
+    let targetSlot = this.squadSlots.find(s => !s.player && s.detailed === player.detailedPosition);
+    if (!targetSlot) {
+      targetSlot = this.squadSlots.find(s => !s.player && s.category === player.position);
+    }
+    if (!targetSlot) {
+      targetSlot = this.squadSlots.find(s => !s.player);
+    }
+
+    if (targetSlot) {
+      targetSlot.player = { ...player, isCaptain: true };
+    }
+
+    document.getElementById('draftPickModal').style.display = 'none';
+    this.renderPitch();
+    this.updateStatsDisplay();
+  }
+
+  selectPlayerForActiveSlot(player) {
+    if (this.activeDraftSlotIndex === null) return;
+
+    window.soundEngine.playCardPick();
+    this.squadSlots[this.activeDraftSlotIndex].player = player;
+
+    // Close modal
+    document.getElementById('draftPickModal').style.display = 'none';
+    this.activeDraftSlotIndex = null;
+
+    // Re-render pitch and update stats
+    this.renderPitch();
+    this.updateStatsDisplay();
+
+    // Check if squad is 11/11 complete!
+    const filledCount = this.squadSlots.filter(s => s.player).length;
+    if (filledCount === 11) {
+      setTimeout(() => {
+        this.showCompletionModal();
+      }, 350);
+    }
+  }
+
+  // ==========================================
+  // STATS & CHEMISTRY CALCULATION
+  // ==========================================
+  updateStatsDisplay() {
+    const filledSlots = this.squadSlots.filter(s => s.player);
+    const count = filledSlots.length;
+    document.getElementById('squadCountDisplay').textContent = `${count} / 11`;
+
+    if (count > 0) {
+      const avgRating = Math.round(
+        filledSlots.reduce((sum, s) => sum + s.player.rating, 0) / count
+      );
+      document.getElementById('squadRatingDisplay').textContent = avgRating;
+
+      const chem = this.calculateChemistry(filledSlots);
+      document.getElementById('squadChemDisplay').textContent = `${chem} / 33`;
+    } else {
+      document.getElementById('squadRatingDisplay').textContent = '--';
+      document.getElementById('squadChemDisplay').textContent = '0 / 33';
+    }
+  }
+
+  calculateChemistry(filledSlots) {
+    if (filledSlots.length === 0) return 0;
+    let score = Math.round((filledSlots.length / 11) * 16); // base progression
+    
+    // Nationality and club synergies
+    const nations = {};
+    const clubs = {};
+
+    filledSlots.forEach(s => {
+      nations[s.player.teamName] = (nations[s.player.teamName] || 0) + 1;
+      clubs[s.player.club] = (clubs[s.player.club] || 0) + 1;
+    });
+
+    Object.values(nations).forEach(c => {
+      if (c >= 2) score += 2;
+      if (c >= 3) score += 3;
+    });
+
+    Object.values(clubs).forEach(c => {
+      if (c >= 2) score += 3;
+    });
+
+    return Math.min(33, score);
+  }
+
+  // ==========================================
+  // COMPLETION VICTORY MODAL
+  // ==========================================
+  showCompletionModal() {
+    window.soundEngine.playVictory();
+    window.confettiEngine.fire(150, 4500);
+
+    const filledSlots = this.squadSlots.filter(s => s.player);
+    const avgRating = Math.round(
+      filledSlots.reduce((sum, s) => sum + s.player.rating, 0) / 11
+    );
+    const chem = this.calculateChemistry(filledSlots);
+
+    document.getElementById('victoryOvrVal').textContent = avgRating;
+    document.getElementById('victoryChemVal').textContent = `${chem} / 33`;
+    document.getElementById('victoryFormationVal').textContent = this.currentFormation;
+
+    document.getElementById('completionModal').style.display = 'flex';
+    document.getElementById('btnDownloadSquad').style.display = 'inline-flex';
+  }
+
+  // ==========================================
+  // EXPORT SQUAD AS HIGH-RES PNG CARD
+  // ==========================================
+  exportSquadCard() {
+    const canvas = document.getElementById('exportCanvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = 1200;
+    canvas.height = 1500;
+
+    // 1. Stadium Background Gradient
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    bgGrad.addColorStop(0, '#070a12');
+    bgGrad.addColorStop(0.5, '#0f172a');
+    bgGrad.addColorStop(1, '#05070d');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 2. Header Title & Badges
+    ctx.fillStyle = '#ffd700';
+    ctx.font = 'bold 50px Outfit, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('🏆 DÜNYA KUPASI 2026 - RÜYA 11', canvas.width / 2, 80);
+
+    ctx.fillStyle = '#00f0ff';
+    ctx.font = 'bold 30px Rajdhani, sans-serif';
+    const ovr = document.getElementById('squadRatingDisplay').textContent;
+    const chem = document.getElementById('squadChemDisplay').textContent;
+    ctx.fillText(`DİZİLİŞ: ${this.currentFormation}   |   GÜÇ: ${ovr} OVR   |   KİMYA: ${chem}`, canvas.width / 2, 130);
+
+    // 3. Draw Pitch
+    const pitchX = 100;
+    const pitchY = 170;
+    const pitchW = 1000;
+    const pitchH = 1240;
+
+    // Pitch Grass
+    const pitchGrad = ctx.createLinearGradient(0, pitchY, 0, pitchY + pitchH);
+    pitchGrad.addColorStop(0, '#1b5e20');
+    pitchGrad.addColorStop(1, '#114015');
+    ctx.fillStyle = pitchGrad;
+    ctx.roundRect(pitchX, pitchY, pitchW, pitchH, 24);
+    ctx.fill();
+
+    // Pitch Lines
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+    ctx.lineWidth = 4;
+    ctx.roundRect(pitchX, pitchY, pitchW, pitchH, 24);
+    ctx.stroke();
+
+    // Halfway line & Center Circle
+    ctx.beginPath();
+    ctx.moveTo(pitchX, pitchY + pitchH / 2);
+    ctx.lineTo(pitchX + pitchW, pitchY + pitchH / 2);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(pitchX + pitchW / 2, pitchY + pitchH / 2, 110, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // 4. Draw Each Player Card on the Pitch
+    this.squadSlots.forEach(slot => {
+      const px = pitchX + (slot.x / 100) * pitchW;
+      const py = pitchY + (slot.y / 100) * pitchH;
+
+      const cardW = 114;
+      const cardH = 150;
+      const cardX = px - cardW / 2;
+      const cardY = py - cardH / 2;
+
+      // Card Background
+      const isElite = slot.player && slot.player.rating >= 87;
+      const cardGrad = ctx.createLinearGradient(cardX, cardY, cardX + cardW, cardY + cardH);
+      if (isElite) {
+        cardGrad.addColorStop(0, '#1e293b');
+        cardGrad.addColorStop(0.5, '#0f172a');
+        cardGrad.addColorStop(1, '#334155');
+      } else {
+        cardGrad.addColorStop(0, '#ffd700');
+        cardGrad.addColorStop(0.5, '#b8933b');
+        cardGrad.addColorStop(1, '#533c09');
+      }
+
+      ctx.fillStyle = cardGrad;
+      ctx.beginPath();
+      ctx.roundRect(cardX, cardY, cardW, cardH, 12);
+      ctx.fill();
+
+      ctx.strokeStyle = isElite ? '#00f0ff' : '#ffffff';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      if (slot.player) {
+        const p = slot.player;
+
+        // Rating & Position
+        ctx.fillStyle = isElite ? '#ffffff' : '#000000';
+        ctx.font = 'bold 24px Rajdhani, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(p.rating, cardX + 10, cardY + 28);
+
+        ctx.font = 'bold 15px Rajdhani, sans-serif';
+        ctx.fillText(p.detailedPosition || p.position, cardX + 10, cardY + 46);
+
+        // Captain tag
+        if (p.isCaptain) {
+          ctx.fillStyle = '#ffd700';
+          ctx.fillRect(cardX + cardW - 32, cardY + 8, 24, 18);
+          ctx.fillStyle = '#000000';
+          ctx.font = 'bold 12px Rajdhani, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('© C', cardX + cardW - 20, cardY + 22);
+        }
+
+        // Player Name
+        ctx.fillStyle = isElite ? '#ffffff' : '#000000';
+        ctx.font = 'bold 16px Outfit, sans-serif';
+        ctx.textAlign = 'center';
+        const lastName = p.name.split(' ').pop();
+        ctx.fillText(lastName, px, cardY + 115);
+
+        // Club
+        ctx.fillStyle = isElite ? '#94a3b8' : '#333333';
+        ctx.font = '12px Outfit, sans-serif';
+        ctx.fillText(p.club, px, cardY + 134);
+      }
+    });
+
+    // 5. Watermark / Footer
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+    ctx.font = '18px Outfit, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('KUPA DRAFT 26 - Dünya Kupası Kadro Kurma Oyunu', canvas.width / 2, 1460);
+
+    // 6. Trigger Download
+    const dataUrl = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.download = `Kupa_Draft_26_${this.currentFormation}.png`;
+    link.href = dataUrl;
+    link.click();
+  }
+}
+
+// Start Game on DOM ready
+window.addEventListener('DOMContentLoaded', () => {
+  window.game = new FutDraftGame();
+});

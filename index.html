@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Kupa Draft 26 - Dünya Kupası Kadro Kurma Oyunu</title>
+  <meta name="description" content="2026 Dünya Kupası Kadro Kurma ve Draft oyunu. 11'ini kur, reytingini ve kimyanı yükselt!">
+  
+  <!-- Google Fonts: Rajdhani & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Rajdhani:wght@600;700;800;900&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Canvas for Confetti -->
+  <canvas id="confettiCanvas"></canvas>
+
+  <div id="app" class="app-container">
+    
+    <!-- Top Header & Live Stats Bar -->
+    <header class="app-header">
+      <div class="logo-area">
+        <span class="wc-badge">🏆 WC 2026</span>
+        <h1 class="logo-title">KUPA DRAFT <span>26</span></h1>
+      </div>
+      
+      <div class="header-stats">
+        <div class="stat-pill">
+          <span class="stat-label">KADRO</span>
+          <span class="stat-val" id="squadCountDisplay">0 / 11</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-label">ORTALAMA</span>
+          <span class="stat-val rating-val" id="squadRatingDisplay">--</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-label">KİMYA</span>
+          <span class="stat-val chem-val" id="squadChemDisplay">0 / 33</span>
+        </div>
+        <button class="btn-change-formation" id="btnOpenFormationModal">
+          <span class="stat-label">DİZİLİŞ</span>
+          <span class="stat-val form-val" id="currentFormationBadge">4-3-3 ▾</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Game Area: The Football Pitch -->
+    <main class="main-content">
+      <div class="pitch-wrapper">
+        <div class="football-pitch" id="mainPitch">
+          <!-- Pitch Grass Lines -->
+          <div class="pitch-line center-line"></div>
+          <div class="pitch-line center-circle"></div>
+          <div class="pitch-line penalty-box top"></div>
+          <div class="pitch-line penalty-box bottom"></div>
+          <div class="pitch-line penalty-arc"></div>
+
+          <!-- 11 Formation Slots on Pitch -->
+          <div class="pitch-players-layer" id="pitchPlayersLayer">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Action buttons under pitch -->
+      <div class="pitch-action-bar">
+        <button id="btnResetDraft" class="btn-secondary">
+          <span>🔄 Kadroyu Sıfırla</span>
+        </button>
+        <button id="btnDownloadSquad" class="btn-primary" style="display: none;">
+          <span>📸 Kadro Kartını İndir</span>
+        </button>
+      </div>
+    </main>
+
+    <!-- MODAL 1: Formation Selection Modal -->
+    <div id="formationModal" class="modal-backdrop">
+      <div class="modal-card formation-modal-content">
+        <div class="modal-header">
+          <div class="modal-badge">ADIM 1</div>
+          <h2>Dizilişini Seç</h2>
+          <p>Oynamak istediğin taktik dizilişi belirle ve rüya kadronu kurmaya başla!</p>
+        </div>
+        
+        <div class="formation-options-grid">
+          <button class="formation-card-btn active" data-formation="4-3-3">
+            <span class="f-name">4-3-3</span>
+            <span class="f-type">Hücum</span>
+            <div class="f-mini-preview">4 Defans • 3 Orta Saha • 3 Forvet</div>
+          </button>
+          <button class="formation-card-btn" data-formation="4-4-2">
+            <span class="f-name">4-4-2</span>
+            <span class="f-type">Klasik</span>
+            <div class="f-mini-preview">4 Defans • 4 Orta Saha • 2 Forvet</div>
+          </button>
+          <button class="formation-card-btn" data-formation="4-2-3-1">
+            <span class="f-name">4-2-3-1</span>
+            <span class="f-type">Dengeli</span>
+            <div class="f-mini-preview">4 Defans • 5 Orta Saha • 1 Forvet</div>
+          </button>
+          <button class="formation-card-btn" data-formation="3-4-3">
+            <span class="f-name">3-4-3</span>
+            <span class="f-type">Baskılı</span>
+            <div class="f-mini-preview">3 Defans • 4 Orta Saha • 3 Forvet</div>
+          </button>
+        </div>
+
+        <button id="btnConfirmFormation" class="btn-primary btn-glow btn-full">
+          <span>BU DİZİLİŞLE BAŞLA</span> ➔
+        </button>
+      </div>
+    </div>
+
+    <!-- MODAL 2: 5 Player Draft Pick Modal -->
+    <div id="draftPickModal" class="modal-backdrop" style="display: none;">
+      <div class="modal-card draft-pick-modal-content">
+        <button class="modal-close" id="btnCloseDraftModal">✕</button>
+        
+        <div class="draft-pick-header">
+          <span class="draft-pick-badge" id="draftModalPosBadge">FORVET (SNT)</span>
+          <h2 id="draftModalTitle">Bir Oyuncu Seç</h2>
+          <p>Aşağıdaki 5 yıldız arasından bu mevki için en iyi oyuncuyu kadrona kat:</p>
+        </div>
+
+        <!-- The 5 FUT Draft Cards Grid -->
+        <div class="draft-cards-row" id="draftCandidatesRow">
+          <!-- 5 FUT cards injected by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 3: Squad Completed Victory Celebration -->
+    <div id="completionModal" class="modal-backdrop" style="display: none;">
+      <div class="modal-card completion-modal-content">
+        <div class="trophy-bounce">🏆</div>
+        <h2 class="victory-title">RÜYA KADRON TAMAMLANDI!</h2>
+        <p class="victory-sub">Harika bir kadro oluşturdun. İşte takımının istatistikleri:</p>
+
+        <div class="victory-metrics-row">
+          <div class="v-metric">
+            <span class="v-label">TOPLAM GÜÇ</span>
+            <span class="v-val rating-val" id="victoryOvrVal">88</span>
+          </div>
+          <div class="v-metric">
+            <span class="v-label">KİMYA</span>
+            <span class="v-val chem-val" id="victoryChemVal">33 / 33</span>
+          </div>
+          <div class="v-metric">
+            <span class="v-label">DİZİLİŞ</span>
+            <span class="v-val" id="victoryFormationVal">4-3-3</span>
+          </div>
+        </div>
+
+        <div class="victory-actions">
+          <button id="btnVictoryDownload" class="btn-primary btn-glow">
+            <span>📸 Kadro Kartını İndir</span>
+          </button>
+          <button id="btnVictoryClose" class="btn-secondary">
+            <span>🏟️ Sahada İncele</span>
+          </button>
+          <button id="btnVictoryRestart" class="btn-secondary">
+            <span>🔄 Yeni Kadro Kur</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hidden Canvas for PNG Export -->
+    <canvas id="exportCanvas" style="display: none;"></canvas>
+  </div>
+
+  <script src="js/audio.js"></script>
+  <script src="js/confetti.js"></script>
+  <script src="data/teams_data.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
