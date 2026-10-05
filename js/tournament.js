@@ -73,6 +73,7 @@ class TournamentEngine {
       goalsByPlayer: {}
     };
 
+    this.isTournamentActive = false;
     this.bindEvents();
   }
 
@@ -87,6 +88,13 @@ class TournamentEngine {
     const btnHeader = document.getElementById('btnHeaderTournament');
     btnHeader?.addEventListener('click', () => {
       if (!btnHeader.disabled) this.openTournament();
+    });
+
+    // Cancel Tournament Button
+    document.getElementById('btnCancelTournament')?.addEventListener('click', () => {
+      if (confirm('Turnuvayı iptal edip kadro ekranına dönmek istiyor musun? Turnuva ilerlemen sıfırlanacaktır.')) {
+        this.cancelTournament();
+      }
     });
 
     // Close preview
@@ -120,8 +128,23 @@ class TournamentEngine {
     document.getElementById('btnNewDraftAfterTrophy')?.addEventListener('click', () => {
       this.hideAllOverlays();
       this.hideMatchUi();
+      this.isTournamentActive = false;
+      document.body.classList.remove('tournament-active', 'match-running');
       this.game.resetDraft();
     });
+  }
+
+  cancelTournament() {
+    this.stopMatchSimulation();
+    this.hideMatchUi();
+    this.hideAllOverlays();
+    this.isTournamentActive = false;
+    this.isMatchActive = false;
+    this.currentRoundIndex = 0;
+    this.activeOpponent = null;
+    document.body.classList.remove('tournament-active', 'match-running');
+    this.updateHeaderButton(true);
+    window.soundEngine?.playWhistle();
   }
 
   updateHeaderButton(isReady) {
@@ -145,7 +168,9 @@ class TournamentEngine {
       alert('Turnuvaya başlamak için önce 11 kişilik kadronu tamamlamalısın!');
       return;
     }
-    window.soundEngine.playClick();
+    this.isTournamentActive = true;
+    document.body.classList.add('tournament-active');
+    window.soundEngine?.playClick();
     this.showPreviewView();
   }
 

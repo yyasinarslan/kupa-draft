@@ -176,7 +176,7 @@ class FutDraftGame {
 
     // Open Formation Modal button in header
     document.getElementById('btnOpenFormationModal').addEventListener('click', () => {
-      if (this.tournament && this.tournament.isMatchActive) return;
+      if (this.tournament && (this.tournament.isMatchActive || this.tournament.isTournamentActive)) return;
       window.soundEngine.playClick();
       document.getElementById('formationModal').style.display = 'flex';
     });
@@ -194,7 +194,7 @@ class FutDraftGame {
 
     // Reset Draft Button
     document.getElementById('btnResetDraft').addEventListener('click', () => {
-      if (this.tournament && this.tournament.isMatchActive) return;
+      if (this.tournament && (this.tournament.isMatchActive || this.tournament.isTournamentActive)) return;
       window.soundEngine.playClick();
       this.resetDraft();
     });
@@ -312,10 +312,10 @@ class FutDraftGame {
         `;
       }
 
-      // Clicking slot opens draft pick modal (only if slot is empty and match not active)
+      // Clicking slot opens draft pick modal (only if slot is empty and tournament/match not active)
       slotDiv.addEventListener('click', () => {
-        // Prevent clicks during match simulation
-        if (this.tournament && this.tournament.isMatchActive) return;
+        // Prevent clicks during match simulation or active tournament
+        if (this.tournament && (this.tournament.isMatchActive || this.tournament.isTournamentActive)) return;
         // Prevent re-drafting/changing once player is picked for this slot
         if (slot.player) return;
 

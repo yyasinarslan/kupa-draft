@@ -488,6 +488,33 @@ body.match-running #btnOpenFormationModal {
   display: none !important;
 }
 
+body.tournament-active #btnResetDraft,
+body.tournament-active #btnOpenFormationModal {
+  display: none !important;
+}
+
+body.tournament-active #btnCancelTournament {
+  display: inline-flex !important;
+}
+
+body.tournament-active .pitch-slot {
+  pointer-events: none !important;
+  cursor: default !important;
+}
+
+.btn-danger {
+  background: rgba(239, 68, 68, 0.15) !important;
+  border: 1px solid rgba(239, 68, 68, 0.45) !important;
+  color: #fca5a5 !important;
+}
+
+.btn-danger:hover {
+  background: rgba(239, 68, 68, 0.3) !important;
+  border-color: #ef4444 !important;
+  color: #fff !important;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.4) !important;
+}
+
 /* ==========================================================================
    MODAL BACKDROP & CARD CONTAINERS
    ========================================================================== */
