@@ -206,6 +206,12 @@ class FutDraftGame {
     if (btnStartDraft) {
       btnStartDraft.addEventListener('click', () => {
         window.soundEngine.playClick();
+        // Ensure settings and how to play modals are closed
+        const sm = document.getElementById('settingsModal');
+        if (sm) sm.style.display = 'none';
+        const hm = document.getElementById('howToPlayModal');
+        if (hm) hm.style.display = 'none';
+
         this.hideMainMenu();
         // Start flow by opening the formation selection modal!
         setTimeout(() => {
@@ -251,13 +257,6 @@ class FutDraftGame {
       btnCloseHowToPlayBottom.addEventListener('click', () => {
         window.soundEngine.playClick();
         document.getElementById('howToPlayModal').style.display = 'none';
-        const menuScreen = document.getElementById('mainMenuScreen');
-        if (menuScreen && !menuScreen.classList.contains('hidden')) {
-          this.hideMainMenu();
-          setTimeout(() => {
-            document.getElementById('formationModal').style.display = 'flex';
-          }, 200);
-        }
       });
     }
 
@@ -338,6 +337,7 @@ class FutDraftGame {
     });
 
     // Settings: Sound Toggle
+    // Settings: Sound Toggle
     const soundToggle = document.getElementById('toggleSound');
     if (soundToggle) {
       soundToggle.addEventListener('change', () => {
@@ -346,25 +346,6 @@ class FutDraftGame {
         if (this.settings.sound) window.soundEngine.playClick();
       });
     }
-
-    // Settings: Bera Card Chance
-    const beraHintMap = {
-      '0.25': 'Dengeli: %25 Çıkma İhtimali',
-      '0.5': 'Yüksek: %50 Çıkma İhtimali',
-      '0.50': 'Yüksek: %50 Çıkma İhtimali',
-      '0.8': 'Süper Şans: %80 Çıkma İhtimali',
-      '0.80': 'Süper Şans: %80 Çıkma İhtimali'
-    };
-    document.querySelectorAll('#beraOptions .opt-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('#beraOptions .opt-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        this.settings.beraChance = parseFloat(btn.dataset.bera);
-        const hintEl = document.getElementById('beraHintText');
-        if (hintEl) hintEl.textContent = beraHintMap[btn.dataset.bera] || '';
-        window.soundEngine.playClick();
-      });
-    });
 
     // --------------------------------------------------
     // FORMATION & SQUAD SELECTION
@@ -458,15 +439,6 @@ class FutDraftGame {
 
     const soundToggle = document.getElementById('toggleSound');
     if (soundToggle) soundToggle.checked = this.settings.sound;
-
-    const beraBtns = document.querySelectorAll('#beraOptions .opt-btn');
-    beraBtns.forEach(b => b.classList.toggle('active', Math.abs(parseFloat(b.dataset.bera) - this.settings.beraChance) < 0.05));
-    const beraHint = document.getElementById('beraHintText');
-    if (beraHint) {
-      if (this.settings.beraChance >= 0.75) beraHint.textContent = 'Süper Şans: %80 Çıkma İhtimali';
-      else if (this.settings.beraChance <= 0.3) beraHint.textContent = 'Dengeli: %25 Çıkma İhtimali';
-      else beraHint.textContent = 'Yüksek: %50 Çıkma İhtimali';
-    }
 
     document.getElementById('settingsModal').style.display = 'flex';
   }

@@ -526,7 +526,7 @@ body.tournament-active .pitch-slot {
   height: 100vh;
   background: rgba(5, 8, 15, 0.9);
   backdrop-filter: blur(14px);
-  z-index: 2000;
+  z-index: 6000;
   display: flex;
   align-items: center;
   justify-content: center;
