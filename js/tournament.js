@@ -114,10 +114,15 @@ class TournamentEngine {
       this.hideAllOverlays();
     });
 
-    // Decision buttons
+    // Attack decision buttons
     document.getElementById('btnChoicePlase')?.addEventListener('click', () => this.handleDecisionChoice('plase'));
     document.getElementById('btnChoicePower')?.addEventListener('click', () => this.handleDecisionChoice('power'));
     document.getElementById('btnChoicePass')?.addEventListener('click', () => this.handleDecisionChoice('pass'));
+
+    // Goalkeeper Defense decision buttons
+    document.getElementById('btnChoiceDiveLeft')?.addEventListener('click', () => this.handleDefenseChoice('left'));
+    document.getElementById('btnChoiceRushOut')?.addEventListener('click', () => this.handleDefenseChoice('rush'));
+    document.getElementById('btnChoiceDiveRight')?.addEventListener('click', () => this.handleDefenseChoice('right'));
 
     // Next round
     document.getElementById('btnNextRound')?.addEventListener('click', () => this.nextRound());
@@ -271,10 +276,12 @@ class TournamentEngine {
 
     this.updateLiveSpiker(`📢 Hakem ilk düdüğü çaldı! ${this.rounds[this.currentRoundIndex].name} başladı!`);
 
-    // Plan decision points
-    this.decisionMinutes = [
-      Math.floor(28 + Math.random() * 8), // around min 30
-      Math.floor(70 + Math.random() * 8)  // around min 72
+    // Plan balanced decision points: Attack and Goalkeeper Defense!
+    const firstIsAttack = Math.random() < 0.5;
+    this.decisionEvents = [
+      { minute: Math.floor(28 + Math.random() * 6), type: firstIsAttack ? 'attack' : 'defense' },
+      { minute: Math.floor(56 + Math.random() * 6), type: firstIsAttack ? 'defense' : 'attack' },
+      { minute: Math.floor(76 + Math.random() * 6), type: Math.random() < 0.5 ? 'attack' : 'defense' }
     ];
 
     const userRating = this.game.calculateAverageRating(this.game.squadSlots);
@@ -295,10 +302,14 @@ class TournamentEngine {
       document.getElementById('sbMatchMinute').textContent = `${this.matchMinute}'`;
       this.moveBallOnPitch();
 
-      // Check Decision Trigger
-      if (this.decisionMinutes.length > 0 && this.matchMinute >= this.decisionMinutes[0]) {
-        this.decisionMinutes.shift();
-        this.triggerCriticalDecision();
+      // Check Decision Trigger (Attack or Defense)
+      if (this.decisionEvents.length > 0 && this.matchMinute >= this.decisionEvents[0].minute) {
+        const nextEvt = this.decisionEvents.shift();
+        if (nextEvt.type === 'defense') {
+          this.triggerDefenseDecision();
+        } else {
+          this.triggerAttackDecision();
+        }
         return;
       }
 
@@ -347,41 +358,37 @@ class TournamentEngine {
 
   checkAmbientMatchEvent() {
     const min = this.matchMinute;
-    const rnd = Math.random();
 
     if (min === 14) {
       const mid = this.getRandomUserPlayer(['MID', 'MO', 'MOO', 'MDO']);
       this.updateLiveSpiker(`🔥 <strong>${min}'</strong> ${mid.name} harika bir ara pasıyla hücumu başlattı!`);
     } else if (min === 46) {
       this.updateLiveSpiker(`⏱️ <strong>45'</strong> İlk yarı bitti. Skor: Rüya Takım ${this.userScore} - ${this.oppScore} ${this.activeOpponent.name}`);
-    } else if (min === 54 && rnd < 0.35) {
-      if (this.powerAdvantage < 2 && Math.random() < 0.45 && this.oppScore <= this.userScore) {
-        this.oppScore++;
-        document.getElementById('sbOppScore').textContent = this.oppScore;
-        window.soundEngine.playWhistle();
-        this.updateLiveSpiker(`⚽ <strong>${min}' GOL!</strong> ${this.activeOpponent.name} hızlı hücumla golü buldu!`, 'danger');
-      } else {
-        const gk = this.getRandomUserPlayer(['GK', 'KL']);
-        this.updateLiveSpiker(`🧤 <strong>${min}' HARİKA KURTARIŞ!</strong> ${gk.name} kalesinde devleşti!`, 'highlight');
-      }
     } else if (min === 64) {
       const def = this.getRandomUserPlayer(['DEF', 'STP', 'SLB', 'SĞB']);
       this.updateLiveSpiker(`🛡️ <strong>${min}'</strong> ${def.name} savunmada kritik bir müdahaleyle topu kazandı.`);
-    } else if (min === 84 && rnd < 0.30 && this.userScore <= this.oppScore) {
-      const fwd = this.getRandomUserPlayer(['FWD', 'SNT', 'SĞK', 'SLK']);
-      this.userScore++;
-      document.getElementById('sbUserScore').textContent = this.userScore;
-      this.recordGoal(fwd.name);
-      window.soundEngine.playGoalHorn();
-      window.soundEngine.playCrowdCheer();
-      this.updateLiveSpiker(`⚽ <strong>${min}' GOOOOOOL!</strong> ${fwd.name} topu ağlara yolladı!`, 'goal');
     }
   }
 
+  getUserGoalkeeper() {
+    const gkSlot = this.game.squadSlots.find(s => 
+      s.player && (s.player.position === 'GK' || s.detailed === 'KL' || s.category === 'GK')
+    );
+    if (gkSlot && gkSlot.player) return gkSlot.player;
+    return this.getRandomUserPlayer(['GK', 'KL']) || { name: 'Kaleci', rating: 82, stats: { def: 82, phy: 80 } };
+  }
+
+  getOpponentStarName() {
+    if (!this.activeOpponent) return 'Rakip Forvet';
+    const raw = this.activeOpponent.star || '';
+    const clean = raw.replace('⭐', '').split(',')[0].trim();
+    return clean || this.activeOpponent.name;
+  }
+
   // ==========================================
-  // CRITICAL DECISION MOMENT (With 5s Auto-Timer!)
+  // 1. ATTACK DECISION MOMENT (User Scores)
   // ==========================================
-  triggerCriticalDecision() {
+  triggerAttackDecision() {
     this.isMatchPaused = true;
     window.soundEngine.playReveal();
 
@@ -389,15 +396,24 @@ class TournamentEngine {
     this.decisionActivePlayer = star;
 
     const overlay = document.getElementById('decisionOverlay');
+    const badge = document.getElementById('pdecBadge');
     const title = document.getElementById('decisionTitle');
     const desc = document.getElementById('decisionDesc');
     const timerFill = document.getElementById('pdecTimerFill');
+
+    if (badge) {
+      badge.textContent = '⚡ KRİTİK GOL ANI!';
+      badge.className = 'pdec-badge';
+    }
 
     title.textContent = `⚡ ${this.matchMinute}. DAKİKA: Kaleciyle Karşı Karşıya!`;
     desc.innerHTML = `
       🔥 <strong>${star.name}</strong> (${star.rating} Rating) ceza sahasına fırtına gibi girdi!
       <br><strong>5 saniye içinde karar ver (Seçmezsen otomatik şut çekilir):</strong>
     `;
+
+    document.getElementById('pdecAttackButtons').style.display = 'flex';
+    document.getElementById('pdecDefenseButtons').style.display = 'none';
 
     // Start 5-second countdown animation
     if (timerFill) {
@@ -414,9 +430,13 @@ class TournamentEngine {
     // Auto-resolve after 5 seconds if child doesn't click (NEVER FREEZES!)
     this.decisionTimer = setTimeout(() => {
       if (this.isMatchPaused) {
-        this.handleDecisionChoice('power'); // default to thrilling power shot!
+        this.handleDecisionChoice('power'); // default to power shot
       }
     }, 5000);
+  }
+
+  triggerCriticalDecision() {
+    this.triggerAttackDecision();
   }
 
   handleDecisionChoice(choiceType) {
@@ -474,6 +494,111 @@ class TournamentEngine {
     } else {
       window.soundEngine.playWhistle();
       this.updateLiveSpiker(comment, 'highlight');
+    }
+  }
+
+  // ==========================================
+  // 2. DEFENSE DECISION MOMENT (Goalkeeper Saves or Concedes)
+  // ==========================================
+  triggerDefenseDecision() {
+    this.isMatchPaused = true;
+    window.soundEngine.playWhistle();
+
+    const gk = this.getUserGoalkeeper();
+    const oppStar = this.getOpponentStarName();
+    this.defenseActiveGk = gk;
+    this.defenseActiveOppStar = oppStar;
+
+    // Opponent picks secret shot direction: 'left', 'rush', 'right'
+    const directions = ['left', 'rush', 'right'];
+    this.oppSecretChoice = directions[Math.floor(Math.random() * directions.length)];
+
+    const overlay = document.getElementById('decisionOverlay');
+    const badge = document.getElementById('pdecBadge');
+    const title = document.getElementById('decisionTitle');
+    const desc = document.getElementById('decisionDesc');
+    const timerFill = document.getElementById('pdecTimerFill');
+
+    if (badge) {
+      badge.textContent = '🛡️ TEHLİKE: KALECİNLE KURTAR!';
+      badge.className = 'pdec-badge defense';
+    }
+
+    title.textContent = `⚡ ${this.matchMinute}. DAKİKA: Kalenle Karşı Karşıya!`;
+    desc.innerHTML = `
+      ⚠️ <strong>${oppStar}</strong> (${this.activeOpponent.name}) savunmanı deldi ve karşı karşıya kaldı!
+      <br>Kalecin <strong>${gk.name}</strong> (${gk.rating} OVR) nereye hamle yapsın? Yanlış seçersen gol yiyeceksin! (5 sn):
+    `;
+
+    document.getElementById('pdecAttackButtons').style.display = 'none';
+    document.getElementById('pdecDefenseButtons').style.display = 'flex';
+
+    if (timerFill) {
+      timerFill.style.transition = 'none';
+      timerFill.style.width = '100%';
+      setTimeout(() => {
+        timerFill.style.transition = 'width 5s linear';
+        timerFill.style.width = '0%';
+      }, 50);
+    }
+
+    overlay.style.display = 'flex';
+
+    // Auto-resolve after 5 seconds: if user does not choose, opponent scores!
+    this.decisionTimer = setTimeout(() => {
+      if (this.isMatchPaused) {
+        this.handleDefenseChoice('none');
+      }
+    }, 5000);
+  }
+
+  handleDefenseChoice(userChoice) {
+    if (this.decisionTimer) {
+      clearTimeout(this.decisionTimer);
+      this.decisionTimer = null;
+    }
+
+    document.getElementById('decisionOverlay').style.display = 'none';
+    this.isMatchPaused = false;
+    window.soundEngine.playClick();
+
+    const gk = this.defenseActiveGk || this.getUserGoalkeeper();
+    const oppStar = this.defenseActiveOppStar || this.getOpponentStarName();
+    const isCorrect = (userChoice === this.oppSecretChoice);
+
+    // High rating bonus: elite GK (86+) has reflex chance even if wrong choice
+    const reflexSave = (!isCorrect && userChoice !== 'none' && Math.random() < Math.max(0, (gk.rating - 80) * 0.015));
+
+    if (isCorrect || reflexSave) {
+      // Goalkeeper successfully saves!
+      window.soundEngine.playWhistle();
+      window.soundEngine.playCrowdCheer();
+
+      let comment = '';
+      if (userChoice === 'left') {
+        comment = `🧤 <strong>MÜTHİŞ PLONJON!</strong> ${gk.name} sol köşeye adeta uçtu ve ${oppStar}'in füzesini kornere çeldi!`;
+      } else if (userChoice === 'right') {
+        comment = `🧤 <strong>HARİKA KURTARIŞ!</strong> ${gk.name} sağ direk dibine uzandı ve ${oppStar}'in şutunu çıkardı!`;
+      } else if (userChoice === 'rush') {
+        comment = `🧤 <strong>CESUR HAMLE!</strong> ${gk.name} zamanında kalesinden açıldı, ${oppStar}'in ayaklarına kapanarak mutlak golü önledi!`;
+      } else {
+        comment = `🧤 <strong>İNANILMAZ REFLEKS!</strong> ${gk.name} ters ayakta yakalanmasına rağmen ayağıyla golü çizgiden çıkardı!`;
+      }
+      this.updateLiveSpiker(comment, 'highlight');
+    } else {
+      // Conceded goal!
+      this.oppScore++;
+      document.getElementById('sbOppScore').textContent = this.oppScore;
+      window.soundEngine.playWhistle();
+
+      let comment = '';
+      if (userChoice === 'none') {
+        comment = `⚽ <strong>GOL!</strong> Kararsız kalındı! ${oppStar} boş köşeye yuvarladı ve ${this.activeOpponent.name} golü buldu!`;
+      } else {
+        const choiceLabels = { left: 'sol köşeye uzandı', right: 'sağ köşeye uzandı', rush: 'öne çıktı' };
+        comment = `⚽ <strong>GOL!</strong> ${gk.name} ${choiceLabels[userChoice] || 'hamle yaptı'} ama ${oppStar} ters köşeye astı! Skor: Rüya Takım ${this.userScore} - ${this.oppScore} ${this.activeOpponent.name}`;
+      }
+      this.updateLiveSpiker(comment, 'danger');
     }
   }
 

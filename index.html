@@ -112,14 +112,16 @@
           <div class="pitch-decision-overlay" id="decisionOverlay" style="display: none;">
             <div class="pitch-decision-card">
               <div class="pdec-header">
-                <span class="pdec-badge">⚡ KRİTİK GOL ANI!</span>
+                <span class="pdec-badge" id="pdecBadge">⚡ KRİTİK GOL ANI!</span>
                 <div class="pdec-timer-bar"><div class="pdec-timer-fill" id="pdecTimerFill"></div></div>
               </div>
               <h4 class="pdec-title" id="decisionTitle">72. DAKİKA: Kaleciyle Karşı Karşıya!</h4>
               <p class="pdec-desc" id="decisionDesc">
                 [Mbappé] ceza sahasına fırtına gibi girdi! Ne yapacaksın?
               </p>
-              <div class="pdec-buttons">
+              
+              <!-- ATTACK DECISION BUTTONS (User Attacks) -->
+              <div class="pdec-buttons" id="pdecAttackButtons">
                 <button class="btn-pdec btn-plase" id="btnChoicePlase">
                   <span class="pdec-icon">🎯</span>
                   <div class="pdec-lbl">
@@ -139,6 +141,31 @@
                   <div class="pdec-lbl">
                     <strong>Boştaki Arkadaşına Çıkar</strong>
                     <small>Boş Kaleye Pas</small>
+                  </div>
+                </button>
+              </div>
+
+              <!-- DEFENSE DECISION BUTTONS (User Goalkeeper Defends) -->
+              <div class="pdec-buttons" id="pdecDefenseButtons" style="display: none;">
+                <button class="btn-pdec btn-dive-left" id="btnChoiceDiveLeft">
+                  <span class="pdec-icon">🧤</span>
+                  <div class="pdec-lbl">
+                    <strong>Sol Köşeye Uzan</strong>
+                    <small>Sol Direk Dibine Plonjon</small>
+                  </div>
+                </button>
+                <button class="btn-pdec btn-rush-out" id="btnChoiceRushOut">
+                  <span class="pdec-icon">🏃‍♂️</span>
+                  <div class="pdec-lbl">
+                    <strong>Öne Çık & Ayaklarına Kapan</strong>
+                    <small>Açıyı Kapat ve Hamle Yap</small>
+                  </div>
+                </button>
+                <button class="btn-pdec btn-dive-right" id="btnChoiceDiveRight">
+                  <span class="pdec-icon">🧤</span>
+                  <div class="pdec-lbl">
+                    <strong>Sağ Köşeye Uzan</strong>
+                    <small>Sağ Direk Dibine Plonjon</small>
                   </div>
                 </button>
               </div>

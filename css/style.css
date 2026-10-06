@@ -1554,6 +1554,20 @@ body.tournament-active .pitch-slot {
 .btn-pass { border-color: rgba(0, 230, 118, 0.4); }
 .btn-pass:hover { background: rgba(0, 230, 118, 0.2); box-shadow: 0 0 15px rgba(0, 230, 118, 0.4); }
 
+.btn-dive-left { border-color: rgba(59, 130, 246, 0.45); }
+.btn-dive-left:hover { background: rgba(59, 130, 246, 0.25); box-shadow: 0 0 15px rgba(59, 130, 246, 0.45); }
+
+.btn-rush-out { border-color: rgba(245, 158, 11, 0.45); }
+.btn-rush-out:hover { background: rgba(245, 158, 11, 0.25); box-shadow: 0 0 15px rgba(245, 158, 11, 0.45); }
+
+.btn-dive-right { border-color: rgba(168, 85, 247, 0.45); }
+.btn-dive-right:hover { background: rgba(168, 85, 247, 0.25); box-shadow: 0 0 15px rgba(168, 85, 247, 0.45); }
+
+.pdec-badge.defense {
+  background: #ea580c !important;
+  box-shadow: 0 0 14px rgba(234, 88, 12, 0.75) !important;
+}
+
 /* 5. ON-PITCH FULL OVERLAYS (Preview, Result, Trophy) */
 .pitch-full-overlay {
   position: absolute;
