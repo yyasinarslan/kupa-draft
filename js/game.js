@@ -147,9 +147,16 @@ class FutDraftGame {
   }
 
   showMainMenu() {
+    // Strictly close all modals
+    ['formationModal', 'draftPickModal', 'completionModal', 'settingsModal', 'howToPlayModal'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+
     const menu = document.getElementById('mainMenuScreen');
     if (menu) {
       menu.classList.remove('hidden');
+      menu.style.display = 'flex';
     }
   }
 
@@ -157,6 +164,11 @@ class FutDraftGame {
     const menu = document.getElementById('mainMenuScreen');
     if (menu) {
       menu.classList.add('hidden');
+      setTimeout(() => {
+        if (menu.classList.contains('hidden')) {
+          menu.style.display = 'none';
+        }
+      }, 350);
     }
   }
 
@@ -167,7 +179,13 @@ class FutDraftGame {
     this.tournament = new TournamentEngine(this);
     this.applySettings();
     
-    // Initial State: Main menu is active, formationModal stays closed until user clicks "Oyuna Başla"
+    // Explicitly guarantee all modals are closed initially
+    ['formationModal', 'draftPickModal', 'completionModal', 'settingsModal', 'howToPlayModal'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+
+    // Purely display Main Menu on launch
     this.showMainMenu();
   }
 
@@ -206,13 +224,15 @@ class FutDraftGame {
     if (btnStartDraft) {
       btnStartDraft.addEventListener('click', () => {
         window.soundEngine.playClick();
-        // Ensure settings and how to play modals are closed
-        const sm = document.getElementById('settingsModal');
-        if (sm) sm.style.display = 'none';
-        const hm = document.getElementById('howToPlayModal');
-        if (hm) hm.style.display = 'none';
+        // Ensure all modals are strictly closed
+        ['settingsModal', 'howToPlayModal', 'draftPickModal', 'completionModal'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.style.display = 'none';
+        });
 
         this.hideMainMenu();
+        this.resetDraft(false);
+
         // Start flow by opening the formation selection modal!
         setTimeout(() => {
           document.getElementById('formationModal').style.display = 'flex';
@@ -394,7 +414,7 @@ class FutDraftGame {
     document.getElementById('btnResetDraft').addEventListener('click', () => {
       if (this.tournament && (this.tournament.isMatchActive || this.tournament.isTournamentActive)) return;
       window.soundEngine.playClick();
-      this.resetDraft();
+      this.resetDraft(true);
     });
 
     // Victory Modal Buttons
@@ -406,7 +426,7 @@ class FutDraftGame {
     document.getElementById('btnVictoryRestart').addEventListener('click', () => {
       window.soundEngine.playClick();
       document.getElementById('completionModal').style.display = 'none';
-      this.resetDraft();
+      this.resetDraft(true);
     });
 
     document.getElementById('btnVictoryDownload').addEventListener('click', () => {
@@ -459,7 +479,7 @@ class FutDraftGame {
     this.updateStatsDisplay();
   }
 
-  resetDraft() {
+  resetDraft(autoOpenCaptain = false) {
     this.captainPicked = false;
     this.captainCandidates = null;
     this.activeDraftSlotIndex = null;
@@ -469,7 +489,8 @@ class FutDraftGame {
     });
     this.renderPitch();
     this.updateStatsDisplay();
-    document.getElementById('btnDownloadSquad').style.display = 'none';
+    const btnDownload = document.getElementById('btnDownloadSquad');
+    if (btnDownload) btnDownload.style.display = 'none';
 
     if (this.tournament) {
       this.tournament.currentRoundIndex = 0;
@@ -477,13 +498,15 @@ class FutDraftGame {
       this.tournament.updateHeaderButton(false);
     }
 
-    setTimeout(() => {
-      this.openCaptainDraftModal();
-    }, 250);
+    if (autoOpenCaptain) {
+      setTimeout(() => {
+        this.openCaptainDraftModal();
+      }, 250);
+    }
   }
 
   resetGame() {
-    this.resetDraft();
+    this.resetDraft(false);
   }
 
   // ==========================================
