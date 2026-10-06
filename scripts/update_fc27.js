@@ -216,9 +216,9 @@ async function main() {
       if (candidate) {
         matchedCount++;
         const oldR = player.rating;
-        const oldClub = player.club;
         player.rating = candidate.rating;
         if (candidate.club) player.club = candidate.club;
+        if (player.name === 'Rafael Leão' || player.id === 'por_leao') player.club = 'Galatasaray';
         player.stats = {
           pac: candidate.pac,
           sho: candidate.sho,

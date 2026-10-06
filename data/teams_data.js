@@ -879,7 +879,7 @@ window.TEAMS_DATA = [
         "rating": 83,
         "position": "FWD",
         "detailedPosition": "SLK",
-        "club": "Milano FC",
+        "club": "Galatasaray",
         "stats": {
           "pac": 93,
           "sho": 79,
