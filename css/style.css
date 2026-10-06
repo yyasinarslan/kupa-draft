@@ -1715,6 +1715,18 @@ body.tournament-active .pitch-slot {
   box-shadow: 0 0 12px rgba(239, 68, 68, 0.6);
 }
 
+.pdec-badge.elite {
+  background: linear-gradient(135deg, #eab308, #ca8a04);
+  color: #0f172a;
+  box-shadow: 0 0 15px rgba(234, 179, 8, 0.7);
+}
+
+.pdec-badge.god {
+  background: linear-gradient(135deg, #ec4899, #8b5cf6);
+  color: #fff;
+  box-shadow: 0 0 18px rgba(236, 72, 153, 0.8);
+}
+
 .pdec-timer-bar {
   flex: 1;
   height: 6px;
@@ -1742,6 +1754,36 @@ body.tournament-active .pitch-slot {
   color: var(--text-secondary);
   line-height: 1.4;
   margin-bottom: 16px;
+}
+
+.pdec-advantage-hint {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  margin-bottom: 6px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.84rem;
+  line-height: 1.35;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #e2e8f0;
+  text-align: left;
+}
+
+.pdec-advantage-hint.high {
+  background: rgba(234, 179, 8, 0.12);
+  border-color: rgba(234, 179, 8, 0.4);
+  color: #fef08a;
+  box-shadow: 0 0 12px rgba(234, 179, 8, 0.15);
+}
+
+.pdec-advantage-hint.god {
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.2), rgba(168, 85, 247, 0.2));
+  border-color: rgba(236, 72, 153, 0.5);
+  color: #fbcfe8;
+  box-shadow: 0 0 15px rgba(236, 72, 153, 0.25);
 }
 
 .pdec-buttons {

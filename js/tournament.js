@@ -575,8 +575,30 @@ class TournamentEngine {
     this.isMatchPaused = true;
     window.soundEngine.playReveal();
 
-    const star = this.getRandomUserPlayer(['FWD', 'SNT', 'SĞK', 'SLK', 'MOO']);
+    // Select attacking player heavily weighted by rating! High rating players get the vast majority of positions
+    const star = this.getRandomUserPlayer(['FWD', 'SNT', 'SĞK', 'SLK', 'MOO'], null, true);
     this.decisionActivePlayer = star;
+
+    // Calculate winning choices based on star's rating:
+    // User request: "reytingi yüksek oyuncunun gol atma ihtimali çok daha yüksek olsun, yani pozisyonlar ona daha çok gelsin, üç seçenekten ikisi gol olsun mesela"
+    const allChoices = ['plase', 'power', 'pass'];
+    const shuffled = [...allChoices].sort(() => Math.random() - 0.5);
+
+    let winningChoices = [];
+    const isGodTier = (star.rating >= 96 || (star.name && star.name.includes('Bera')));
+    const isElite = (star.rating >= 84);
+
+    if (isGodTier) {
+      // 99 Y. Bera / God tier: All 3 options score!
+      winningChoices = ['plase', 'power', 'pass'];
+    } else if (isElite) {
+      // 84+ Star: Exactly 2 out of 3 options are guaranteed GOALS!
+      winningChoices = [shuffled[0], shuffled[1]];
+    } else {
+      // Normal: 1 out of 3 is guaranteed goal
+      winningChoices = [shuffled[0]];
+    }
+    this.decisionWinningChoices = winningChoices;
 
     const overlay = document.getElementById('decisionOverlay');
     const badge = document.getElementById('pdecBadge');
@@ -585,17 +607,43 @@ class TournamentEngine {
     const timerFill = document.getElementById('pdecTimerFill');
 
     if (badge) {
-      badge.textContent = '⚡ KRİTİK GOL ANI!';
-      badge.className = 'pdec-badge';
+      badge.textContent = isGodTier ? '👑 EFSANEVİ BİTİRİCİLİK!' : (isElite ? '⭐ YILDIZ GOL ANI!' : '⚡ KRİTİK GOL ANI!');
+      badge.className = `pdec-badge ${isGodTier ? 'god' : (isElite ? 'elite' : '')}`;
     }
 
     const durationMs = this.getDecisionDuration();
     const durationSec = durationMs / 1000;
 
     title.textContent = `⚡ ${this.matchMinute}. DAKİKA: Kaleciyle Karşı Karşıya!`;
+
+    let starAdvantageHint = '';
+    if (isGodTier) {
+      starAdvantageHint = `
+        <div class="pdec-advantage-hint god">
+          <span>👑</span>
+          <div><strong>99 OVR Süper Güç:</strong> ${star.name} ceza sahasında durdurulamaz! <strong>3 seçeneğin 3'ü de doğrudan GOL!</strong></div>
+        </div>
+      `;
+    } else if (isElite) {
+      starAdvantageHint = `
+        <div class="pdec-advantage-hint high">
+          <span>⭐</span>
+          <div><strong>Yüksek Reyting Avantajı (${star.rating} OVR):</strong> Yıldız oyuncu kalitesi devrede! <strong>3 seçenekten 2'si doğrudan GOL!</strong></div>
+        </div>
+      `;
+    } else {
+      starAdvantageHint = `
+        <div class="pdec-advantage-hint">
+          <span>🎯</span>
+          <div><strong>Doğru Vuruşu Seç:</strong> 3 seçenekten en isabetli olanı kaleciyi avlayacak!</div>
+        </div>
+      `;
+    }
+
     desc.innerHTML = `
       🔥 <strong>${star.name}</strong> (${star.rating} Rating) ceza sahasına fırtına gibi girdi!
-      <br><strong>${durationSec} saniye içinde karar ver (Seçmezsen otomatik şut çekilir):</strong>
+      ${starAdvantageHint}
+      <div style="margin-top: 8px; font-size: 0.82rem; color: #94a3b8;"><strong>${durationSec}</strong> saniye içinde kararını ver (Seçmezsen otomatik şut çekilir):</div>
     `;
 
     document.getElementById('pdecAttackButtons').style.display = 'flex';
@@ -616,7 +664,11 @@ class TournamentEngine {
     // Auto-resolve after dynamic seconds if user doesn't click
     this.decisionTimer = setTimeout(() => {
       if (this.isMatchPaused) {
-        this.handleDecisionChoice('power'); // default to power shot
+        // If timed out, pick either a winning choice or power shot
+        const defaultChoice = this.decisionWinningChoices.includes('power') 
+          ? 'power' 
+          : this.decisionWinningChoices[0] || 'power';
+        this.handleDecisionChoice(defaultChoice);
       }
     }, durationMs);
   }
@@ -639,39 +691,56 @@ class TournamentEngine {
     let isGoal = false;
     let comment = '';
 
-    const stats = player.stats || { sho: 80, dri: 80, pas: 80, pac: 80 };
-    const powerBonus = Math.max(-6, Math.min(6, (this.powerAdvantage || 0)));
-    const roll = Math.random() * 100;
+    const isGodTier = (player.rating >= 96 || (player.name && player.name.includes('Bera')));
+    const isElite = (player.rating >= 84);
 
-    if (choiceType === 'plase') {
-      const threshold = (stats.dri * 0.5 + stats.sho * 0.5) - 15 + powerBonus;
-      if (roll < threshold) {
+    const isDirectWinning = this.decisionWinningChoices && this.decisionWinningChoices.includes(choiceType);
+
+    if (isDirectWinning) {
+      isGoal = true;
+    } else {
+      // Even if missed primary winning choice:
+      // Power advantage or god tier gives extra underdog grace
+      const powerBonus = Math.max(-6, Math.min(6, (this.powerAdvantage || 0)));
+      const graceChance = Math.max(0.05, 0.15 + (powerBonus * 0.02));
+      if (Math.random() < graceChance) {
         isGoal = true;
-        comment = `🎯 <strong>GOOOOOOL!</strong> ${player.name} adrese teslim bir plaseyle 90'a astı!`;
-      } else {
-        comment = `🧤 <strong>DİREK!</strong> ${player.name}'in plasesini kaleci son anda parmaklarıyla çeldi!`;
-      }
-    } else if (choiceType === 'power') {
-      const threshold = (stats.sho * 0.7 + stats.pac * 0.3) - 14 + powerBonus;
-      if (roll < threshold) {
-        isGoal = true;
-        comment = `⚡ <strong>GOOOOOOL!</strong> ${player.name} öyle bir füze çıkardı ki fileler yırtıldı!`;
-      } else {
-        comment = `💥 <strong>DİREKTE PATLADI!</strong> ${player.name}'in müthiş füzesi direkte patladı!`;
-      }
-    } else if (choiceType === 'pass') {
-      const threshold = (stats.pas * 0.6 + stats.dri * 0.4) - 10 + powerBonus;
-      const target = this.getRandomUserPlayer(['FWD', 'SNT', 'MID', 'MOO'], player.id);
-      if (roll < threshold) {
-        isGoal = true;
-        comment = `👟 <strong>AL DA AT!</strong> ${player.name}'in nefis pasında ${target.name} boş kaleye yuvarladı! GOOOOOOL!`;
-        this.recordGoal(target.name);
-      } else {
-        comment = `🛡️ <strong>SAVUNMA!</strong> ${player.name}'in pasını savunma son anda kayarak önledi!`;
       }
     }
 
+    // Target player for pass option
+    const target = this.getRandomUserPlayer(['FWD', 'SNT', 'MID', 'MOO'], player.id, true);
+
     if (isGoal) {
+      if (isGodTier) {
+        if (choiceType === 'plase') {
+          comment = `👑 <strong>İNANILMAZ BİR GOL!</strong> 99'luk efsane ${player.name} fizik kurallarını altüst eden muazzam bir plaseyle 90'a astı!`;
+        } else if (choiceType === 'power') {
+          comment = `⚡ <strong>ROKET GİBİ GOL!</strong> ${player.name} öyle bir füze yolladı ki kaleci sadece topun rüzgarını hissedebildi!`;
+        } else {
+          comment = `👟 <strong>SANAT ESERİ ASİST!</strong> ${player.name} kaleciyi tek çalımla ekarte edip ${target.name}'e boş kaleye yuvarlattı! GOOOOOOL!`;
+          this.recordGoal(target.name);
+        }
+      } else if (isElite) {
+        if (choiceType === 'plase') {
+          comment = `🎯 <strong>GOOOOOOL!</strong> ${player.name} (${player.rating} OVR) kalitesini konuşturdu! Köşeye iğne deliğinden geçen kusursuz bir plase!`;
+        } else if (choiceType === 'power') {
+          comment = `⚡ <strong>GOOOOOOL!</strong> ${player.name} (${player.rating} OVR) ceza sahasından balyoz gibi indirdi, fileler sarsıldı!`;
+        } else {
+          comment = `👟 <strong>AL DA AT!</strong> ${player.name}'in nefis ara pasında ${target.name} affetmedi! GOOOOOOL!`;
+          this.recordGoal(target.name);
+        }
+      } else {
+        if (choiceType === 'plase') {
+          comment = `🎯 <strong>GOOOOOOL!</strong> ${player.name} adrese teslim bir plaseyle köşeyi gördü!`;
+        } else if (choiceType === 'power') {
+          comment = `⚡ <strong>GOOOOOOL!</strong> ${player.name} sert ve düzgün bir vuruşla kaleciyi mağlup etti!`;
+        } else {
+          comment = `👟 <strong>GOOOOOL!</strong> ${player.name}'in pasında ${target.name} boş kaleye yuvarladı!`;
+          this.recordGoal(target.name);
+        }
+      }
+
       this.userScore++;
       document.getElementById('sbUserScore').textContent = this.userScore;
       if (choiceType !== 'pass') this.recordGoal(player.name);
@@ -679,6 +748,13 @@ class TournamentEngine {
       window.soundEngine.playCrowdCheer();
       this.updateLiveSpiker(comment, 'goal');
     } else {
+      if (choiceType === 'plase') {
+        comment = `🧤 <strong>DİREK / PARMAK UCU!</strong> ${player.name}'in plasesini kaleci son anda parmaklarıyla kornere çeldi!`;
+      } else if (choiceType === 'power') {
+        comment = `💥 <strong>DİREKTE PATLADI!</strong> ${player.name}'in müthiş füzesi üst direkte patladı!`;
+      } else {
+        comment = `🛡️ <strong>SAVUNMA ÇIKARDI!</strong> ${player.name}'in pasını rakip savunma son salisede yatarak önledi!`;
+      }
       window.soundEngine.playWhistle();
       this.updateLiveSpiker(comment, 'highlight');
     }
@@ -814,19 +890,44 @@ class TournamentEngine {
     this.tournamentStats.goalsByPlayer[playerName] = (this.tournamentStats.goalsByPlayer[playerName] || 0) + 1;
   }
 
-  getRandomUserPlayer(allowedPosCategories, excludeId = null) {
+  getRandomUserPlayer(allowedPosCategories, excludeId = null, weightedByRating = true) {
     const players = this.game.squadSlots
       .filter(s => s.player && (!excludeId || s.player.id !== excludeId))
       .map(s => s.player);
+
+    if (players.length === 0) {
+      return { name: 'Oyuncu', rating: 82, stats: { sho: 80, dri: 80, pas: 80, pac: 80 } };
+    }
 
     const filtered = players.filter(p => 
       allowedPosCategories.includes(p.position) || 
       allowedPosCategories.includes(p.detailedPosition)
     );
 
-    return filtered.length > 0 
-      ? filtered[Math.floor(Math.random() * filtered.length)]
-      : players[Math.floor(Math.random() * players.length)];
+    const pool = filtered.length > 0 ? filtered : players;
+
+    if (!weightedByRating) {
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    // Heavy rating weighting:
+    // (rating - 65)^3.5 gives massive priority to high-rated stars (e.g. 99 Y. Bera, 90+ superstars)
+    const weights = pool.map(p => {
+      const base = Math.max(1, (p.rating || 80) - 65);
+      return Math.pow(base, 3.5);
+    });
+
+    const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+    let rand = Math.random() * totalWeight;
+
+    for (let i = 0; i < pool.length; i++) {
+      if (rand < weights[i]) {
+        return pool[i];
+      }
+      rand -= weights[i];
+    }
+
+    return pool[0];
   }
 
   // ==========================================
