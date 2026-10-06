@@ -570,36 +570,112 @@ class TournamentEngine {
   }
 
   // ==========================================
+  // RATING TIERS & FINISHING MECHANICS
+  // ==========================================
+  getPlayerTier(rating, playerName = '') {
+    const isBera = (playerName && playerName.includes('Bera'));
+    if (rating >= 96 || isBera) {
+      return {
+        id: 'god',
+        name: '👑 Efsanevi Bitirici (99 OVR)',
+        badgeText: '👑 99 SÜPER YILDIZ!',
+        badgeClass: 'pdec-badge god',
+        hintClass: 'pdec-advantage-hint god',
+        guaranteedGoals: 2,
+        fiftyFiftyChoice: false,
+        reboundChance: 0.75, // 3rd choice has 75% rebound follow-up goal
+        extraTimeSec: 2.0,
+        hintText: `👑 <strong>${playerName} (${rating} OVR):</strong> 2 seçenek kesin GOL! 3. seçenekte ise %75 dönen top şansı!`
+      };
+    }
+    if (rating >= 92) {
+      return {
+        id: 'superstar',
+        name: '🔥 Süper Yıldız',
+        badgeText: '🔥 SÜPER YILDIZ!',
+        badgeClass: 'pdec-badge god',
+        hintClass: 'pdec-advantage-hint god',
+        guaranteedGoals: 2,
+        fiftyFiftyChoice: false,
+        reboundChance: 0.40, // 3rd choice has 40% rebound follow-up goal
+        extraTimeSec: 1.5,
+        hintText: `🔥 <strong>${playerName} (${rating} OVR):</strong> 2 seçenek kesin GOL! 3. seçenekte %40 dönen top şansı!`
+      };
+    }
+    if (rating >= 87) {
+      return {
+        id: 'worldclass',
+        name: '🌟 Dünya Yıldızı',
+        badgeText: '🌟 YILDIZ GOL ANI!',
+        badgeClass: 'pdec-badge elite',
+        hintClass: 'pdec-advantage-hint high',
+        guaranteedGoals: 2,
+        fiftyFiftyChoice: false,
+        reboundChance: 0.0,
+        extraTimeSec: 1.0,
+        hintText: `🌟 <strong>${playerName} (${rating} OVR):</strong> 3 seçenekten 2'si doğrudan GOL! (1 vuruş kaçar)`
+      };
+    }
+    if (rating >= 83) {
+      return {
+        id: 'quality',
+        name: '⭐ Kaliteli Forvet',
+        badgeText: '⭐ KALİTELİ FORVET',
+        badgeClass: 'pdec-badge elite',
+        hintClass: 'pdec-advantage-hint high',
+        guaranteedGoals: 1,
+        fiftyFiftyChoice: true, // 1 guaranteed, 1 with 50% chance, 1 miss
+        reboundChance: 0.0,
+        extraTimeSec: 0.5,
+        hintText: `⭐ <strong>${playerName} (${rating} OVR):</strong> 1 Garanti GOL + 1 Tehlikeli Vuruş (%50 şans)!`
+      };
+    }
+    // Normal (< 83)
+    return {
+      id: 'normal',
+      name: '🎯 Standart Forvet',
+      badgeText: '⚡ KRİTİK GOL ANI!',
+      badgeClass: 'pdec-badge',
+      hintClass: 'pdec-advantage-hint',
+      guaranteedGoals: 1,
+      fiftyFiftyChoice: false,
+      reboundChance: 0.0,
+      extraTimeSec: 0.0,
+      hintText: `🎯 <strong>${playerName} (${rating} OVR):</strong> 3 seçenekten sadece 1'i GOL! Doğru kararı bul!`
+    };
+  }
+
+  // ==========================================
   // 1. ATTACK DECISION MOMENT (User Scores)
   // ==========================================
   triggerAttackDecision() {
     this.isMatchPaused = true;
     window.soundEngine.playReveal();
 
-    // Select attacking player weighted by rating:
-    // High rating gets more positions, but not all of them.
     const star = this.getRandomUserPlayer(['FWD', 'SNT', 'SĞK', 'SLK', 'MOO'], null, true);
     this.decisionActivePlayer = star;
     this.lastAttackerId = star.id;
 
-    // Calculate winning choices:
-    // User request: "3 seçeneğin hepsi de gol olmasın ya 2'si gol olsun. Yüksek reytingli karta daha çok pozisyon gelsin ama hep de ona gelmesin yani"
-    // So for high rating (>=84, including 99 Y. Bera and all stars): EXACTLY 2 out of 3 choices are goals, 1 is a miss!
-    // For normal (<84): EXACTLY 1 out of 3 choices is a goal, 2 are misses!
+    const tier = this.getPlayerTier(star.rating, star.name);
+    this.decisionActiveTier = tier;
+
     const allChoices = ['plase', 'power', 'pass'];
     const shuffled = [...allChoices].sort(() => Math.random() - 0.5);
 
-    let winningChoices = [];
-    const isElite = (star.rating >= 84);
+    let guaranteedWinning = [];
+    let fiftyFiftyChoice = null;
 
-    if (isElite) {
-      // Exactly 2 out of 3 choices are goals!
-      winningChoices = [shuffled[0], shuffled[1]];
+    if (tier.guaranteedGoals === 2) {
+      guaranteedWinning = [shuffled[0], shuffled[1]];
     } else {
-      // Normal: Exactly 1 out of 3 is a goal!
-      winningChoices = [shuffled[0]];
+      guaranteedWinning = [shuffled[0]];
+      if (tier.fiftyFiftyChoice) {
+        fiftyFiftyChoice = shuffled[1];
+      }
     }
-    this.decisionWinningChoices = winningChoices;
+
+    this.decisionGuaranteedWinning = guaranteedWinning;
+    this.decisionFiftyFiftyChoice = fiftyFiftyChoice;
 
     const overlay = document.getElementById('decisionOverlay');
     const badge = document.getElementById('pdecBadge');
@@ -608,39 +684,21 @@ class TournamentEngine {
     const timerFill = document.getElementById('pdecTimerFill');
 
     if (badge) {
-      if (star.rating >= 96) {
-        badge.textContent = '👑 99 SÜPER YILDIZ!';
-        badge.className = 'pdec-badge god';
-      } else if (isElite) {
-        badge.textContent = '⭐ YILDIZ GOL ANI!';
-        badge.className = 'pdec-badge elite';
-      } else {
-        badge.textContent = '⚡ KRİTİK GOL ANI!';
-        badge.className = 'pdec-badge';
-      }
+      badge.textContent = tier.badgeText;
+      badge.className = tier.badgeClass;
     }
 
-    const durationMs = this.getDecisionDuration();
-    const durationSec = durationMs / 1000;
+    const durationMs = this.getDecisionDuration() + (tier.extraTimeSec * 1000);
+    const durationSec = (durationMs / 1000).toFixed(1);
 
     title.textContent = `⚡ ${this.matchMinute}. DAKİKA: Kaleciyle Karşı Karşıya!`;
 
-    let starAdvantageHint = '';
-    if (isElite) {
-      starAdvantageHint = `
-        <div class="pdec-advantage-hint high">
-          <span>⭐</span>
-          <div><strong>${star.name} (${star.rating} OVR):</strong> Yıldız oyuncu kalitesi devrede! <strong>3 seçenekten 2'si GOL!</strong> (1 vuruş kaçar)</div>
-        </div>
-      `;
-    } else {
-      starAdvantageHint = `
-        <div class="pdec-advantage-hint">
-          <span>🎯</span>
-          <div><strong>${star.name} (${star.rating} OVR):</strong> 3 seçenekten sadece <strong>1'i GOL!</strong> Doğru vuruşu bul!</div>
-        </div>
-      `;
-    }
+    const starAdvantageHint = `
+      <div class="${tier.hintClass}">
+        <span>${star.rating >= 96 ? '👑' : (star.rating >= 87 ? '🌟' : '⭐')}</span>
+        <div>${tier.hintText}</div>
+      </div>
+    `;
 
     desc.innerHTML = `
       🔥 <strong>${star.name}</strong> (${star.rating} Rating) ceza sahasına fırtına gibi girdi!
@@ -687,22 +745,41 @@ class TournamentEngine {
     window.soundEngine.playClick();
 
     const player = this.decisionActivePlayer;
+    const tier = this.decisionActiveTier || this.getPlayerTier(player.rating, player.name);
     let isGoal = false;
+    let isReboundGoal = false;
     let comment = '';
 
-    const isGodTier = (player.rating >= 96 || (player.name && player.name.includes('Bera')));
-    const isElite = (player.rating >= 84);
+    const isGuaranteed = this.decisionGuaranteedWinning && this.decisionGuaranteedWinning.includes(choiceType);
+    const isFiftyFifty = (this.decisionFiftyFiftyChoice === choiceType);
 
-    // Exact logic: If user picked one of the winning choices -> GOAL!
-    // If not -> MISS / SAVED!
-    const isDirectWinning = this.decisionWinningChoices && this.decisionWinningChoices.includes(choiceType);
-    isGoal = !!isDirectWinning;
+    if (isGuaranteed) {
+      isGoal = true;
+    } else if (isFiftyFifty) {
+      if (Math.random() < 0.50) {
+        isGoal = true;
+      }
+    } else if (tier.reboundChance > 0) {
+      if (Math.random() < tier.reboundChance) {
+        isGoal = true;
+        isReboundGoal = true;
+      }
+    }
 
     // Target player for pass option
     const target = this.getRandomUserPlayer(['FWD', 'SNT', 'MID', 'MOO'], player.id, true);
 
     if (isGoal) {
-      if (isGodTier) {
+      if (isReboundGoal) {
+        if (choiceType === 'plase') {
+          comment = `🧤 <strong>DÖNEN TOP VE GOOOOL!</strong> Kaleci köşeye uzandı ama ${player.name} adeta pusuda bekleyip seken topu tamamladı!`;
+        } else if (choiceType === 'power') {
+          comment = `💥 <strong>DİREKTEN DÖNDÜ VE GOOOL!</strong> ${player.name}'in füzesi direkte patladı, dönen topu yine ${player.name} kafayla ağlara gönderdi!`;
+        } else {
+          comment = `👟 <strong>İKİNCİ HAMLEDE GOOOL!</strong> ${player.name}'in pasında savunma sektirdi, ${target.name} dönen topu affetmedi!`;
+          this.recordGoal(target.name);
+        }
+      } else if (tier.id === 'god') {
         if (choiceType === 'plase') {
           comment = `👑 <strong>GOOOOOOL!</strong> 99'luk süper yıldız ${player.name} adeta fizik kurallarını altüst eden bir plaseyle 90'ı buldu!`;
         } else if (choiceType === 'power') {
@@ -711,7 +788,7 @@ class TournamentEngine {
           comment = `👟 <strong>SANAT ESERİ ASİST!</strong> ${player.name} kaleciyi çalımla ekarte edip ${target.name}'e bıraktı! GOOOOOOL!`;
           this.recordGoal(target.name);
         }
-      } else if (isElite) {
+      } else if (tier.id === 'superstar' || tier.id === 'worldclass') {
         if (choiceType === 'plase') {
           comment = `🎯 <strong>GOOOOOOL!</strong> ${player.name} (${player.rating} OVR) kalitesini konuşturdu! Köşeye kusursuz bir plase!`;
         } else if (choiceType === 'power') {
@@ -738,12 +815,30 @@ class TournamentEngine {
       window.soundEngine.playCrowdCheer();
       this.updateLiveSpiker(comment, 'goal');
     } else {
-      if (choiceType === 'plase') {
-        comment = `🧤 <strong>MUAZZAM KURTARIŞ!</strong> ${player.name}'in plasesinde kaleci son anda parmak uçlarıyla kornere tokatladı!`;
-      } else if (choiceType === 'power') {
-        comment = `💥 <strong>DİREKTE PATLADI!</strong> ${player.name}'in müthiş füzesi üst direkte patlayıp auta çıktı!`;
+      if (tier.id === 'god') {
+        if (choiceType === 'plase') {
+          comment = `🧤 <strong>MUCİZEVİ REFLEKS!</strong> Kaleci inanılmaz uzandı ve ${player.name}'in plasesini köşeden kornere tokatladı!`;
+        } else if (choiceType === 'power') {
+          comment = `💥 <strong>ÇATALDA PATLADI!</strong> ${player.name}'in 99'luk füzesi çatalda patlayıp auta gitti!`;
+        } else {
+          comment = `🛡️ <strong>ÇİZGİDEN ÇIKARILDI!</strong> ${player.name}'in pasında savunma son salisede topu çizgiden çıkardı!`;
+        }
+      } else if (tier.id === 'superstar' || tier.id === 'worldclass') {
+        if (choiceType === 'plase') {
+          comment = `🧤 <strong>MUAZZAM KURTARIŞ!</strong> Kaleci parmak uçlarıyla ${player.name}'in plasesini kornere çeldi!`;
+        } else if (choiceType === 'power') {
+          comment = `💥 <strong>DİREKTE PATLADI!</strong> ${player.name}'in müthiş füzesi üst direkte patlayıp auta çıktı!`;
+        } else {
+          comment = `🛡️ <strong>SAVUNMA ARAYA GİRDİ!</strong> ${player.name}'in pasını rakip savunma son salisede yatarak önledi!`;
+        }
       } else {
-        comment = `🛡️ <strong>SAVUNMA ARAYA GİRDİ!</strong> ${player.name}'in pasını rakip savunma son salisede yatarak önledi!`;
+        if (choiceType === 'plase') {
+          comment = `🧤 <strong>KALECİDE KALDI!</strong> ${player.name}'in plasesi köşeyi bulamadı, kaleci rahat kontrol etti.`;
+        } else if (choiceType === 'power') {
+          comment = `💥 <strong>AUTA GİTTİ!</strong> ${player.name} sert vurdu ama top üstten auta çıktı.`;
+        } else {
+          comment = `🛡️ <strong>KADEMEYE GİRDİLER!</strong> ${player.name}'in pasında savunma topu uzaklaştırdı.`;
+        }
       }
       window.soundEngine.playWhistle();
       this.updateLiveSpiker(comment, 'highlight');
@@ -900,15 +995,23 @@ class TournamentEngine {
       return pool[Math.floor(Math.random() * pool.length)];
     }
 
-    // Balanced rating weighting:
-    // (rating - 55)^1.35 gives high-rated players a clear advantage (e.g. 99 gets ~35-40%),
-    // but ensures other teammates also get plenty of positions.
-    // Also temporarily dampens immediate consecutive attacker repeats when alternatives exist.
+    // Progressive rating tiers for attacking frequency:
+    // 78 OVR -> weight ~10
+    // 84 OVR -> weight ~24
+    // 88 OVR -> weight ~40
+    // 92 OVR -> weight ~60
+    // 99 OVR -> weight ~95
     const weights = pool.map(p => {
-      const base = Math.max(5, (p.rating || 80) - 55);
-      let w = Math.pow(base, 1.35);
+      const r = p.rating || 80;
+      let w = 10;
+      if (r >= 96 || (p.name && p.name.includes('Bera'))) w = 95;
+      else if (r >= 92) w = 60;
+      else if (r >= 87) w = 40;
+      else if (r >= 83) w = 24;
+      else w = Math.max(8, r - 68);
+
       if (this.lastAttackerId && p.id === this.lastAttackerId && pool.length > 1) {
-        w *= 0.35;
+        w *= 0.35; // Temporarily dampens immediate consecutive attacker repeats
       }
       return w;
     });
