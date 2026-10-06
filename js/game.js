@@ -363,9 +363,9 @@ class FutDraftGame {
       const usedPositions = new Set();
       const usedNations = new Set();
 
-      // Guarantee the Birthday Hero Y. Bera as a captain option!
+      // High chance for the Birthday Hero Y. Bera as a captain option (~40% chance)
       const bera = this.allPlayers.find(p => p.id === 'tur_y_bera');
-      if (bera) {
+      if (bera && Math.random() < 0.40) {
         candidates.push({ ...bera, isCaptain: true });
         usedPositions.add(bera.detailedPosition);
         usedNations.add(bera.teamName);
@@ -373,6 +373,7 @@ class FutDraftGame {
 
       for (let p of superstars) {
         if (candidates.length >= 5) break;
+        if (candidates.some(c => c.id === p.id)) continue;
         const matchingSlot = this.squadSlots.find(s => 
           s.detailed === p.detailedPosition || 
           (COMPATIBLE_POSITIONS[s.detailed] && COMPATIBLE_POSITIONS[s.detailed].includes(p.detailedPosition))
@@ -393,7 +394,7 @@ class FutDraftGame {
           }
         }
       }
-      this.captainCandidates = candidates;
+      this.captainCandidates = candidates.sort(() => 0.5 - Math.random());
     }
 
     this.renderCandidateCards(this.captainCandidates);
@@ -466,8 +467,8 @@ class FutDraftGame {
     if (isBeraNotPicked) {
       const isSntSlot = slot.detailed === 'SNT';
       const isAttackSlot = slot.category === 'FWD' || slot.detailed === 'MOO';
-      // 100% guaranteed on SNT, 75% on other attack slots, 35% on other slots
-      const shouldAppear = isSntSlot ? true : (isAttackSlot ? Math.random() < 0.75 : Math.random() < 0.35);
+      // High probability: 50% on SNT, 25% on other attack slots
+      const shouldAppear = isSntSlot ? (Math.random() < 0.50) : (isAttackSlot ? Math.random() < 0.25 : false);
       if (shouldAppear) {
         candidates.push(beraPlayer);
         usedIds.add(beraPlayer.id);
