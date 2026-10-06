@@ -364,7 +364,7 @@ class FutDraftGame {
       const usedNations = new Set();
 
       // Guarantee the Birthday Hero Y. Bera as a captain option!
-      const bera = superstars.find(p => p.id === 'tur_y_bera');
+      const bera = this.allPlayers.find(p => p.id === 'tur_y_bera');
       if (bera) {
         candidates.push({ ...bera, isCaptain: true });
         usedPositions.add(bera.detailedPosition);
@@ -460,12 +460,19 @@ class FutDraftGame {
     const usedIds = new Set();
     const usedNations = new Set();
 
-    // Special Birthday Star Y. Bera appearance for SNT slot:
-    const beraPlayer = pool.find(p => p.id === 'tur_y_bera');
-    if (beraPlayer && (slot.detailed === 'SNT' || Math.random() < 0.35)) {
-      candidates.push(beraPlayer);
-      usedIds.add(beraPlayer.id);
-      usedNations.add(beraPlayer.teamName);
+    // Special Birthday Star Y. Bera appearance:
+    const beraPlayer = this.allPlayers.find(p => p.id === 'tur_y_bera');
+    const isBeraNotPicked = beraPlayer && !chosenIds.has('tur_y_bera');
+    if (isBeraNotPicked) {
+      const isSntSlot = slot.detailed === 'SNT';
+      const isAttackSlot = slot.category === 'FWD' || slot.detailed === 'MOO';
+      // 100% guaranteed on SNT, 75% on other attack slots, 35% on other slots
+      const shouldAppear = isSntSlot ? true : (isAttackSlot ? Math.random() < 0.75 : Math.random() < 0.35);
+      if (shouldAppear) {
+        candidates.push(beraPlayer);
+        usedIds.add(beraPlayer.id);
+        usedNations.add(beraPlayer.teamName);
+      }
     }
 
     tierSpecs.forEach(spec => {
