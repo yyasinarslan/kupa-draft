@@ -281,23 +281,31 @@ class FutDraftGame {
 
       if (slot.player) {
         slotDiv.classList.add('slot-filled');
-        // Filled Card on pitch
         const p = slot.player;
-        const isElite = p.rating >= 87;
         const posText = slot.label;
-        const lastName = p.name.split(' ').pop();
         const captainBadgeHtml = p.isCaptain ? `<span class="p-card-captain-tag">© C</span>` : '';
+        const isBirthday = p.cardType === 'birthday' || p.rating === 99;
+        let cardTierClass = '';
+        if (isBirthday) {
+          cardTierClass = 'birthday-special';
+        } else if (p.rating >= 87) {
+          cardTierClass = 'elite';
+        }
+        const avatarIcon = isBirthday ? '👑' : '👤';
+        const displayName = isBirthday ? 'Y. Bera' : p.name.split(' ').pop();
+        const bdayTagHtml = isBirthday ? `<span class="p-card-bday-tag">🎂 99</span>` : '';
 
         slotDiv.innerHTML = `
-          <div class="pitch-card-filled ${isElite ? 'elite' : ''}">
+          <div class="pitch-card-filled ${cardTierClass}">
             ${captainBadgeHtml}
+            ${bdayTagHtml}
             <div class="p-card-top">
               <span class="p-card-rating">${p.rating}</span>
               <span class="p-card-pos">${posText}</span>
               <span class="p-card-flag">${p.teamFlag}</span>
             </div>
-            <div class="p-card-avatar">👤</div>
-            <div class="p-card-name">${lastName}</div>
+            <div class="p-card-avatar">${avatarIcon}</div>
+            <div class="p-card-name">${displayName}</div>
           </div>
           <div class="slot-pos-badge">${slot.label}</div>
         `;
@@ -346,7 +354,7 @@ class FutDraftGame {
       'Takımına liderlik edecek bir süperstar seç. Seçtiğin kaptan ilk 11\'deki mevkisine yerleşecektir:';
 
     if (!this.captainCandidates) {
-      // 5 World-class superstars (87-91) across different formation positions
+      // 5 World-class superstars (87-99) across different formation positions
       const superstars = this.allPlayers
         .filter(p => p.rating >= 86)
         .sort(() => 0.5 - Math.random());
@@ -354,6 +362,14 @@ class FutDraftGame {
       const candidates = [];
       const usedPositions = new Set();
       const usedNations = new Set();
+
+      // Guarantee the Birthday Hero Y. Bera as a captain option!
+      const bera = superstars.find(p => p.id === 'tur_y_bera');
+      if (bera) {
+        candidates.push({ ...bera, isCaptain: true });
+        usedPositions.add(bera.detailedPosition);
+        usedNations.add(bera.teamName);
+      }
 
       for (let p of superstars) {
         if (candidates.length >= 5) break;
@@ -426,14 +442,14 @@ class FutDraftGame {
     }
 
     // Realistic FUT Draft Rating Tiers:
-    // Slot 1: Star / Walkout chance (~20% chance of 85-92, otherwise 82-85)
+    // Slot 1: Star / Walkout chance (~25% chance of 85-99, otherwise 82-99)
     // Slot 2: Solid High Gold (80-84)
     // Slot 3: Mid Gold (78-82)
     // Slot 4: Common Gold (75-79)
     // Slot 5: Wildcard / Underdog (71-77)
-    const hasWalkout = Math.random() < 0.20;
+    const hasWalkout = Math.random() < 0.25;
     const tierSpecs = [
-      hasWalkout ? { min: 85, max: 92 } : { min: 82, max: 85 },
+      hasWalkout ? { min: 85, max: 99 } : { min: 82, max: 99 },
       { min: 80, max: 84 },
       { min: 78, max: 82 },
       { min: 75, max: 79 },
@@ -444,7 +460,16 @@ class FutDraftGame {
     const usedIds = new Set();
     const usedNations = new Set();
 
+    // Special Birthday Star Y. Bera appearance for SNT slot:
+    const beraPlayer = pool.find(p => p.id === 'tur_y_bera');
+    if (beraPlayer && (slot.detailed === 'SNT' || Math.random() < 0.35)) {
+      candidates.push(beraPlayer);
+      usedIds.add(beraPlayer.id);
+      usedNations.add(beraPlayer.teamName);
+    }
+
     tierSpecs.forEach(spec => {
+      if (candidates.length >= 5) return;
       // Find matching players in this rating range
       let eligible = pool.filter(p => 
         !usedIds.has(p.id) && 
@@ -492,7 +517,10 @@ class FutDraftGame {
       
       // Determine Tier Class
       let tierClass = 'rare-gold';
-      if (player.rating >= 87) {
+      const isBirthday = player.cardType === 'birthday' || player.rating === 99;
+      if (isBirthday) {
+        tierClass = 'birthday-special';
+      } else if (player.rating >= 87) {
         tierClass = 'elite';
       } else if (player.rating >= 82) {
         tierClass = 'rare-gold';
@@ -512,9 +540,12 @@ class FutDraftGame {
         ? (player.detailedPosition || player.position) 
         : (this.activeDraftSlotIndex !== null ? this.squadSlots[this.activeDraftSlotIndex].label : (player.detailedPosition || player.position));
       const captainTagHtml = player.isCaptain ? `<span class="captain-tag">© KAPTAN</span>` : '';
+      const bdayTagHtml = isBirthday ? `<span class="birthday-badge-tag">🎂 İYİ Kİ DOĞDUN BERA! 🎉</span>` : '';
+      const avatarIcon = isBirthday ? '👑' : (player.avatar || '👤');
 
       card.innerHTML = `
         ${captainTagHtml}
+        ${bdayTagHtml}
         <div class="card-top">
           <div class="card-meta-left">
             <div class="card-rating">${player.rating}</div>
@@ -522,7 +553,7 @@ class FutDraftGame {
             <div class="card-meta-flag">${player.teamFlag}</div>
           </div>
           <div class="card-avatar-wrap">
-            <div class="card-silhouette">👤</div>
+            <div class="card-silhouette">${avatarIcon}</div>
           </div>
         </div>
         

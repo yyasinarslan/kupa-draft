@@ -1708,6 +1708,24 @@
     "ranking": 11,
     "players": [
       {
+        "id": "tur_y_bera",
+        "name": "Y. Bera",
+        "rating": 99,
+        "position": "FWD",
+        "detailedPosition": "SNT",
+        "club": "🎂 Doğum Günü Özel",
+        "cardType": "birthday",
+        "avatar": "👑",
+        "stats": {
+          "pac": 99,
+          "sho": 99,
+          "pas": 99,
+          "dri": 99,
+          "def": 99,
+          "phy": 99
+        }
+      },
+      {
         "id": "tur_arda",
         "name": "Arda Güler",
         "rating": 78,
