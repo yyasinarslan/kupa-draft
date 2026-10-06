@@ -351,9 +351,15 @@ class TournamentEngine {
     let attackCount = 0;
     let defenseCount = 0;
 
+    // Difficulty modifier from game settings
+    const diff = (this.game.settings && this.game.settings.difficulty) ? this.game.settings.difficulty : 'normal';
+    let adjustedAttackProb = attackProb;
+    if (diff === 'easy') adjustedAttackProb = Math.min(0.85, attackProb + 0.12);
+    if (diff === 'hard') adjustedAttackProb = Math.max(0.20, attackProb - 0.12);
+
     selectedBrackets.forEach(b => {
       const minute = Math.floor(b.min + Math.random() * (b.max - b.min + 1));
-      const isAttack = Math.random() < attackProb;
+      const isAttack = Math.random() < adjustedAttackProb;
       if (isAttack) {
         events.push({ minute, type: 'attack' });
         attackCount++;
@@ -383,8 +389,18 @@ class TournamentEngine {
     return events.sort((a, b) => a.minute - b.minute);
   }
 
+  getDecisionDuration() {
+    const diff = (this.game.settings && this.game.settings.difficulty) ? this.game.settings.difficulty : 'normal';
+    if (diff === 'easy') return 7000;
+    if (diff === 'hard') return 3500;
+    return 5000;
+  }
+
   startMatchTimer() {
     this.stopMatchSimulation();
+
+    const speed = (this.game.settings && this.game.settings.speed) ? this.game.settings.speed : 1;
+    const intervalMs = Math.max(150, Math.round(450 / speed));
 
     this.matchInterval = setInterval(() => {
       if (this.isMatchPaused) return;
@@ -412,7 +428,18 @@ class TournamentEngine {
         this.stopMatchSimulation();
         this.endMatch();
       }
-    }, 450);
+    }, intervalMs);
+  }
+
+  exitCurrentMatch() {
+    this.stopMatchSimulation();
+    this.hideMatchUi();
+    this.hideAllOverlays();
+    this.isMatchActive = false;
+    this.isTournamentActive = false;
+    this.currentRoundIndex = 0;
+    this.activeOpponent = null;
+    this.updateHeaderButton(this.game.squadSlots.every(s => s.player));
   }
 
   stopMatchSimulation() {
@@ -497,33 +524,36 @@ class TournamentEngine {
       badge.className = 'pdec-badge';
     }
 
+    const durationMs = this.getDecisionDuration();
+    const durationSec = durationMs / 1000;
+
     title.textContent = `⚡ ${this.matchMinute}. DAKİKA: Kaleciyle Karşı Karşıya!`;
     desc.innerHTML = `
       🔥 <strong>${star.name}</strong> (${star.rating} Rating) ceza sahasına fırtına gibi girdi!
-      <br><strong>5 saniye içinde karar ver (Seçmezsen otomatik şut çekilir):</strong>
+      <br><strong>${durationSec} saniye içinde karar ver (Seçmezsen otomatik şut çekilir):</strong>
     `;
 
     document.getElementById('pdecAttackButtons').style.display = 'flex';
     document.getElementById('pdecDefenseButtons').style.display = 'none';
 
-    // Start 5-second countdown animation
+    // Start countdown animation with dynamic difficulty duration
     if (timerFill) {
       timerFill.style.transition = 'none';
       timerFill.style.width = '100%';
       setTimeout(() => {
-        timerFill.style.transition = 'width 5s linear';
+        timerFill.style.transition = `width ${durationSec}s linear`;
         timerFill.style.width = '0%';
       }, 50);
     }
 
     overlay.style.display = 'flex';
 
-    // Auto-resolve after 5 seconds if child doesn't click (NEVER FREEZES!)
+    // Auto-resolve after dynamic seconds if user doesn't click
     this.decisionTimer = setTimeout(() => {
       if (this.isMatchPaused) {
         this.handleDecisionChoice('power'); // default to power shot
       }
-    }, 5000);
+    }, durationMs);
   }
 
   triggerCriticalDecision() {
@@ -616,10 +646,13 @@ class TournamentEngine {
       badge.className = 'pdec-badge defense';
     }
 
+    const durationMs = this.getDecisionDuration();
+    const durationSec = durationMs / 1000;
+
     title.textContent = `⚡ ${this.matchMinute}. DAKİKA: Kalenle Karşı Karşıya!`;
     desc.innerHTML = `
       ⚠️ <strong>${oppStar}</strong> (${this.activeOpponent.name}) savunmanı deldi ve karşı karşıya kaldı!
-      <br>Kalecin <strong>${gk.name}</strong> (${gk.rating} OVR) nereye hamle yapsın? Yanlış seçersen gol yiyeceksin! (5 sn):
+      <br>Kalecin <strong>${gk.name}</strong> (${gk.rating} OVR) nereye hamle yapsın? Yanlış seçersen gol yiyeceksin! (${durationSec} sn):
     `;
 
     document.getElementById('pdecAttackButtons').style.display = 'none';
@@ -629,19 +662,19 @@ class TournamentEngine {
       timerFill.style.transition = 'none';
       timerFill.style.width = '100%';
       setTimeout(() => {
-        timerFill.style.transition = 'width 5s linear';
+        timerFill.style.transition = `width ${durationSec}s linear`;
         timerFill.style.width = '0%';
       }, 50);
     }
 
     overlay.style.display = 'flex';
 
-    // Auto-resolve after 5 seconds: if user does not choose, opponent scores!
+    // Auto-resolve after dynamic seconds: if user does not choose, opponent scores!
     this.decisionTimer = setTimeout(() => {
       if (this.isMatchPaused) {
         this.handleDefenseChoice('none');
       }
-    }, 5000);
+    }, durationMs);
   }
 
   handleDefenseChoice(userChoice) {

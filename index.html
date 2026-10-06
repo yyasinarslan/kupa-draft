@@ -47,6 +47,14 @@
           <span class="stat-label">TURNUVA</span>
           <span class="stat-val tournament-badge" id="headerTournamentBadge">🏆 KUPA (0/4)</span>
         </button>
+        <button class="btn-change-formation btn-header-menu" id="btnHeaderMainMenu" title="Ana Menüye Dön">
+          <span class="stat-label">MENÜ</span>
+          <span class="stat-val menu-badge">🏠 MENÜ</span>
+        </button>
+        <button class="btn-change-formation btn-header-settings" id="btnHeaderSettings" title="Oyun Ayarları">
+          <span class="stat-label">AYAR</span>
+          <span class="stat-val">⚙️</span>
+        </button>
       </div>
     </header>
 
@@ -372,6 +380,230 @@
           </button>
           <button id="btnVictoryRestart" class="btn-secondary">
             <span>🔄 Yeni Kadro Kur</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         MAIN ENTRY MENU (GİRİŞ MENÜSÜ)
+         ========================================== -->
+    <div id="mainMenuScreen" class="main-menu-overlay">
+      <div class="menu-bg-glow glow-1"></div>
+      <div class="menu-bg-glow glow-2"></div>
+      <div class="menu-grid-pattern"></div>
+      
+      <div class="main-menu-container">
+        <!-- Badge & Branding -->
+        <div class="menu-header-badge">
+          <span class="badge-dot">●</span> 2026 FIFA DÜNYA KUPASI ÖZEL SÜRÜMÜ
+        </div>
+
+        <div class="menu-trophy-display">
+          <div class="trophy-halo"></div>
+          <div class="trophy-icon">🏆</div>
+        </div>
+
+        <h1 class="menu-game-title">
+          KUPA DRAFT <span class="title-highlight">26</span>
+        </h1>
+        <p class="menu-game-subtitle">
+          Rüya 11'ini Kur • Kaptanını Belirle • Canlı Maçlarla Dünya Kupasını Kazan!
+        </p>
+
+        <!-- Highlights Chips -->
+        <div class="menu-features-row">
+          <div class="m-feat-chip"><span>⭐</span> 48+ Milli Takım</div>
+          <div class="m-feat-chip"><span>⚡</span> Canlı Maç Karar Anları</div>
+          <div class="m-feat-chip"><span>🎂</span> Özel Doğum Günü Kartı</div>
+        </div>
+
+        <!-- Menu Action Buttons -->
+        <div class="menu-action-buttons">
+          <button id="btnMenuStartDraft" class="btn-menu-action btn-menu-start">
+            <span class="btn-icon">🚀</span>
+            <div class="btn-text-wrap">
+              <strong>OYUNA BAŞLA</strong>
+              <small>Yeni Draft & Dünya Kupası Başlat</small>
+            </div>
+            <span class="btn-arrow">➔</span>
+          </button>
+
+          <div class="menu-sub-actions">
+            <button id="btnMenuSettings" class="btn-menu-sub">
+              <span class="sub-icon">⚙️</span>
+              <span>Ayarlar & Parametreler</span>
+            </button>
+            <button id="btnMenuHowToPlay" class="btn-menu-sub">
+              <span class="sub-icon">📖</span>
+              <span>Nasıl Oynanır?</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Footer / Version -->
+        <div class="menu-footer-meta">
+          <span>Kupa Draft 26 • Profesyonel Futbol Simülatörü</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SETTINGS MODAL (AYARLAR & PARAMETRELER)
+         ========================================== -->
+    <div id="settingsModal" class="modal-backdrop" style="display: none;">
+      <div class="modal-card settings-modal-content">
+        <div class="settings-modal-header">
+          <div class="sm-title-wrap">
+            <span class="sm-icon">⚙️</span>
+            <h2>Oyun Ayarları & Parametreler</h2>
+          </div>
+          <button class="modal-close-btn" id="btnCloseSettings">✕</button>
+        </div>
+
+        <div class="settings-body">
+          <!-- 1. Difficulty Level -->
+          <div class="settings-group">
+            <div class="setting-header-row">
+              <label class="setting-label">🎯 Zorluk Seviyesi</label>
+              <span class="setting-hint" id="diffHintText">Profesyonel: 5sn Karar Süresi, Dengeli Maçlar</span>
+            </div>
+            <div class="setting-options-grid" id="diffOptions">
+              <button type="button" class="opt-btn" data-diff="easy">
+                <span class="opt-emoji">🟢</span>
+                <strong>Acemi</strong>
+                <small>7sn Karar • Rahat</small>
+              </button>
+              <button type="button" class="opt-btn active" data-diff="normal">
+                <span class="opt-emoji">🟡</span>
+                <strong>Profesyonel</strong>
+                <small>5sn Karar • Dengeli</small>
+              </button>
+              <button type="button" class="opt-btn" data-diff="hard">
+                <span class="opt-emoji">🔴</span>
+                <strong>Efsane</strong>
+                <small>3.5sn Karar • Zorlu</small>
+              </button>
+            </div>
+          </div>
+
+          <!-- 2. Simulation Speed -->
+          <div class="settings-group">
+            <div class="setting-header-row">
+              <label class="setting-label">⚡ Maç Akış Hızı</label>
+              <span class="setting-hint" id="speedHintText">1x Normal Hız</span>
+            </div>
+            <div class="setting-options-grid" id="speedOptions">
+              <button type="button" class="opt-btn active" data-speed="1">
+                <strong>1x Normal</strong>
+                <small>Standart Akış</small>
+              </button>
+              <button type="button" class="opt-btn" data-speed="1.5">
+                <strong>1.5x Hızlı</strong>
+                <small>Daha Hızlı</small>
+              </button>
+              <button type="button" class="opt-btn" data-speed="2">
+                <strong>2x Fırtına</strong>
+                <small>Maksimum Hız</small>
+              </button>
+            </div>
+          </div>
+
+          <!-- 3. Sound Effects Toggle -->
+          <div class="settings-group">
+            <div class="setting-toggle-row">
+              <div>
+                <label class="setting-label">🔊 Ses Efektleri</label>
+                <small class="setting-subtext">Gol, düdük, karar ve kupa ses efektleri</small>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="toggleSound" checked>
+                <span class="slider round"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 4. Nephew Special Card (Y. Bera 99) Rate -->
+          <div class="settings-group">
+            <div class="setting-header-row">
+              <label class="setting-label">🎂 Yeğen Modu (Y. Bera 99 Şansı)</label>
+              <span class="setting-hint" id="beraHintText">Yüksek: %50 Çıkma İhtimali</span>
+            </div>
+            <div class="setting-options-grid" id="beraOptions">
+              <button type="button" class="opt-btn" data-bera="0.25">
+                <strong>Dengeli</strong>
+                <small>%25 İhtimal</small>
+              </button>
+              <button type="button" class="opt-btn active" data-bera="0.50">
+                <strong>Yüksek</strong>
+                <small>%50 İhtimal</small>
+              </button>
+              <button type="button" class="opt-btn" data-bera="0.80">
+                <strong>Süper Şans</strong>
+                <small>%80 İhtimal</small>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-footer">
+          <button class="btn-primary btn-glow" id="btnSaveSettings">
+            <span>💾 AYARLARI KAYDET & UYGULA</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         HOW TO PLAY MODAL (NASIL OYNANIR?)
+         ========================================== -->
+    <div id="howToPlayModal" class="modal-backdrop" style="display: none;">
+      <div class="modal-card how-modal-content">
+        <div class="settings-modal-header">
+          <div class="sm-title-wrap">
+            <span class="sm-icon">📖</span>
+            <h2>Nasıl Oynanır?</h2>
+          </div>
+          <button class="modal-close-btn" id="btnCloseHowToPlay">✕</button>
+        </div>
+
+        <div class="how-steps-container">
+          <div class="how-step-card">
+            <div class="h-step-num">1</div>
+            <div class="h-step-content">
+              <h4>Dizilişini Belirle</h4>
+              <p>4-3-3, 4-4-2, 4-2-3-1 veya 3-4-3 taktiklerinden oyun anlayışına en uygun olanı seç.</p>
+            </div>
+          </div>
+
+          <div class="how-step-card">
+            <div class="h-step-num">2</div>
+            <div class="h-step-content">
+              <h4>Kaptanını Seç</h4>
+              <p>Takımına önderlik edecek dünya çapında 87+ süperstar arasından kaptanını belirle.</p>
+            </div>
+          </div>
+
+          <div class="how-step-card">
+            <div class="h-step-num">3</div>
+            <div class="h-step-content">
+              <h4>11'ini Kur & Kimyayı Yükselt</h4>
+              <p>Sahadaki boş mevkilere tıkla; aynı ülke veya ligden oyuncuları bir araya getirerek kimyayı (33) ve reytingi zirveye taşı!</p>
+            </div>
+          </div>
+
+          <div class="how-step-card">
+            <div class="h-step-num">4</div>
+            <div class="h-step-content">
+              <h4>Canlı Turnuvada Kupayı Kazan!</h4>
+              <p>Son 16'dan Finale kadar kritik hücum anlarında ve kaleci kurtarışlarında 3 seçenekten doğru olanı seçerek Dünya Kupası'nı müzene götür!</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-footer">
+          <button class="btn-primary" id="btnCloseHowToPlayBottom">
+            <span>ANLADIM, HAYDİ BAŞLAYALIM! ➔</span>
           </button>
         </div>
       </div>

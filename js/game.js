@@ -111,7 +111,53 @@ class FutDraftGame {
     this.captainPicked = false;
     this.isCaptainDraft = false;
 
+    this.settings = this.loadSettings();
     this.init();
+  }
+
+  loadSettings() {
+    const defaultSettings = {
+      difficulty: 'normal',
+      speed: 1,
+      sound: true,
+      beraChance: 0.50
+    };
+    try {
+      const saved = localStorage.getItem('kupa_draft_settings');
+      if (saved) {
+        return { ...defaultSettings, ...JSON.parse(saved) };
+      }
+    } catch (e) {
+      console.warn('LocalStorage error', e);
+    }
+    return defaultSettings;
+  }
+
+  saveSettings() {
+    try {
+      localStorage.setItem('kupa_draft_settings', JSON.stringify(this.settings));
+    } catch (e) {}
+    this.applySettings();
+  }
+
+  applySettings() {
+    if (window.soundEngine) {
+      window.soundEngine.isMuted = !this.settings.sound;
+    }
+  }
+
+  showMainMenu() {
+    const menu = document.getElementById('mainMenuScreen');
+    if (menu) {
+      menu.classList.remove('hidden');
+    }
+  }
+
+  hideMainMenu() {
+    const menu = document.getElementById('mainMenuScreen');
+    if (menu) {
+      menu.classList.add('hidden');
+    }
   }
 
   async init() {
@@ -119,9 +165,10 @@ class FutDraftGame {
     this.bindEvents();
     this.setFormation('4-3-3');
     this.tournament = new TournamentEngine(this);
+    this.applySettings();
     
-    // Show formation selector initially
-    document.getElementById('formationModal').style.display = 'flex';
+    // Initial State: Main menu is active, formationModal stays closed until user clicks "Oyuna Başla"
+    this.showMainMenu();
   }
 
   async loadTeams() {
@@ -152,6 +199,176 @@ class FutDraftGame {
   }
 
   bindEvents() {
+    // --------------------------------------------------
+    // MAIN MENU & NAVIGATION
+    // --------------------------------------------------
+    const btnStartDraft = document.getElementById('btnMenuStartDraft');
+    if (btnStartDraft) {
+      btnStartDraft.addEventListener('click', () => {
+        window.soundEngine.playClick();
+        this.hideMainMenu();
+        // Start flow by opening the formation selection modal!
+        setTimeout(() => {
+          document.getElementById('formationModal').style.display = 'flex';
+        }, 200);
+      });
+    }
+
+    const btnMenuSettings = document.getElementById('btnMenuSettings');
+    if (btnMenuSettings) {
+      btnMenuSettings.addEventListener('click', () => {
+        window.soundEngine.playClick();
+        this.openSettingsModal();
+      });
+    }
+
+    const btnHeaderSettings = document.getElementById('btnHeaderSettings');
+    if (btnHeaderSettings) {
+      btnHeaderSettings.addEventListener('click', () => {
+        window.soundEngine.playClick();
+        this.openSettingsModal();
+      });
+    }
+
+    const btnMenuHowToPlay = document.getElementById('btnMenuHowToPlay');
+    if (btnMenuHowToPlay) {
+      btnMenuHowToPlay.addEventListener('click', () => {
+        window.soundEngine.playClick();
+        document.getElementById('howToPlayModal').style.display = 'flex';
+      });
+    }
+
+    const btnCloseHowToPlay = document.getElementById('btnCloseHowToPlay');
+    if (btnCloseHowToPlay) {
+      btnCloseHowToPlay.addEventListener('click', () => {
+        window.soundEngine.playClick();
+        document.getElementById('howToPlayModal').style.display = 'none';
+      });
+    }
+
+    const btnCloseHowToPlayBottom = document.getElementById('btnCloseHowToPlayBottom');
+    if (btnCloseHowToPlayBottom) {
+      btnCloseHowToPlayBottom.addEventListener('click', () => {
+        window.soundEngine.playClick();
+        document.getElementById('howToPlayModal').style.display = 'none';
+        const menuScreen = document.getElementById('mainMenuScreen');
+        if (menuScreen && !menuScreen.classList.contains('hidden')) {
+          this.hideMainMenu();
+          setTimeout(() => {
+            document.getElementById('formationModal').style.display = 'flex';
+          }, 200);
+        }
+      });
+    }
+
+    const btnHeaderMainMenu = document.getElementById('btnHeaderMainMenu');
+    if (btnHeaderMainMenu) {
+      btnHeaderMainMenu.addEventListener('click', () => {
+        window.soundEngine.playClick();
+        if (this.tournament && this.tournament.isMatchActive) {
+          if (confirm('Devam eden maç iptal edilecek ve Ana Menüye dönülecektir. Emin misiniz?')) {
+            this.tournament.exitCurrentMatch();
+            this.resetDraft();
+            this.showMainMenu();
+          }
+        } else {
+          const hasPickedAny = this.squadSlots.some(s => s.player);
+          if (hasPickedAny) {
+            if (confirm('Ana Menüye dönmek istiyor musunuz? Mevcut kadronuz sıfırlanacaktır.')) {
+              this.resetDraft();
+              this.showMainMenu();
+            }
+          } else {
+            this.showMainMenu();
+          }
+        }
+      });
+    }
+
+    // Settings Modal: Close & Save
+    const btnCloseSettings = document.getElementById('btnCloseSettings');
+    if (btnCloseSettings) {
+      btnCloseSettings.addEventListener('click', () => {
+        window.soundEngine.playClick();
+        document.getElementById('settingsModal').style.display = 'none';
+      });
+    }
+
+    const btnSaveSettings = document.getElementById('btnSaveSettings');
+    if (btnSaveSettings) {
+      btnSaveSettings.addEventListener('click', () => {
+        window.soundEngine.playClick();
+        this.saveSettings();
+        document.getElementById('settingsModal').style.display = 'none';
+      });
+    }
+
+    // Settings: Difficulty selection
+    const diffHintMap = {
+      easy: 'Acemi: 7sn Karar Süresi, Rahat AI',
+      normal: 'Profesyonel: 5sn Karar Süresi, Dengeli Maçlar',
+      hard: 'Efsane: 3.5sn Karar Süresi, Sert & Tehlikeli AI'
+    };
+    document.querySelectorAll('#diffOptions .opt-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#diffOptions .opt-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.settings.difficulty = btn.dataset.diff;
+        const hintEl = document.getElementById('diffHintText');
+        if (hintEl) hintEl.textContent = diffHintMap[this.settings.difficulty] || '';
+        window.soundEngine.playClick();
+      });
+    });
+
+    // Settings: Speed selection
+    const speedHintMap = {
+      '1': '1x Normal Hız',
+      '1.5': '1.5x Hızlı Akış',
+      '2': '2x Fırtına Modu'
+    };
+    document.querySelectorAll('#speedOptions .opt-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#speedOptions .opt-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.settings.speed = parseFloat(btn.dataset.speed);
+        const hintEl = document.getElementById('speedHintText');
+        if (hintEl) hintEl.textContent = speedHintMap[btn.dataset.speed] || '';
+        window.soundEngine.playClick();
+      });
+    });
+
+    // Settings: Sound Toggle
+    const soundToggle = document.getElementById('toggleSound');
+    if (soundToggle) {
+      soundToggle.addEventListener('change', () => {
+        this.settings.sound = soundToggle.checked;
+        if (window.soundEngine) window.soundEngine.isMuted = !this.settings.sound;
+        if (this.settings.sound) window.soundEngine.playClick();
+      });
+    }
+
+    // Settings: Bera Card Chance
+    const beraHintMap = {
+      '0.25': 'Dengeli: %25 Çıkma İhtimali',
+      '0.5': 'Yüksek: %50 Çıkma İhtimali',
+      '0.50': 'Yüksek: %50 Çıkma İhtimali',
+      '0.8': 'Süper Şans: %80 Çıkma İhtimali',
+      '0.80': 'Süper Şans: %80 Çıkma İhtimali'
+    };
+    document.querySelectorAll('#beraOptions .opt-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#beraOptions .opt-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.settings.beraChance = parseFloat(btn.dataset.bera);
+        const hintEl = document.getElementById('beraHintText');
+        if (hintEl) hintEl.textContent = beraHintMap[btn.dataset.bera] || '';
+        window.soundEngine.playClick();
+      });
+    });
+
+    // --------------------------------------------------
+    // FORMATION & SQUAD SELECTION
+    // --------------------------------------------------
     // Formation options click in modal
     document.querySelectorAll('.formation-card-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -220,6 +437,38 @@ class FutDraftGame {
       window.soundEngine.playClick();
       this.exportSquadCard();
     });
+  }
+
+  openSettingsModal() {
+    const diffBtns = document.querySelectorAll('#diffOptions .opt-btn');
+    diffBtns.forEach(b => b.classList.toggle('active', b.dataset.diff === this.settings.difficulty));
+    const diffHintMap = {
+      easy: 'Acemi: 7sn Karar Süresi, Rahat AI',
+      normal: 'Profesyonel: 5sn Karar Süresi, Dengeli Maçlar',
+      hard: 'Efsane: 3.5sn Karar Süresi, Sert & Tehlikeli AI'
+    };
+    const diffHint = document.getElementById('diffHintText');
+    if (diffHint) diffHint.textContent = diffHintMap[this.settings.difficulty] || '';
+
+    const speedBtns = document.querySelectorAll('#speedOptions .opt-btn');
+    speedBtns.forEach(b => b.classList.toggle('active', Math.abs(parseFloat(b.dataset.speed) - this.settings.speed) < 0.05));
+    const speedHintMap = { '1': '1x Normal Hız', '1.5': '1.5x Hızlı Akış', '2': '2x Fırtına Modu' };
+    const speedHint = document.getElementById('speedHintText');
+    if (speedHint) speedHint.textContent = speedHintMap[String(this.settings.speed)] || '';
+
+    const soundToggle = document.getElementById('toggleSound');
+    if (soundToggle) soundToggle.checked = this.settings.sound;
+
+    const beraBtns = document.querySelectorAll('#beraOptions .opt-btn');
+    beraBtns.forEach(b => b.classList.toggle('active', Math.abs(parseFloat(b.dataset.bera) - this.settings.beraChance) < 0.05));
+    const beraHint = document.getElementById('beraHintText');
+    if (beraHint) {
+      if (this.settings.beraChance >= 0.75) beraHint.textContent = 'Süper Şans: %80 Çıkma İhtimali';
+      else if (this.settings.beraChance <= 0.3) beraHint.textContent = 'Dengeli: %25 Çıkma İhtimali';
+      else beraHint.textContent = 'Yüksek: %50 Çıkma İhtimali';
+    }
+
+    document.getElementById('settingsModal').style.display = 'flex';
   }
 
   setFormation(formationKey) {
@@ -361,9 +610,10 @@ class FutDraftGame {
       const usedPositions = new Set();
       const usedNations = new Set();
 
-      // High chance for the Birthday Hero Y. Bera as a captain option (~40% chance)
+      // High chance for the Birthday Hero Y. Bera as a captain option (configurable in settings)
       const bera = this.allPlayers.find(p => p.id === 'tur_y_bera');
-      if (bera && Math.random() < 0.40) {
+      const beraProb = (this.settings && this.settings.beraChance !== undefined) ? this.settings.beraChance : 0.50;
+      if (bera && Math.random() < beraProb) {
         candidates.push({ ...bera, isCaptain: true });
         usedPositions.add(bera.detailedPosition);
         usedNations.add(bera.teamName);
@@ -465,8 +715,8 @@ class FutDraftGame {
     if (isBeraNotPicked) {
       const isSntSlot = slot.detailed === 'SNT';
       const isAttackSlot = slot.category === 'FWD' || slot.detailed === 'MOO';
-      // High probability: 50% on SNT, 25% on other attack slots
-      const shouldAppear = isSntSlot ? (Math.random() < 0.50) : (isAttackSlot ? Math.random() < 0.25 : false);
+      const beraProb = (this.settings && this.settings.beraChance !== undefined) ? this.settings.beraChance : 0.50;
+      const shouldAppear = isSntSlot ? (Math.random() < beraProb) : (isAttackSlot ? Math.random() < (beraProb * 0.5) : false);
       if (shouldAppear) {
         candidates.push(beraPlayer);
         usedIds.add(beraPlayer.id);
