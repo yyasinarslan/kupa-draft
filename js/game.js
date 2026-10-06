@@ -293,12 +293,10 @@ class FutDraftGame {
         }
         const avatarIcon = isBirthday ? '👑' : '👤';
         const displayName = isBirthday ? 'Y. Bera' : p.name.split(' ').pop();
-        const bdayTagHtml = isBirthday ? `<span class="p-card-bday-tag">🎂 99</span>` : '';
 
         slotDiv.innerHTML = `
           <div class="pitch-card-filled ${cardTierClass}">
             ${captainBadgeHtml}
-            ${bdayTagHtml}
             <div class="p-card-top">
               <span class="p-card-rating">${p.rating}</span>
               <span class="p-card-pos">${posText}</span>
@@ -548,12 +546,10 @@ class FutDraftGame {
         ? (player.detailedPosition || player.position) 
         : (this.activeDraftSlotIndex !== null ? this.squadSlots[this.activeDraftSlotIndex].label : (player.detailedPosition || player.position));
       const captainTagHtml = player.isCaptain ? `<span class="captain-tag">© KAPTAN</span>` : '';
-      const bdayTagHtml = isBirthday ? `<span class="birthday-badge-tag">🎂 İYİ Kİ DOĞDUN BERA! 🎉</span>` : '';
       const avatarIcon = isBirthday ? '👑' : (player.avatar || '👤');
 
       card.innerHTML = `
         ${captainTagHtml}
-        ${bdayTagHtml}
         <div class="card-top">
           <div class="card-meta-left">
             <div class="card-rating">${player.rating}</div>

@@ -902,22 +902,6 @@ body.tournament-active .pitch-slot {
   filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.85));
 }
 
-.birthday-badge-tag {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  background: linear-gradient(135deg, #f43f5e 0%, #f59e0b 100%);
-  color: #fff;
-  font-family: var(--font-fut);
-  font-size: 0.65rem;
-  font-weight: 900;
-  letter-spacing: 0.5px;
-  padding: 3px 8px;
-  border-radius: 4px;
-  box-shadow: 0 0 12px rgba(244, 63, 94, 0.8);
-  z-index: 5;
-}
-
 /* Pitch Filled Card Birthday Style */
 .pitch-card-filled.birthday-special {
   background: linear-gradient(135deg, #3b0764 0%, #be185d 50%, #b45309 100%) !important;
@@ -944,16 +928,6 @@ body.tournament-active .pitch-slot {
 .pitch-card-filled.birthday-special .p-card-avatar {
   font-size: 1.4rem;
   filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.8));
-}
-
-.p-card-bday-tag {
-  position: absolute;
-  top: 2px;
-  left: 3px;
-  font-size: 0.55rem;
-  font-weight: 900;
-  color: #fbbf24;
-  z-index: 4;
 }
 
 /* Card Top: Rating, Pos, Flag, Avatar */
