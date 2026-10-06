@@ -114,6 +114,21 @@ class TournamentEngine {
       this.hideAllOverlays();
     });
 
+    // Toggle Commentary Log Modal
+    document.getElementById('btnToggleCommentaryLog')?.addEventListener('click', () => {
+      window.soundEngine.playClick();
+      const modal = document.getElementById('commentaryLogModal');
+      if (modal) {
+        modal.style.display = modal.style.display === 'none' ? 'flex' : 'none';
+      }
+    });
+
+    document.getElementById('btnCloseCommentaryLog')?.addEventListener('click', () => {
+      window.soundEngine.playClick();
+      const modal = document.getElementById('commentaryLogModal');
+      if (modal) modal.style.display = 'none';
+    });
+
     // Attack decision buttons
     document.getElementById('btnChoicePlase')?.addEventListener('click', () => this.handleDecisionChoice('plase'));
     document.getElementById('btnChoicePower')?.addEventListener('click', () => this.handleDecisionChoice('power'));
@@ -294,13 +309,12 @@ class TournamentEngine {
     const userPower = userRating + chemBonus;
     this.powerAdvantage = userPower - this.activeOpponent.ovr;
 
-    // Scoreboard setup
-    document.getElementById('sbUserScore').textContent = '0';
-    document.getElementById('sbOppScore').textContent = '0';
-    document.getElementById('sbMatchMinute').textContent = "0'";
-    document.getElementById('sbOppName').textContent = this.activeOpponent.name.toUpperCase();
-    document.getElementById('sbOppFlag').textContent = this.activeOpponent.flag;
-    document.getElementById('sbRoundTag').textContent = this.rounds[this.currentRoundIndex].name.toUpperCase();
+    // Reset commentary history for this match
+    this.commentaryLog = [];
+    const countEl = document.getElementById('pcbLogCount');
+    if (countEl) countEl.textContent = '1';
+    const logModal = document.getElementById('commentaryLogModal');
+    if (logModal) logModal.style.display = 'none';
 
     // Opening live spiker announcement according to power balance
     if (this.powerAdvantage >= 4) {
@@ -400,12 +414,13 @@ class TournamentEngine {
     this.stopMatchSimulation();
 
     const speed = (this.game.settings && this.game.settings.speed) ? this.game.settings.speed : 1;
-    const intervalMs = Math.max(150, Math.round(450 / speed));
+    // Paced comfortably: 1 min per 420ms (speed 1x), 280ms (speed 1.5x), 190ms (speed 2x)
+    const intervalMs = Math.max(160, Math.round(420 / speed));
 
     this.matchInterval = setInterval(() => {
       if (this.isMatchPaused) return;
 
-      this.matchMinute += 2;
+      this.matchMinute += 1;
       document.getElementById('sbMatchMinute').textContent = `${this.matchMinute}'`;
       this.moveBallOnPitch();
 
@@ -467,24 +482,74 @@ class TournamentEngine {
   }
 
   updateLiveSpiker(text, type = 'normal') {
+    const minText = `${this.matchMinute || 0}'`;
     const spikerEl = document.getElementById('pcbLiveText');
+    const minBadge = document.getElementById('pcbMinuteBadge');
+    const bar = document.getElementById('pitchCommentaryBar');
+
+    if (minBadge) minBadge.textContent = minText;
     if (spikerEl) {
       spikerEl.innerHTML = text;
       spikerEl.className = `pcb-text ${type}`;
     }
+
+    if (bar) {
+      bar.classList.remove('pcb-pulse-goal', 'pcb-pulse-danger');
+      if (type === 'goal') {
+        bar.classList.add('pcb-pulse-goal');
+      } else if (type === 'danger') {
+        bar.classList.add('pcb-pulse-danger');
+      }
+    }
+
+    if (!this.commentaryLog) this.commentaryLog = [];
+    this.commentaryLog.push({
+      minute: this.matchMinute || 0,
+      text: text,
+      type: type
+    });
+
+    const countEl = document.getElementById('pcbLogCount');
+    if (countEl) countEl.textContent = this.commentaryLog.length;
+
+    this.renderCommentaryTimeline();
+  }
+
+  renderCommentaryTimeline() {
+    const list = document.getElementById('commentaryTimelineList');
+    if (!list || !this.commentaryLog) return;
+
+    list.innerHTML = this.commentaryLog.map(item => `
+      <div class="pcl-item ${item.type}">
+        <span class="pcl-min">${item.minute}'</span>
+        <div class="pcl-msg">${item.text}</div>
+      </div>
+    `).reverse().join('');
   }
 
   checkAmbientMatchEvent() {
     const min = this.matchMinute;
+    const opp = this.activeOpponent ? this.activeOpponent.name : 'Rakip';
 
-    if (min === 14) {
+    if (min === 12) {
       const mid = this.getRandomUserPlayer(['MID', 'MO', 'MOO', 'MDO']);
-      this.updateLiveSpiker(`🔥 <strong>${min}'</strong> ${mid.name} harika bir ara pasıyla hücumu başlattı!`);
-    } else if (min === 46) {
-      this.updateLiveSpiker(`⏱️ <strong>45'</strong> İlk yarı bitti. Skor: Rüya Takım ${this.userScore} - ${this.oppScore} ${this.activeOpponent.name}`);
-    } else if (min === 64) {
+      this.updateLiveSpiker(`🔥 <strong>${min}'</strong> ${mid.name} orta alanda harika bir pasla hücumu şekillendiriyor.`);
+    } else if (min === 24) {
+      this.updateLiveSpiker(`⚠️ <strong>${min}'</strong> ${opp} kanattan bindirme yaptı, savunmamız topu kornere çeliyor.`);
+    } else if (min === 36) {
       const def = this.getRandomUserPlayer(['DEF', 'STP', 'SLB', 'SĞB']);
-      this.updateLiveSpiker(`🛡️ <strong>${min}'</strong> ${def.name} savunmada kritik bir müdahaleyle topu kazandı.`);
+      this.updateLiveSpiker(`🛡️ <strong>${min}'</strong> ${def.name} ceza sahası yayında harika bir kademeye girerek tehlikeyi uzaklaştırdı.`);
+    } else if (min === 45) {
+      this.updateLiveSpiker(`⏱️ <strong>45' İLK YARI SONU:</strong> Skor: Rüya Takım ${this.userScore} - ${this.oppScore} ${opp}. Tribünlerde nefesler tutuldu!`);
+    } else if (min === 56) {
+      const fwd = this.getRandomUserPlayer(['FWD', 'SNT', 'SLK', 'SĞK']);
+      this.updateLiveSpiker(`⚡ <strong>${min}'</strong> ${fwd.name} ileride baskı kurdu, rakip savunma çıkmakta zorlanıyor.`);
+    } else if (min === 68) {
+      this.updateLiveSpiker(`📢 <strong>${min}'</strong> Kenardan direktif geldi: "Daha sakin, topa sahip olun!"`);
+    } else if (min === 80) {
+      this.updateLiveSpiker(`🔥 <strong>${min}'</strong> Son 10 dakika! Tribünlerin desteğiyle tempo iyice yükseldi!`);
+    } else if (min === 89) {
+      this.updateLiveSpiker(`⏱️ <strong>89'</strong> Normal sürenin son anları, 4. hakem uzatma işaretini veriyor!`);
     }
   }
 
@@ -617,6 +682,14 @@ class TournamentEngine {
       window.soundEngine.playWhistle();
       this.updateLiveSpiker(comment, 'highlight');
     }
+
+    // Pause match simulation for 2.8 seconds so the player can comfortably read the commentary reaction!
+    this.isMatchPaused = true;
+    setTimeout(() => {
+      if (this.isMatchActive && !this.decisionTimer) {
+        this.isMatchPaused = false;
+      }
+    }, 2800);
   }
 
   // ==========================================
@@ -725,6 +798,14 @@ class TournamentEngine {
       }
       this.updateLiveSpiker(comment, 'danger');
     }
+
+    // Pause match simulation for 2.8 seconds so the player can comfortably read the save or conceded goal!
+    this.isMatchPaused = true;
+    setTimeout(() => {
+      if (this.isMatchActive && !this.decisionTimer) {
+        this.isMatchPaused = false;
+      }
+    }, 2800);
   }
 
   recordGoal(playerName) {
@@ -761,11 +842,15 @@ class TournamentEngine {
       this.recordGoal(hero.name);
       this.updateLiveSpiker(`⚽ <strong>90+3' ALTIN GOL!</strong> ${hero.name} maçı kazandıran golü attı!`, 'goal');
       document.getElementById('sbUserScore').textContent = this.userScore;
+      setTimeout(() => {
+        this.showMatchResultView();
+      }, 2500);
+      return;
     }
 
     setTimeout(() => {
       this.showMatchResultView();
-    }, 1200);
+    }, 1800);
   }
 
   showMatchResultView() {

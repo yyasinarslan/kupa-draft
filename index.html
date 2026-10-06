@@ -111,8 +111,30 @@
           <div class="pitch-commentary-bar" id="pitchCommentaryBar" style="display: none;">
             <div class="pcb-mic-icon">🎙️</div>
             <div class="pcb-ticker-wrap">
-              <span class="pcb-tag">CANLI SPİKER:</span>
-              <span class="pcb-text" id="pcbLiveText">Hakem ilk düdüğü çaldı! Büyük heyecan başladı!</span>
+              <div class="pcb-header-line">
+                <span class="pcb-tag">CANLI SPİKER</span>
+                <span class="pcb-minute-badge" id="pcbMinuteBadge">0'</span>
+              </div>
+              <div class="pcb-text" id="pcbLiveText">Hakem ilk düdüğü çaldı! Büyük heyecan başladı!</div>
+            </div>
+            <button class="pcb-log-btn" id="btnToggleCommentaryLog" title="Spiker Anlatım Geçmişi">
+              📜 Anlatım (<span id="pcbLogCount">1</span>)
+            </button>
+          </div>
+
+          <!-- 3b. SPIKER COMMENTARY LOG MODAL / DRAWER -->
+          <div class="pitch-commentary-modal" id="commentaryLogModal" style="display: none;">
+            <div class="pcl-card">
+              <div class="pcl-header">
+                <div class="pcl-title-wrap">
+                  <span>🎙️</span>
+                  <h3>Maçın Canlı Anlatım Geçmişi</h3>
+                </div>
+                <button class="modal-close-btn" id="btnCloseCommentaryLog">✕</button>
+              </div>
+              <div class="pcl-timeline-list" id="commentaryTimelineList">
+                <!-- Timeline items injected dynamically -->
+              </div>
             </div>
           </div>
 
