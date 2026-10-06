@@ -193,13 +193,26 @@ class TournamentEngine {
     this.updateStepper();
 
     const userRating = this.game.calculateAverageRating(this.game.squadSlots);
-    document.getElementById('previewUserOvr').textContent = `${userRating} GÜÇ`;
+    const userChem = this.game.calculateChemistry(this.game.squadSlots);
+    const chemBonus = Math.round((userChem / 33) * 5);
+    const effectivePower = userRating + chemBonus;
+    document.getElementById('previewUserOvr').textContent = `${effectivePower} GÜÇ`;
 
     document.getElementById('previewOppFlag').textContent = this.activeOpponent.flag;
     document.getElementById('previewOppName').textContent = this.activeOpponent.name;
     document.getElementById('previewOppOvr').textContent = `${this.activeOpponent.ovr} GÜÇ`;
 
-    document.getElementById('roundIntelText').innerHTML = roundData.intel;
+    const diff = effectivePower - this.activeOpponent.ovr;
+    let balanceIntel = '';
+    if (diff >= 4) {
+      balanceIntel = `<br><span style="color: #4ade80;">⚡ <strong>Taktik Analizi:</strong> Kadro kaliten ve ${userChem}/33 kimyan rakibe bariz üstünlük kuruyor (+${diff} Güç). Hücum pozisyonları lehine yoğunlaşacak!</span>`;
+    } else if (diff <= -3) {
+      balanceIntel = `<br><span style="color: #f87171;">⚠️ <strong>Taktik Analizi:</strong> Rakip çok formda ve tehlikeli (${this.activeOpponent.ovr} GÜÇ)! Savunman ve kalecin kritik anlarda çok terleyecek.</span>`;
+    } else {
+      balanceIntel = `<br><span style="color: #facc15;">⚖️ <strong>Taktik Analizi:</strong> İki takımın gücü başa baş (${diff >= 0 ? '+' : ''}${diff} Fark). Karşılaşmada her iki kalede de eşit tehlikeler oluşacak!</span>`;
+    }
+
+    document.getElementById('roundIntelText').innerHTML = roundData.intel + balanceIntel;
 
     this.showOverlay('tournamentPreviewView');
   }
@@ -274,22 +287,100 @@ class TournamentEngine {
     document.getElementById('sbOppFlag').textContent = this.activeOpponent.flag;
     document.getElementById('sbRoundTag').textContent = this.rounds[this.currentRoundIndex].name.toUpperCase();
 
-    this.updateLiveSpiker(`📢 Hakem ilk düdüğü çaldı! ${this.rounds[this.currentRoundIndex].name} başladı!`);
-
-    // Plan balanced decision points: Attack and Goalkeeper Defense!
-    const firstIsAttack = Math.random() < 0.5;
-    this.decisionEvents = [
-      { minute: Math.floor(28 + Math.random() * 6), type: firstIsAttack ? 'attack' : 'defense' },
-      { minute: Math.floor(56 + Math.random() * 6), type: firstIsAttack ? 'defense' : 'attack' },
-      { minute: Math.floor(76 + Math.random() * 6), type: Math.random() < 0.5 ? 'attack' : 'defense' }
-    ];
-
+    // Calculate rating, chemistry, and effective power advantage
     const userRating = this.game.calculateAverageRating(this.game.squadSlots);
     const userChem = this.game.calculateChemistry(this.game.squadSlots);
-    const userPower = userRating + (userChem / 33) * 4;
+    const chemBonus = (userChem / 33) * 5; // Up to +5 boost for perfect 33 chemistry
+    const userPower = userRating + chemBonus;
     this.powerAdvantage = userPower - this.activeOpponent.ovr;
 
+    // Scoreboard setup
+    document.getElementById('sbUserScore').textContent = '0';
+    document.getElementById('sbOppScore').textContent = '0';
+    document.getElementById('sbMatchMinute').textContent = "0'";
+    document.getElementById('sbOppName').textContent = this.activeOpponent.name.toUpperCase();
+    document.getElementById('sbOppFlag').textContent = this.activeOpponent.flag;
+    document.getElementById('sbRoundTag').textContent = this.rounds[this.currentRoundIndex].name.toUpperCase();
+
+    // Opening live spiker announcement according to power balance
+    if (this.powerAdvantage >= 4) {
+      this.updateLiveSpiker(`📢 Düdük çaldı! Kadro kalitemiz ve ${userChem}/33 kimyamız sahada bariz üstün, akın akın hücum edeceğiz!`);
+    } else if (this.powerAdvantage <= -3) {
+      this.updateLiveSpiker(`⚠️ Düdük çaldı! Rakip çok baskılı (${this.activeOpponent.ovr} GÜÇ), savunmamız ve kalecimiz bugün test edilecek!`);
+    } else {
+      this.updateLiveSpiker(`📢 Hakem ilk düdüğü çaldı! ${this.rounds[this.currentRoundIndex].name} başladı!`);
+    }
+
+    // Algorithmic generation of attack vs defense decision events
+    this.decisionEvents = this.generateMatchDecisionEvents(this.powerAdvantage);
+
     this.startMatchTimer();
+  }
+
+  // ==========================================
+  // DYNAMIC SQUAD QUALITY & CHEMISTRY ALGORITHM
+  // Higher rating & chemistry = more attack chances, less defense danger
+  // Lower rating & chemistry = fewer attacks, more defensive danger
+  // ==========================================
+  generateMatchDecisionEvents(powerDiff) {
+    // Probability that any key moment favors the user (Attack)
+    // 0 diff = 50%
+    // +6 diff = 80% attack chance
+    // -6 diff = 20% attack chance
+    let attackProb = 0.50 + (powerDiff * 0.05);
+    attackProb = Math.max(0.18, Math.min(0.85, attackProb));
+
+    // Heavy power disparity creates higher tempo (4 events), balanced match has 3 events
+    let eventCount = 3;
+    if (Math.abs(powerDiff) >= 4) {
+      eventCount = 4;
+    }
+
+    const brackets = [
+      { min: 18, max: 28 }, // Early pressure
+      { min: 34, max: 44 }, // Late 1st half
+      { min: 54, max: 64 }, // Early 2nd half
+      { min: 74, max: 84 }  // Crunch time
+    ];
+
+    const selectedBrackets = (eventCount === 4) 
+      ? brackets 
+      : [brackets[0], brackets[2], brackets[3]];
+
+    const events = [];
+    let attackCount = 0;
+    let defenseCount = 0;
+
+    selectedBrackets.forEach(b => {
+      const minute = Math.floor(b.min + Math.random() * (b.max - b.min + 1));
+      const isAttack = Math.random() < attackProb;
+      if (isAttack) {
+        events.push({ minute, type: 'attack' });
+        attackCount++;
+      } else {
+        events.push({ minute, type: 'defense' });
+        defenseCount++;
+      }
+    });
+
+    // Guardrails ensuring gameplay alignment:
+    // Superior squad (powerDiff >= 2): Guarantee at least 2 attacks
+    if (powerDiff >= 2 && attackCount < 2) {
+      events[0].type = 'attack';
+      if (events.length > 2) events[1].type = 'attack';
+    }
+    // Underdog squad (powerDiff <= -2): Guarantee at least 2 defensive trials
+    if (powerDiff <= -2 && defenseCount < 2) {
+      events[events.length - 1].type = 'defense';
+      if (events.length > 2) events[events.length - 2].type = 'defense';
+    }
+    // Dominant squad (powerDiff >= 5): Attacks must strictly outnumber defenses
+    if (powerDiff >= 5) {
+      events[0].type = 'attack';
+      events[events.length - 1].type = 'attack';
+    }
+
+    return events.sort((a, b) => a.minute - b.minute);
   }
 
   startMatchTimer() {
@@ -454,10 +545,11 @@ class TournamentEngine {
     let comment = '';
 
     const stats = player.stats || { sho: 80, dri: 80, pas: 80, pac: 80 };
+    const powerBonus = Math.max(-6, Math.min(6, (this.powerAdvantage || 0)));
     const roll = Math.random() * 100;
 
     if (choiceType === 'plase') {
-      const threshold = (stats.dri * 0.5 + stats.sho * 0.5) - 15;
+      const threshold = (stats.dri * 0.5 + stats.sho * 0.5) - 15 + powerBonus;
       if (roll < threshold) {
         isGoal = true;
         comment = `🎯 <strong>GOOOOOOL!</strong> ${player.name} adrese teslim bir plaseyle 90'a astı!`;
@@ -465,7 +557,7 @@ class TournamentEngine {
         comment = `🧤 <strong>DİREK!</strong> ${player.name}'in plasesini kaleci son anda parmaklarıyla çeldi!`;
       }
     } else if (choiceType === 'power') {
-      const threshold = (stats.sho * 0.7 + stats.pac * 0.3) - 14;
+      const threshold = (stats.sho * 0.7 + stats.pac * 0.3) - 14 + powerBonus;
       if (roll < threshold) {
         isGoal = true;
         comment = `⚡ <strong>GOOOOOOL!</strong> ${player.name} öyle bir füze çıkardı ki fileler yırtıldı!`;
@@ -473,7 +565,7 @@ class TournamentEngine {
         comment = `💥 <strong>DİREKTE PATLADI!</strong> ${player.name}'in müthiş füzesi direkte patladı!`;
       }
     } else if (choiceType === 'pass') {
-      const threshold = (stats.pas * 0.6 + stats.dri * 0.4) - 10;
+      const threshold = (stats.pas * 0.6 + stats.dri * 0.4) - 10 + powerBonus;
       const target = this.getRandomUserPlayer(['FWD', 'SNT', 'MID', 'MOO'], player.id);
       if (roll < threshold) {
         isGoal = true;
