@@ -139,6 +139,14 @@ class TournamentEngine {
     document.getElementById('btnChoiceRushOut')?.addEventListener('click', () => this.handleDefenseChoice('rush'));
     document.getElementById('btnChoiceDiveRight')?.addEventListener('click', () => this.handleDefenseChoice('right'));
 
+    // Math decision buttons (Educational Math Star Mode)
+    ['btnMathChoice0', 'btnMathChoice1', 'btnMathChoice2'].forEach(id => {
+      document.getElementById(id)?.addEventListener('click', (e) => {
+        const btn = e.currentTarget;
+        this.handleMathChoice(btn.dataset.val);
+      });
+    });
+
     // Next round
     document.getElementById('btnNextRound')?.addEventListener('click', () => this.nextRound());
     document.getElementById('btnRetryMatch')?.addEventListener('click', () => this.showPreviewView());
@@ -406,6 +414,12 @@ class TournamentEngine {
 
   getDecisionDuration() {
     const diff = (this.game.settings && this.game.settings.difficulty) ? this.game.settings.difficulty : 'normal';
+    const isMath = (this.game.settings && this.game.settings.decisionMode === 'math');
+    if (isMath) {
+      if (diff === 'easy') return 11000;
+      if (diff === 'hard') return 6500;
+      return 8500;
+    }
     if (diff === 'easy') return 7000;
     if (diff === 'hard') return 3500;
     return 5000;
@@ -645,6 +659,72 @@ class TournamentEngine {
     };
   }
 
+  generateMathProblem() {
+    // 4 Operations suitable for a ~10-year-old child (4th-5th grade)
+    // 0: Addition, 1: Subtraction, 2: Multiplication, 3: Division
+    const opType = Math.floor(Math.random() * 4);
+    let question = '';
+    let correct = 0;
+
+    if (opType === 0) {
+      // Toplama: İki basamaklı + iki basamaklı (kolay/orta)
+      const a = Math.floor(Math.random() * 45) + 14;
+      const b = Math.floor(Math.random() * 38) + 11;
+      correct = a + b;
+      question = `${a} + ${b}`;
+    } else if (opType === 1) {
+      // Çıkarma: Pozitif sonuçlu
+      const b = Math.floor(Math.random() * 35) + 9;
+      const diff = Math.floor(Math.random() * 45) + 12;
+      const a = b + diff;
+      correct = diff;
+      question = `${a} - ${b}`;
+    } else if (opType === 2) {
+      // Çarpma: Çarpım tablosu (3-9) veya basit 2 basamaklı × tek basamaklı
+      if (Math.random() < 0.72) {
+        const a = Math.floor(Math.random() * 6) + 4; // 4..9
+        const b = Math.floor(Math.random() * 7) + 3; // 3..9
+        correct = a * b;
+        question = `${a} × ${b}`;
+      } else {
+        const a = Math.floor(Math.random() * 5) + 11; // 11..15
+        const b = Math.floor(Math.random() * 3) + 2;  // 2..4
+        correct = a * b;
+        question = `${a} × ${b}`;
+      }
+    } else {
+      // Bölme: Kalansız tam bölme
+      const divisor = Math.floor(Math.random() * 7) + 3; // 3..9
+      const quotient = Math.floor(Math.random() * 8) + 3; // 3..10
+      const dividend = divisor * quotient;
+      correct = quotient;
+      question = `${dividend} ÷ ${divisor}`;
+    }
+
+    // 2 mantıklı ve farklı yanlış seçenek üret
+    const wrongChoices = new Set();
+    const offsets = [-10, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 10];
+    offsets.sort(() => Math.random() - 0.5);
+
+    for (const off of offsets) {
+      const candidate = correct + off;
+      if (candidate > 0 && candidate !== correct && !wrongChoices.has(candidate)) {
+        wrongChoices.add(candidate);
+        if (wrongChoices.size === 2) break;
+      }
+    }
+
+    let fallback = 1;
+    while (wrongChoices.size < 2) {
+      const c = correct + fallback;
+      if (c > 0 && c !== correct) wrongChoices.add(c);
+      fallback++;
+    }
+
+    const choices = [correct, ...Array.from(wrongChoices)].sort(() => Math.random() - 0.5);
+    return { question, correct, choices };
+  }
+
   // ==========================================
   // 1. ATTACK DECISION MOMENT (User Scores)
   // ==========================================
@@ -658,6 +738,83 @@ class TournamentEngine {
 
     const tier = this.getPlayerTier(star.rating, star.name);
     this.decisionActiveTier = tier;
+
+    const isMathMode = (this.game.settings && this.game.settings.decisionMode === 'math');
+    if (isMathMode) {
+      const problem = this.generateMathProblem();
+      this.activeMathProblem = {
+        isAttack: true,
+        player: star,
+        tier: tier,
+        question: problem.question,
+        correct: problem.correct
+      };
+
+      const overlay = document.getElementById('decisionOverlay');
+      const badge = document.getElementById('pdecBadge');
+      const title = document.getElementById('decisionTitle');
+      const desc = document.getElementById('decisionDesc');
+      const timerFill = document.getElementById('pdecTimerFill');
+
+      if (badge) {
+        badge.textContent = '🧠 MATEMATİK YILDIZI: GOL ANI!';
+        badge.className = 'pdec-badge';
+      }
+
+      const durationMs = this.getDecisionDuration() + (tier.extraTimeSec * 1000);
+      const durationSec = (durationMs / 1000).toFixed(1);
+
+      title.textContent = `⚡ ${this.matchMinute}. DAKİKA: Kaleciyle Karşı Karşıya!`;
+
+      desc.innerHTML = `
+        🔥 <strong>${star.name}</strong> (${star.rating} OVR) kaleciyle karşı karşıya!
+        <div class="pdec-math-box">
+          <span class="pdec-math-label">🧠 DOĞRU CEVABI BİL, 90'A GOLÜ AT!</span>
+          <span class="pdec-math-question">${problem.question} = ?</span>
+        </div>
+        <div style="font-size: 0.82rem; color: #94a3b8;"><strong>${durationSec}</strong> saniye içinde doğru şıkkı seç (${star.name} hazırlık bonusu dahil):</div>
+      `;
+
+      document.getElementById('pdecAttackButtons').style.display = 'none';
+      document.getElementById('pdecDefenseButtons').style.display = 'none';
+      const mathBox = document.getElementById('pdecMathButtons');
+      if (mathBox) mathBox.style.display = 'flex';
+
+      const mathBtns = [
+        document.getElementById('btnMathChoice0'),
+        document.getElementById('btnMathChoice1'),
+        document.getElementById('btnMathChoice2')
+      ];
+      problem.choices.forEach((choiceVal, idx) => {
+        const btn = mathBtns[idx];
+        if (btn) {
+          const valEl = btn.querySelector('.math-opt-val');
+          const subEl = btn.querySelector('.math-opt-sub');
+          if (valEl) valEl.textContent = choiceVal;
+          if (subEl) subEl.textContent = 'Hesapla ve Şut Çek';
+          btn.dataset.val = choiceVal;
+        }
+      });
+
+      if (timerFill) {
+        timerFill.style.transition = 'none';
+        timerFill.style.width = '100%';
+        setTimeout(() => {
+          timerFill.style.transition = `width ${durationSec}s linear`;
+          timerFill.style.width = '0%';
+        }, 50);
+      }
+
+      overlay.style.display = 'flex';
+
+      this.decisionTimer = setTimeout(() => {
+        if (this.isMatchPaused) {
+          this.handleMathChoice(null);
+        }
+      }, durationMs);
+
+      return;
+    }
 
     const allChoices = ['plase', 'power', 'pass'];
     const shuffled = [...allChoices].sort(() => Math.random() - 0.5);
@@ -708,6 +865,8 @@ class TournamentEngine {
 
     document.getElementById('pdecAttackButtons').style.display = 'flex';
     document.getElementById('pdecDefenseButtons').style.display = 'none';
+    const mathBox = document.getElementById('pdecMathButtons');
+    if (mathBox) mathBox.style.display = 'none';
 
     // Start countdown animation with dynamic difficulty duration
     if (timerFill) {
@@ -865,6 +1024,82 @@ class TournamentEngine {
     this.defenseActiveGk = gk;
     this.defenseActiveOppStar = oppStar;
 
+    const isMathMode = (this.game.settings && this.game.settings.decisionMode === 'math');
+    if (isMathMode) {
+      const problem = this.generateMathProblem();
+      this.activeMathProblem = {
+        isAttack: false,
+        gk: gk,
+        oppStar: oppStar,
+        question: problem.question,
+        correct: problem.correct
+      };
+
+      const overlay = document.getElementById('decisionOverlay');
+      const badge = document.getElementById('pdecBadge');
+      const title = document.getElementById('decisionTitle');
+      const desc = document.getElementById('decisionDesc');
+      const timerFill = document.getElementById('pdecTimerFill');
+
+      if (badge) {
+        badge.textContent = '🛡️ MATEMATİKLE KURTAR!';
+        badge.className = 'pdec-badge defense';
+      }
+
+      const durationMs = this.getDecisionDuration();
+      const durationSec = (durationMs / 1000).toFixed(1);
+
+      title.textContent = `⚡ ${this.matchMinute}. DAKİKA: Kalenle Karşı Karşıya!`;
+      desc.innerHTML = `
+        ⚠️ <strong>${oppStar}</strong> (${this.activeOpponent.name}) tehlikeli geldi!
+        <div class="pdec-math-box defense">
+          <span class="pdec-math-label">🧤 DOĞRU CEVABI BİL, KALECİNLE KURTAR!</span>
+          <span class="pdec-math-question">${problem.question} = ?</span>
+        </div>
+        <div style="font-size: 0.82rem; color: #94a3b8;">Kalecin <strong>${gk.name}</strong> (${gk.rating} OVR) kalede hazır (${durationSec} sn):</div>
+      `;
+
+      document.getElementById('pdecAttackButtons').style.display = 'none';
+      document.getElementById('pdecDefenseButtons').style.display = 'none';
+      const mathBox = document.getElementById('pdecMathButtons');
+      if (mathBox) mathBox.style.display = 'flex';
+
+      const mathBtns = [
+        document.getElementById('btnMathChoice0'),
+        document.getElementById('btnMathChoice1'),
+        document.getElementById('btnMathChoice2')
+      ];
+      problem.choices.forEach((choiceVal, idx) => {
+        const btn = mathBtns[idx];
+        if (btn) {
+          const valEl = btn.querySelector('.math-opt-val');
+          const subEl = btn.querySelector('.math-opt-sub');
+          if (valEl) valEl.textContent = choiceVal;
+          if (subEl) subEl.textContent = 'Doğru Cevapla ve Kurtar';
+          btn.dataset.val = choiceVal;
+        }
+      });
+
+      if (timerFill) {
+        timerFill.style.transition = 'none';
+        timerFill.style.width = '100%';
+        setTimeout(() => {
+          timerFill.style.transition = `width ${durationSec}s linear`;
+          timerFill.style.width = '0%';
+        }, 50);
+      }
+
+      overlay.style.display = 'flex';
+
+      this.decisionTimer = setTimeout(() => {
+        if (this.isMatchPaused) {
+          this.handleMathChoice(null);
+        }
+      }, durationMs);
+
+      return;
+    }
+
     // Opponent picks secret shot direction: 'left', 'rush', 'right'
     const directions = ['left', 'rush', 'right'];
     this.oppSecretChoice = directions[Math.floor(Math.random() * directions.length)];
@@ -891,6 +1126,8 @@ class TournamentEngine {
 
     document.getElementById('pdecAttackButtons').style.display = 'none';
     document.getElementById('pdecDefenseButtons').style.display = 'flex';
+    const mathBox = document.getElementById('pdecMathButtons');
+    if (mathBox) mathBox.style.display = 'none';
 
     if (timerFill) {
       timerFill.style.transition = 'none';
@@ -961,6 +1198,76 @@ class TournamentEngine {
     }
 
     // Pause match simulation for 2.8 seconds so the player can comfortably read the save or conceded goal!
+    this.isMatchPaused = true;
+    setTimeout(() => {
+      if (this.isMatchActive && !this.decisionTimer) {
+        this.isMatchPaused = false;
+      }
+    }, 2800);
+  }
+
+  // ==========================================
+  // 3. MATH DECISION HANDLER (Educational Mode)
+  // ==========================================
+  handleMathChoice(chosenVal) {
+    if (this.decisionTimer) {
+      clearTimeout(this.decisionTimer);
+      this.decisionTimer = null;
+    }
+
+    document.getElementById('decisionOverlay').style.display = 'none';
+    this.isMatchPaused = false;
+    window.soundEngine.playClick();
+
+    if (!this.activeMathProblem) return;
+    const { isAttack, player, tier, gk, oppStar, question, correct } = this.activeMathProblem;
+    const parsedChosen = (chosenVal !== null && chosenVal !== undefined && chosenVal !== '') ? parseInt(chosenVal, 10) : null;
+    const isCorrect = (parsedChosen === correct);
+
+    if (isAttack) {
+      if (isCorrect) {
+        this.userScore++;
+        document.getElementById('sbUserScore').textContent = this.userScore;
+        this.recordGoal(player.name);
+        window.soundEngine.playGoalHorn();
+        window.soundEngine.playCrowdCheer();
+
+        const comment = `🧠 <strong>HARİKA HESAPLAMA VE GOOOOL!</strong> ${player.name} (${question} = ${correct}) işlemini doğru çözdü ve 90'a astı! Muazzam bir zeka ve gol!`;
+        this.updateLiveSpiker(comment, 'goal');
+      } else {
+        window.soundEngine.playWhistle();
+        let comment = '';
+        if (parsedChosen === null) {
+          comment = `⏳ <strong>SÜRE BİTTİ!</strong> ${player.name} hesap yaparken süre doldu! Doğru cevap <strong>${correct}</strong> (${question}) olmalıydı, kaleci topu kontrol etti.`;
+        } else {
+          comment = `❌ <strong>KAÇTI!</strong> ${player.name} (${parsedChosen}) sonucunu seçti ama doğru cevap <strong>${correct}</strong> (${question}) idi! Şut auta gitti!`;
+        }
+        this.updateLiveSpiker(comment, 'highlight');
+      }
+    } else {
+      // Goalkeeper defense
+      if (isCorrect) {
+        window.soundEngine.playWhistle();
+        window.soundEngine.playCrowdCheer();
+        const comment = `🧤 <strong>MÜKEMMEL ZEKA VE KURTARIŞ!</strong> Kaleci ${gk.name} (${question} = ${correct}) işlemini doğru bilip ${oppStar}'in şutunu kornere tokatladı!`;
+        this.updateLiveSpiker(comment, 'highlight');
+      } else {
+        this.oppScore++;
+        document.getElementById('sbOppScore').textContent = this.oppScore;
+        window.soundEngine.playWhistle();
+        let comment = '';
+        if (parsedChosen === null) {
+          comment = `⏳ <strong>SÜRE DOLDU VE GOL!</strong> Kaleci ${gk.name} zamanında karar veremedi! Doğru cevap <strong>${correct}</strong> (${question}) olmalıydı, ${oppStar} topu ağlara yolladı!`;
+        } else {
+          comment = `⚽ <strong>GOL YENDİ!</strong> Yanlış hesap (${parsedChosen})! Doğru sonuç <strong>${correct}</strong> (${question}) idi, ${oppStar} affetmedi!`;
+        }
+        this.updateLiveSpiker(comment, 'danger');
+      }
+    }
+
+    this.activeMathProblem = null;
+
+    // Pause match simulation for 2.8 seconds so the player can comfortably read the commentary
     this.isMatchPaused = true;
     setTimeout(() => {
       if (this.isMatchActive && !this.decisionTimer) {

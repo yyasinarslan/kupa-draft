@@ -199,6 +199,31 @@
                   </div>
                 </button>
               </div>
+
+              <!-- MATH DECISION BUTTONS (Math Education Mode) -->
+              <div class="pdec-buttons" id="pdecMathButtons" style="display: none;">
+                <button class="btn-pdec btn-math" id="btnMathChoice0">
+                  <span class="pdec-icon">🔢</span>
+                  <div class="pdec-lbl">
+                    <strong class="math-opt-val">42</strong>
+                    <small class="math-opt-sub">Hesapla ve Şut Çek</small>
+                  </div>
+                </button>
+                <button class="btn-pdec btn-math" id="btnMathChoice1">
+                  <span class="pdec-icon">🔢</span>
+                  <div class="pdec-lbl">
+                    <strong class="math-opt-val">56</strong>
+                    <small class="math-opt-sub">Hesapla ve Şut Çek</small>
+                  </div>
+                </button>
+                <button class="btn-pdec btn-math" id="btnMathChoice2">
+                  <span class="pdec-icon">🔢</span>
+                  <div class="pdec-lbl">
+                    <strong class="math-opt-val">48</strong>
+                    <small class="math-opt-sub">Hesapla ve Şut Çek</small>
+                  </div>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -529,9 +554,27 @@
                 <small>Maksimum Hız</small>
               </button>
             </div>
+          <!-- 3. Decision Gameplay Mode (Classic vs Math) -->
+          <div class="settings-group">
+            <div class="setting-header-row">
+              <label class="setting-label">🎮 Pozisyon Karar Modu</label>
+              <span class="setting-hint" id="decisionModeHintText">Klasik Futbol (Plase, Sert Şut, Pas)</span>
+            </div>
+            <div class="setting-options-grid" id="decisionModeOptions">
+              <button type="button" class="opt-btn active" data-mode="classic">
+                <span class="opt-emoji">⚽</span>
+                <strong>Klasik Futbol</strong>
+                <small>Şut & Kurtarış Tercihi</small>
+              </button>
+              <button type="button" class="opt-btn" data-mode="math">
+                <span class="opt-emoji">🧠</span>
+                <strong>Matematik Yıldızı</strong>
+                <small>Eğitici • Doğru İşlem = Gol!</small>
+              </button>
+            </div>
           </div>
 
-          <!-- 3. Sound Effects Toggle -->
+          <!-- 4. Sound Effects Toggle -->
           <div class="settings-group">
             <div class="setting-toggle-row">
               <div>

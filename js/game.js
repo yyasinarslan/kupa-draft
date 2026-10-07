@@ -120,6 +120,7 @@ class FutDraftGame {
       difficulty: 'normal',
       speed: 1,
       sound: true,
+      decisionMode: 'classic',
       beraChance: 0.50
     };
     try {
@@ -356,6 +357,22 @@ class FutDraftGame {
       });
     });
 
+    // Settings: Decision Gameplay Mode (Classic vs Math)
+    const modeHintMap = {
+      classic: 'Klasik Futbol: Plase, Sert Şut ve Pas seçenekleri',
+      math: '🧠 Matematik Yıldızı: Eğitici 4 İşlem! Doğru cevap = Kesin Gol & Kurtarış!'
+    };
+    document.querySelectorAll('#decisionModeOptions .opt-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#decisionModeOptions .opt-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.settings.decisionMode = btn.dataset.mode;
+        const hintEl = document.getElementById('decisionModeHintText');
+        if (hintEl) hintEl.textContent = modeHintMap[this.settings.decisionMode] || '';
+        window.soundEngine.playClick();
+      });
+    });
+
     // Settings: Sound Toggle
     // Settings: Sound Toggle
     const soundToggle = document.getElementById('toggleSound');
@@ -456,6 +473,16 @@ class FutDraftGame {
     const speedHintMap = { '1': '1x Normal Hız', '1.5': '1.5x Hızlı Akış', '2': '2x Fırtına Modu' };
     const speedHint = document.getElementById('speedHintText');
     if (speedHint) speedHint.textContent = speedHintMap[String(this.settings.speed)] || '';
+
+    const modeBtns = document.querySelectorAll('#decisionModeOptions .opt-btn');
+    const curMode = this.settings.decisionMode || 'classic';
+    modeBtns.forEach(b => b.classList.toggle('active', b.dataset.mode === curMode));
+    const modeHintMap = {
+      classic: 'Klasik Futbol: Plase, Sert Şut ve Pas seçenekleri',
+      math: '🧠 Matematik Yıldızı: Eğitici 4 İşlem! Doğru cevap = Kesin Gol & Kurtarış!'
+    };
+    const modeHint = document.getElementById('decisionModeHintText');
+    if (modeHint) modeHint.textContent = modeHintMap[curMode] || '';
 
     const soundToggle = document.getElementById('toggleSound');
     if (soundToggle) soundToggle.checked = this.settings.sound;

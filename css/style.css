@@ -1855,6 +1855,76 @@ body.tournament-active .pitch-slot {
   box-shadow: 0 0 14px rgba(234, 88, 12, 0.75) !important;
 }
 
+/* Math Education Mode Styles */
+.pdec-math-box {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.18), rgba(99, 102, 241, 0.22));
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  margin: 10px 0 12px 0;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(14, 165, 233, 0.2);
+}
+
+.pdec-math-box.defense {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.18), rgba(239, 68, 68, 0.22));
+  border-color: rgba(249, 115, 22, 0.45);
+  box-shadow: 0 0 20px rgba(249, 115, 22, 0.2);
+}
+
+.pdec-math-label {
+  display: block;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #38bdf8;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.pdec-math-box.defense .pdec-math-label {
+  color: #fb923c;
+}
+
+.pdec-math-question {
+  display: block;
+  font-size: 1.85rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+  font-family: 'Outfit', sans-serif;
+}
+
+.btn-math {
+  border-color: rgba(14, 165, 233, 0.4);
+  background: rgba(14, 165, 233, 0.08);
+  justify-content: flex-start;
+}
+
+.btn-math:hover {
+  background: rgba(14, 165, 233, 0.25);
+  border-color: #38bdf8;
+  box-shadow: 0 0 18px rgba(14, 165, 233, 0.45);
+  transform: translateY(-2px) scale(1.02);
+}
+
+.btn-math .math-opt-val {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #38bdf8;
+  letter-spacing: 1px;
+}
+
+.btn-math:hover .math-opt-val {
+  color: #ffffff;
+}
+
+.btn-math .math-opt-sub {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
 /* 5. ON-PITCH FULL OVERLAYS (Preview, Result, Trophy) */
 .pitch-full-overlay {
   position: absolute;
