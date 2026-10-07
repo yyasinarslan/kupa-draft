@@ -85,8 +85,9 @@ const ALIASES = {
 };
 
 async function main() {
-  console.log('Loading players.csv...');
-  const fileStream = fs.createReadStream('players.csv');
+  const csvPath = fs.existsSync('data/players.csv') ? 'data/players.csv' : path.join(__dirname, '../data/players.csv');
+  console.log(`Loading ${csvPath}...`);
+  const fileStream = fs.createReadStream(csvPath);
   const rl = readline.createInterface({ input: fileStream, crlfDelay: Infinity });
 
   let header = null;
