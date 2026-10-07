@@ -1211,29 +1211,495 @@ body.tournament-active .pitch-slot {
 }
 
 /* ==========================================================================
-   RESPONSIVE DESIGN (TABLETS & PHONES)
+   TOUCH DEVICE ERGONOMICS (iPads, Android Tablets & Mobile)
    ========================================================================== */
-@media (max-width: 920px) {
-  .fut-card {
-    width: 155px;
-    height: 255px;
-    padding: 8px;
+@media (hover: none) and (pointer: coarse) {
+  /* Prevent tap zoom delay and eliminate annoying sticky hover states */
+  button, 
+  .btn-primary, 
+  .btn-secondary, 
+  .btn-menu-action, 
+  .btn-menu-sub, 
+  .opt-btn, 
+  .pitch-slot, 
+  .fut-card, 
+  .btn-pdec, 
+  .formation-card-btn {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
-  
-  .card-rating {
-    font-size: 1.7rem;
+
+  /* Provide lively tactile active press feedback on touch */
+  .btn-primary:active,
+  .btn-secondary:active,
+  .btn-pdec:active,
+  .formation-card-btn:active,
+  .btn-menu-sub:active {
+    transform: scale(0.96) !important;
   }
-  
-  .card-avatar-wrap {
-    width: 60px;
-    height: 60px;
+
+  .fut-card:active {
+    transform: scale(0.97) !important;
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.7) !important;
   }
-  
-  .card-silhouette {
-    font-size: 2.8rem;
+
+  .pitch-slot:active .pitch-card-empty,
+  .pitch-slot:active .pitch-card-filled {
+    transform: scale(0.94);
+    box-shadow: 0 0 16px rgba(255, 215, 0, 0.8);
   }
 }
 
+/* ==========================================================================
+   TABLET RESPONSIVE DESIGN (768px – 1024px: iPad Mini, iPad, iPad Air/Pro)
+   ========================================================================== */
+@media (min-width: 681px) and (max-width: 1024px) {
+  .app-container {
+    max-width: 100%;
+    padding: 0 16px 14px;
+  }
+
+  /* Header on Tablets */
+  .app-header {
+    padding: 8px 0;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .logo-title {
+    font-size: 1.45rem;
+  }
+
+  .header-stats {
+    gap: 8px;
+  }
+
+  .stat-pill {
+    padding: 5px 12px;
+    min-width: 64px;
+  }
+
+  .stat-val {
+    font-size: 1.25rem;
+  }
+
+  /* Pitch sizing: Capped so the entire pitch & 11 players fit in viewport without scrolling */
+  .pitch-wrapper {
+    max-width: 620px;
+    margin: 0 auto 10px;
+  }
+
+  .football-pitch {
+    aspect-ratio: 3.3 / 4;
+    max-height: min(72vh, 670px);
+    border-radius: 16px;
+  }
+
+  /* Pitch Player Cards: Perfectly proportioned for tablet display */
+  .pitch-card-empty,
+  .pitch-card-filled {
+    width: 58px;
+    height: 82px;
+    border-radius: 9px;
+    padding: 3px;
+  }
+
+  .p-card-rating {
+    font-size: 1.05rem;
+  }
+
+  .p-card-pos {
+    font-size: 0.65rem;
+  }
+
+  .p-card-flag {
+    font-size: 0.85rem;
+  }
+
+  .p-card-avatar {
+    font-size: 1.45rem;
+    margin: -1px 0;
+  }
+
+  .p-card-name {
+    font-size: 0.58rem;
+    padding: 1px 3px;
+  }
+
+  .slot-pos-badge {
+    font-size: 0.58rem;
+    padding: 1px 5px;
+  }
+
+  /* Match Compact Mode on Tablets */
+  .pitch-wrapper.match-compact-mode {
+    max-width: 540px;
+  }
+
+  .pitch-wrapper.match-compact-mode .football-pitch {
+    max-height: calc(100dvh - 130px);
+  }
+
+  .pitch-wrapper.match-compact-mode .pitch-card-empty,
+  .pitch-wrapper.match-compact-mode .pitch-card-filled {
+    width: 48px;
+    height: 68px;
+  }
+
+  .pitch-wrapper.match-compact-mode .p-card-rating {
+    font-size: 0.9rem;
+  }
+
+  .pitch-wrapper.match-compact-mode .p-card-avatar {
+    font-size: 1.2rem;
+  }
+
+  .pitch-wrapper.match-compact-mode .p-card-name {
+    font-size: 0.52rem;
+  }
+
+  /* 5 Candidates FUT Draft Pick Modal: Fits all 5 cards in 1 row seamlessly */
+  .draft-pick-modal-content {
+    max-width: 96vw;
+    padding: 24px 14px;
+  }
+
+  .draft-pick-header {
+    margin-bottom: 16px;
+  }
+
+  .draft-pick-header h2 {
+    font-size: 1.6rem;
+  }
+
+  .draft-pick-header p {
+    font-size: 0.88rem;
+  }
+
+  .draft-cards-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 6px 2px 10px;
+  }
+
+  .fut-card {
+    flex: 0 0 auto;
+    width: clamp(120px, 16vw, 136px);
+    height: clamp(216px, 28vw, 240px);
+    padding: 7px 6px;
+    border-radius: 13px;
+  }
+
+  .card-top {
+    margin-bottom: 2px;
+  }
+
+  .card-rating {
+    font-size: 1.55rem;
+  }
+
+  .card-pos {
+    font-size: 0.72rem;
+  }
+
+  .card-flag {
+    font-size: 1.15rem;
+  }
+
+  .card-club-badge {
+    font-size: 0.9rem;
+  }
+
+  .card-avatar-wrap {
+    width: 52px;
+    height: 52px;
+    margin: 0 auto;
+  }
+
+  .card-silhouette {
+    font-size: 2.3rem;
+  }
+
+  .card-name {
+    font-size: 0.76rem;
+    padding: 2px 4px;
+    margin: 2px 0;
+  }
+
+  .card-stats-grid {
+    gap: 2px 6px;
+    padding: 2px 0;
+  }
+
+  .stat-val-fut {
+    font-size: 0.75rem;
+  }
+
+  .stat-label-fut,
+  .stat-lbl-fut {
+    font-size: 0.58rem;
+  }
+
+  .card-bottom-club {
+    font-size: 0.65rem;
+    padding-top: 2px;
+  }
+
+  .fut-card.birthday-special .card-rating {
+    font-size: 1.7rem !important;
+  }
+
+  .fut-card.birthday-special .card-name {
+    font-size: 0.82rem !important;
+  }
+
+  .fut-card.birthday-special .card-silhouette {
+    font-size: 2.4rem !important;
+  }
+
+  /* Critical Decision Modal & Math Star on Tablets */
+  .pitch-decision-card {
+    max-width: 440px;
+    padding: 18px 16px;
+  }
+
+  .pdec-title {
+    font-size: 1.15rem;
+  }
+
+  .pdec-desc {
+    font-size: 0.84rem;
+    margin-bottom: 12px;
+  }
+
+  .btn-pdec {
+    padding: 10px 14px;
+    min-height: 52px;
+  }
+
+  .pdec-math-box {
+    padding: 10px 14px;
+    margin: 8px 0 10px;
+  }
+
+  .pdec-math-question {
+    font-size: 1.7rem;
+  }
+
+  .btn-math .math-opt-val {
+    font-size: 1.3rem;
+  }
+
+  /* Formation Modal on Tablets */
+  .formation-modal-content {
+    max-width: 560px;
+    padding: 28px 20px;
+  }
+
+  .formation-options-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .formation-card-btn {
+    padding: 12px 14px;
+    min-height: 70px;
+  }
+
+  /* Main Menu on Tablets */
+  .main-menu-container {
+    max-width: 500px;
+    padding: 0 16px;
+  }
+
+  .menu-game-title {
+    font-size: 2.9rem;
+  }
+
+  .menu-trophy-display {
+    width: 95px;
+    height: 95px;
+  }
+
+  .trophy-icon {
+    font-size: 3.8rem;
+  }
+
+  .btn-menu-start {
+    padding: 14px 20px;
+    min-height: 60px;
+  }
+
+  .btn-menu-sub {
+    padding: 12px 14px;
+    min-height: 48px;
+    font-size: 0.85rem;
+  }
+
+  /* Settings Modal on Tablets */
+  .settings-modal-content,
+  .how-modal-content {
+    max-width: 500px !important;
+    padding: 20px !important;
+  }
+
+  .opt-grid {
+    gap: 8px;
+  }
+
+  .opt-btn {
+    padding: 10px 12px;
+    min-height: 46px;
+    font-size: 0.84rem;
+  }
+
+  /* Live Scoreboard on Pitch */
+  .pitch-match-scoreboard {
+    padding: 6px 14px;
+  }
+
+  .psb-name {
+    font-size: 0.85rem;
+  }
+
+  .psb-score {
+    font-size: 1.85rem;
+  }
+
+  .psb-flag {
+    font-size: 1.45rem;
+  }
+}
+
+/* ==========================================================================
+   TABLET LANDSCAPE ORIENTATION (iPad rotated horizontally)
+   ========================================================================== */
+@media (min-width: 681px) and (max-width: 1200px) and (orientation: landscape) {
+  .app-container {
+    max-width: 960px;
+    padding: 0 16px 8px;
+  }
+
+  .app-header {
+    padding: 4px 0;
+    margin-bottom: 6px;
+  }
+
+  /* Limit pitch height so it never exceeds landscape tablet screen height */
+  .pitch-wrapper {
+    max-width: 500px;
+    margin: 0 auto 6px;
+  }
+
+  .football-pitch {
+    max-height: calc(100dvh - 110px);
+  }
+
+  .pitch-card-empty,
+  .pitch-card-filled {
+    width: 50px;
+    height: 72px;
+    padding: 2px;
+  }
+
+  .p-card-avatar {
+    font-size: 1.25rem;
+  }
+
+  .p-card-rating {
+    font-size: 0.95rem;
+  }
+
+  .p-card-name {
+    font-size: 0.52rem;
+  }
+
+  /* Modal heights in landscape */
+  .modal-backdrop {
+    padding: 8px;
+    align-items: center;
+  }
+
+  .modal-card {
+    max-height: 94dvh;
+    overflow-y: auto;
+  }
+
+  .draft-pick-modal-content {
+    padding: 16px 20px;
+  }
+
+  .draft-pick-header {
+    margin-bottom: 10px;
+  }
+
+  .draft-pick-header h2 {
+    font-size: 1.4rem;
+    margin-bottom: 2px;
+  }
+
+  .draft-cards-row {
+    gap: 10px;
+  }
+
+  .fut-card {
+    width: 132px;
+    height: 220px;
+  }
+
+  .fut-card.birthday-special .card-rating {
+    font-size: 1.6rem !important;
+  }
+
+  .fut-card.birthday-special .card-name {
+    font-size: 0.8rem !important;
+  }
+
+  .fut-card.birthday-special .card-silhouette {
+    font-size: 2.2rem !important;
+  }
+
+  .main-menu-container {
+    padding: 10px 0;
+  }
+
+  .menu-trophy-display {
+    width: 70px;
+    height: 70px;
+    margin-bottom: 6px;
+  }
+
+  .trophy-icon {
+    font-size: 2.8rem;
+  }
+
+  .menu-game-title {
+    font-size: 2.4rem;
+    margin-bottom: 4px;
+  }
+
+  .menu-game-subtitle {
+    margin-bottom: 12px;
+    font-size: 0.88rem;
+  }
+
+  .menu-features-row {
+    margin-bottom: 16px;
+  }
+
+  .btn-menu-start {
+    padding: 10px 16px;
+  }
+}
+
+/* ==========================================================================
+   MOBILE PHONES (<= 680px)
+   ========================================================================== */
 @media (max-width: 680px) {
   .app-header {
     flex-direction: column;
