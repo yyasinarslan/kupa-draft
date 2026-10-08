@@ -112,7 +112,76 @@ class FutDraftGame {
     this.isCaptainDraft = false;
 
     this.settings = this.loadSettings();
+    this.customPlayers = this.loadCustomPlayers();
+    this.editingCustomPlayerId = null;
+    this.currentWorkshopPhoto = null;
+    this.currentWorkshopAvatar = '👑';
+    this.currentWorkshopTheme = 'birthday';
+    this.currentWorkshopPos = 'SNT';
+    this.currentWorkshopCat = 'FWD';
+    this.currentWorkshopFlag = '🇹🇷';
+    this.currentWorkshopCountry = 'Türkiye';
+
     this.init();
+  }
+
+  loadCustomPlayers() {
+    const defaultPlayers = [
+      {
+        id: 'tur_y_bera',
+        name: 'Y. Bera',
+        rating: 99,
+        position: 'FWD',
+        detailedPosition: 'SNT',
+        club: 'Kupa Efsanesi',
+        teamName: 'Türkiye',
+        teamFlag: '🇹🇷',
+        avatar: '👑',
+        photoUrl: null,
+        cardType: 'birthday',
+        stats: { pac: 99, sho: 99, pas: 96, dri: 99, def: 85, phy: 92 },
+        isDefault: true
+      }
+    ];
+
+    try {
+      const saved = localStorage.getItem('kupa_draft_custom_players');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch (e) {
+      console.warn('LocalStorage error reading custom players', e);
+    }
+    return defaultPlayers;
+  }
+
+  saveCustomPlayers() {
+    try {
+      localStorage.setItem('kupa_draft_custom_players', JSON.stringify(this.customPlayers));
+    } catch (e) {
+      console.warn('LocalStorage error saving custom players', e);
+    }
+    this.mergeCustomPlayersIntoPool();
+  }
+
+  mergeCustomPlayersIntoPool() {
+    if (!this.allPlayers) this.allPlayers = [];
+    (this.customPlayers || []).forEach(cp => {
+      const existingIdx = this.allPlayers.findIndex(p => p.id === cp.id);
+      const playerObj = {
+        ...cp,
+        teamCode: cp.teamCode || 'TUR',
+        isTop10: true
+      };
+      if (existingIdx !== -1) {
+        this.allPlayers[existingIdx] = { ...this.allPlayers[existingIdx], ...playerObj };
+      } else {
+        this.allPlayers.push(playerObj);
+      }
+    });
   }
 
   loadSettings() {
@@ -149,7 +218,7 @@ class FutDraftGame {
 
   showMainMenu() {
     // Strictly close all modals
-    ['formationModal', 'draftPickModal', 'completionModal', 'settingsModal', 'howToPlayModal'].forEach(id => {
+    ['formationModal', 'draftPickModal', 'completionModal', 'settingsModal', 'howToPlayModal', 'cardWorkshopModal'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = 'none';
     });
@@ -181,7 +250,7 @@ class FutDraftGame {
     this.applySettings();
     
     // Explicitly guarantee all modals are closed initially
-    ['formationModal', 'draftPickModal', 'completionModal', 'settingsModal', 'howToPlayModal'].forEach(id => {
+    ['formationModal', 'draftPickModal', 'completionModal', 'settingsModal', 'howToPlayModal', 'cardWorkshopModal'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = 'none';
     });
@@ -215,6 +284,9 @@ class FutDraftGame {
         });
       });
     });
+
+    // Merge saved custom players into pool
+    this.mergeCustomPlayersIntoPool();
   }
 
   bindEvents() {
@@ -455,6 +527,8 @@ class FutDraftGame {
       window.soundEngine.playClick();
       this.exportSquadCard();
     });
+
+    this.initWorkshopControls();
   }
 
   openSettingsModal() {
@@ -557,13 +631,23 @@ class FutDraftGame {
         const captainBadgeHtml = p.isCaptain ? `<span class="p-card-captain-tag">© C</span>` : '';
         const isBirthday = p.cardType === 'birthday' || p.rating === 99;
         let cardTierClass = '';
-        if (isBirthday) {
+        if (p.cardType === 'fire') {
+          cardTierClass = 'fire';
+        } else if (p.cardType === 'totw') {
+          cardTierClass = 'totw';
+        } else if (p.cardType === 'icon') {
+          cardTierClass = 'icon';
+        } else if (isBirthday) {
           cardTierClass = 'birthday-special';
         } else if (p.rating >= 87) {
           cardTierClass = 'elite';
         }
-        const avatarIcon = isBirthday ? '👑' : '👤';
-        const displayName = isBirthday ? 'Y. Bera' : p.name.split(' ').pop();
+
+        let avatarContent = isBirthday ? '👑' : (p.avatar || '👤');
+        if (p.photoUrl) {
+          avatarContent = `<img src="${p.photoUrl}" class="p-card-avatar-img" alt="${p.name}">`;
+        }
+        const displayName = p.name.length > 12 ? p.name.split(' ').pop() : p.name;
 
         slotDiv.innerHTML = `
           <div class="pitch-card-filled ${cardTierClass}">
@@ -573,7 +657,7 @@ class FutDraftGame {
               <span class="p-card-pos">${posText}</span>
               <span class="p-card-flag">${p.teamFlag}</span>
             </div>
-            <div class="p-card-avatar">${avatarIcon}</div>
+            <div class="p-card-avatar">${avatarContent}</div>
             <div class="p-card-name">${displayName}</div>
           </div>
           <div class="slot-pos-badge">${slot.label}</div>
@@ -632,13 +716,20 @@ class FutDraftGame {
       const usedPositions = new Set();
       const usedNations = new Set();
 
-      // High chance for the Birthday Hero Y. Bera as a captain option (configurable in settings)
-      const bera = this.allPlayers.find(p => p.id === 'tur_y_bera');
-      const beraProb = (this.settings && this.settings.beraChance !== undefined) ? this.settings.beraChance : 0.50;
-      if (bera && Math.random() < beraProb) {
-        candidates.push({ ...bera, isCaptain: true });
-        usedPositions.add(bera.detailedPosition);
-        usedNations.add(bera.teamName);
+      // High chance for Custom Superstars (e.g. Y. Bera, user's created superstars)
+      const customSuperstars = (this.customPlayers || []).filter(cp => cp.rating >= 85);
+      const customProb = (this.settings && this.settings.beraChance !== undefined) ? this.settings.beraChance : 0.65;
+      if (customSuperstars.length > 0 && Math.random() < customProb) {
+        const pickedCustom = customSuperstars[Math.floor(Math.random() * customSuperstars.length)];
+        const matchingSlot = this.squadSlots.find(s => 
+          s.detailed === pickedCustom.detailedPosition || 
+          (COMPATIBLE_POSITIONS[s.detailed] && COMPATIBLE_POSITIONS[s.detailed].includes(pickedCustom.detailedPosition))
+        );
+        if (matchingSlot) {
+          candidates.push({ ...pickedCustom, isCaptain: true });
+          usedPositions.add(pickedCustom.detailedPosition);
+          usedNations.add(pickedCustom.teamName);
+        }
       }
 
       for (let p of superstars) {
@@ -731,18 +822,17 @@ class FutDraftGame {
     const usedIds = new Set();
     const usedNations = new Set();
 
-    // Special Birthday Star Y. Bera appearance:
-    const beraPlayer = this.allPlayers.find(p => p.id === 'tur_y_bera');
-    const isBeraNotPicked = beraPlayer && !chosenIds.has('tur_y_bera');
-    if (isBeraNotPicked) {
-      const isSntSlot = slot.detailed === 'SNT';
-      const isAttackSlot = slot.category === 'FWD' || slot.detailed === 'MOO';
-      const beraProb = (this.settings && this.settings.beraChance !== undefined) ? this.settings.beraChance : 0.50;
-      const shouldAppear = isSntSlot ? (Math.random() < beraProb) : (isAttackSlot ? Math.random() < (beraProb * 0.5) : false);
-      if (shouldAppear) {
-        candidates.push(beraPlayer);
-        usedIds.add(beraPlayer.id);
-        usedNations.add(beraPlayer.teamName);
+    // Custom Players high chance appearance for this slot (including Y. Bera and created stars):
+    const matchingCustom = (this.customPlayers || []).filter(cp => 
+      allowedPositions.includes(cp.detailedPosition) && !chosenIds.has(cp.id)
+    );
+    const customProb = (this.settings && this.settings.beraChance !== undefined) ? this.settings.beraChance : 0.65;
+    if (matchingCustom.length > 0 && Math.random() < customProb) {
+      const pickedCustom = matchingCustom[Math.floor(Math.random() * matchingCustom.length)];
+      if (!usedIds.has(pickedCustom.id)) {
+        candidates.push(pickedCustom);
+        usedIds.add(pickedCustom.id);
+        usedNations.add(pickedCustom.teamName);
       }
     }
 
@@ -796,7 +886,13 @@ class FutDraftGame {
       // Determine Tier Class
       let tierClass = 'rare-gold';
       const isBirthday = player.cardType === 'birthday' || player.rating === 99;
-      if (isBirthday) {
+      if (player.cardType === 'fire') {
+        tierClass = 'fire';
+      } else if (player.cardType === 'totw') {
+        tierClass = 'totw';
+      } else if (player.cardType === 'icon') {
+        tierClass = 'icon';
+      } else if (isBirthday) {
         tierClass = 'birthday-special';
       } else if (player.rating >= 87) {
         tierClass = 'elite';
@@ -818,7 +914,10 @@ class FutDraftGame {
         ? (player.detailedPosition || player.position) 
         : (this.activeDraftSlotIndex !== null ? this.squadSlots[this.activeDraftSlotIndex].label : (player.detailedPosition || player.position));
       const captainTagHtml = player.isCaptain ? `<span class="captain-tag">© KAPTAN</span>` : '';
-      const avatarIcon = isBirthday ? '👑' : (player.avatar || '👤');
+      let avatarContent = isBirthday ? '👑' : (player.avatar || '👤');
+      if (player.photoUrl) {
+        avatarContent = `<img src="${player.photoUrl}" class="card-avatar-img" alt="${player.name}">`;
+      }
 
       card.innerHTML = `
         ${captainTagHtml}
@@ -829,7 +928,7 @@ class FutDraftGame {
             <div class="card-meta-flag">${player.teamFlag}</div>
           </div>
           <div class="card-avatar-wrap">
-            <div class="card-silhouette">${avatarIcon}</div>
+            <div class="card-silhouette">${avatarContent}</div>
           </div>
         </div>
         
@@ -1148,6 +1247,527 @@ class FutDraftGame {
     link.download = `Kupa_Draft_26_${this.currentFormation}.png`;
     link.href = dataUrl;
     link.click();
+  }
+
+  // ==========================================
+  // KART ATÖLYESİ (CARD WORKSHOP) LOGIC
+  // ==========================================
+  initWorkshopControls() {
+    // Open modal buttons
+    const btnPitchWorkshop = document.getElementById('btnOpenCardWorkshop');
+    if (btnPitchWorkshop) {
+      btnPitchWorkshop.addEventListener('click', () => {
+        window.soundEngine.playClick();
+        this.openCardWorkshopModal();
+      });
+    }
+
+    const btnMenuWorkshop = document.getElementById('btnMenuCardWorkshop');
+    if (btnMenuWorkshop) {
+      btnMenuWorkshop.addEventListener('click', () => {
+        window.soundEngine.playClick();
+        this.openCardWorkshopModal();
+      });
+    }
+
+    // Close button
+    const btnClose = document.getElementById('btnCloseWorkshop');
+    if (btnClose) {
+      btnClose.addEventListener('click', () => {
+        window.soundEngine.playClick();
+        const modal = document.getElementById('cardWorkshopModal');
+        if (modal) modal.style.display = 'none';
+      });
+    }
+
+    // Reset / Add New Card button
+    const btnReset = document.getElementById('btnAddNewCardReset');
+    if (btnReset) {
+      btnReset.addEventListener('click', () => {
+        window.soundEngine.playClick();
+        this.resetWorkshopForm();
+      });
+    }
+
+    // Name input live update
+    const inputName = document.getElementById('wInputName');
+    if (inputName) {
+      inputName.addEventListener('input', () => {
+        this.updateWorkshopPreview();
+      });
+    }
+
+    // Position pills
+    const posPills = document.querySelectorAll('#wPosGrid .w-opt-pill');
+    posPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        posPills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        this.currentWorkshopPos = pill.dataset.pos || 'SNT';
+        this.currentWorkshopCat = pill.dataset.cat || 'FWD';
+        window.soundEngine.playClick();
+        this.updateWorkshopPreview();
+      });
+    });
+
+    // Rating range slider
+    const inputRating = document.getElementById('wInputRating');
+    if (inputRating) {
+      inputRating.addEventListener('input', () => {
+        this.updateWorkshopPreview();
+      });
+    }
+
+    // Theme chips
+    const themeChips = document.querySelectorAll('#wThemeGrid .w-theme-chip');
+    themeChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        themeChips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        this.currentWorkshopTheme = chip.dataset.theme || 'birthday';
+        window.soundEngine.playClick();
+        this.updateWorkshopPreview();
+      });
+    });
+
+    // Photo file upload & compression
+    const photoFileInput = document.getElementById('wPhotoFileInput');
+    if (photoFileInput) {
+      photoFileInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const size = 160;
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            const minDim = Math.min(img.width, img.height);
+            const sx = (img.width - minDim) / 2;
+            const sy = (img.height - minDim) / 2;
+            ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
+
+            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.82);
+            this.currentWorkshopPhoto = compressedDataUrl;
+            
+            const btnClear = document.getElementById('wBtnClearPhoto');
+            if (btnClear) btnClear.style.display = 'inline-block';
+
+            // Deselect emoji buttons active state visually
+            document.querySelectorAll('#wAvatarEmojiRow .w-emoji-btn').forEach(b => b.classList.remove('active'));
+
+            window.soundEngine.playSuccess();
+            this.updateWorkshopPreview();
+          };
+          img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Clear photo button
+    const btnClearPhoto = document.getElementById('wBtnClearPhoto');
+    if (btnClearPhoto) {
+      btnClearPhoto.addEventListener('click', () => {
+        this.currentWorkshopPhoto = null;
+        if (photoFileInput) photoFileInput.value = '';
+        btnClearPhoto.style.display = 'none';
+        
+        // Reactivate first emoji button
+        const firstEmoji = document.querySelector('#wAvatarEmojiRow .w-emoji-btn');
+        if (firstEmoji) {
+          firstEmoji.classList.add('active');
+          this.currentWorkshopAvatar = firstEmoji.dataset.icon || '👑';
+        }
+
+        window.soundEngine.playClick();
+        this.updateWorkshopPreview();
+      });
+    }
+
+    // Avatar emoji buttons
+    const emojiBtns = document.querySelectorAll('#wAvatarEmojiRow .w-emoji-btn');
+    emojiBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        emojiBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.currentWorkshopAvatar = btn.dataset.icon || '👑';
+        this.currentWorkshopPhoto = null;
+        if (photoFileInput) photoFileInput.value = '';
+        if (btnClearPhoto) btnClearPhoto.style.display = 'none';
+        window.soundEngine.playClick();
+        this.updateWorkshopPreview();
+      });
+    });
+
+    // Country flags
+    const flagBtns = document.querySelectorAll('#wFlagRow .w-flag-btn');
+    flagBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        flagBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.currentWorkshopFlag = btn.dataset.flag || '🇹🇷';
+        this.currentWorkshopCountry = btn.dataset.country || 'Türkiye';
+        window.soundEngine.playClick();
+        this.updateWorkshopPreview();
+      });
+    });
+
+    // Save custom player button
+    const btnSave = document.getElementById('btnSaveCustomCard');
+    if (btnSave) {
+      btnSave.addEventListener('click', () => {
+        this.saveCurrentCustomCard();
+      });
+    }
+  }
+
+  calculateCustomStats(rating, pos) {
+    const r = Math.max(85, Math.min(99, rating));
+    if (pos === 'KL') {
+      return {
+        pac: Math.min(99, Math.round(r * 0.90)),
+        dri: Math.min(99, Math.round(r * 0.92)),
+        sho: Math.min(99, Math.round(r * 0.93)),
+        def: Math.min(99, r),
+        pas: Math.min(99, Math.round(r * 0.91)),
+        phy: Math.min(99, Math.round(r * 0.95))
+      };
+    }
+    if (pos === 'STP') {
+      return {
+        pac: Math.min(99, Math.round(r * 0.88)),
+        dri: Math.min(99, Math.round(r * 0.85)),
+        sho: Math.min(99, Math.round(r * 0.72)),
+        def: Math.min(99, r),
+        pas: Math.min(99, Math.round(r * 0.86)),
+        phy: Math.min(99, Math.min(99, r + 1))
+      };
+    }
+    if (pos === 'MO' || pos === 'MOO') {
+      return {
+        pac: Math.min(99, Math.round(r * 0.91)),
+        dri: Math.min(99, r),
+        sho: Math.min(99, Math.round(r * 0.90)),
+        def: Math.min(99, Math.round(r * 0.82)),
+        pas: Math.min(99, Math.min(99, r + 1)),
+        phy: Math.min(99, Math.round(r * 0.88))
+      };
+    }
+    // Forwards / Wingers (SNT, SLK, SĞK)
+    return {
+      pac: Math.min(99, Math.min(99, r + 1)),
+      dri: Math.min(99, r),
+      sho: Math.min(99, Math.min(99, r)),
+      def: Math.min(99, Math.round(r * 0.76)),
+      pas: Math.min(99, Math.round(r * 0.92)),
+      phy: Math.min(99, Math.round(r * 0.91))
+    };
+  }
+
+  updateWorkshopPreview() {
+    const nameInput = document.getElementById('wInputName');
+    const rawName = nameInput ? nameInput.value.trim() : 'YILDIZ';
+    const displayName = rawName ? rawName.toUpperCase() : 'YILDIZ';
+
+    const ratingInput = document.getElementById('wInputRating');
+    const ratingVal = ratingInput ? parseInt(ratingInput.value, 10) : 99;
+
+    const ratingBadge = document.getElementById('wRatingTextBadge');
+    if (ratingBadge) {
+      let badgeLabel = 'SÜPER EFSANE';
+      if (ratingVal === 99) badgeLabel = 'SÜPER EFSANE 👑';
+      else if (ratingVal >= 95) badgeLabel = 'DÜNYA YILDIZI ⭐';
+      else if (ratingVal >= 90) badgeLabel = 'EFSANEVİ 🔥';
+      else badgeLabel = 'ELİT PRO ⚡';
+      ratingBadge.textContent = `${ratingVal} • ${badgeLabel}`;
+    }
+
+    const previewRating = document.getElementById('wPreviewRating');
+    if (previewRating) previewRating.textContent = ratingVal;
+
+    const previewPos = document.getElementById('wPreviewPos');
+    if (previewPos) previewPos.textContent = this.currentWorkshopPos || 'SNT';
+
+    const previewFlag = document.getElementById('wPreviewFlag');
+    if (previewFlag) previewFlag.textContent = this.currentWorkshopFlag || '🇹🇷';
+
+    const previewName = document.getElementById('wPreviewName');
+    if (previewName) previewName.textContent = displayName;
+
+    // Avatar preview
+    const previewAvatarWrap = document.getElementById('wPreviewAvatarWrap');
+    if (previewAvatarWrap) {
+      if (this.currentWorkshopPhoto) {
+        previewAvatarWrap.innerHTML = `<div class="card-silhouette"><img src="${this.currentWorkshopPhoto}" class="card-avatar-img" alt="${displayName}"></div>`;
+      } else {
+        previewAvatarWrap.innerHTML = `<div class="card-silhouette" id="wPreviewAvatar">${this.currentWorkshopAvatar || '👑'}</div>`;
+      }
+    }
+
+    // Theme class updates
+    const cardPreview = document.getElementById('workshopCardPreview');
+    if (cardPreview) {
+      cardPreview.classList.remove('birthday-special', 'elite', 'rare-gold', 'fire', 'totw', 'icon');
+      if (this.currentWorkshopTheme === 'birthday') {
+        cardPreview.classList.add('birthday-special');
+      } else if (this.currentWorkshopTheme === 'fire') {
+        cardPreview.classList.add('fire');
+      } else if (this.currentWorkshopTheme === 'elite') {
+        cardPreview.classList.add('elite');
+      } else {
+        cardPreview.classList.add('rare-gold');
+      }
+    }
+
+    // Stats calculation
+    const stats = this.calculateCustomStats(ratingVal, this.currentWorkshopPos);
+    const setVal = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = val;
+    };
+    setVal('wPreviewPac', stats.pac);
+    setVal('wPreviewDri', stats.dri);
+    setVal('wPreviewSho', stats.sho);
+    setVal('wPreviewDef', stats.def);
+    setVal('wPreviewPas', stats.pas);
+    setVal('wPreviewPhy', stats.phy);
+  }
+
+  openCardWorkshopModal() {
+    this.renderWorkshopSavedList();
+    this.updateWorkshopPreview();
+    const modal = document.getElementById('cardWorkshopModal');
+    if (modal) modal.style.display = 'flex';
+  }
+
+  saveCurrentCustomCard() {
+    const inputName = document.getElementById('wInputName');
+    const nameVal = inputName ? inputName.value.trim() : '';
+    const finalName = nameVal || 'Süperstar';
+
+    const ratingInput = document.getElementById('wInputRating');
+    const ratingVal = ratingInput ? parseInt(ratingInput.value, 10) : 99;
+
+    const stats = this.calculateCustomStats(ratingVal, this.currentWorkshopPos);
+
+    if (this.editingCustomPlayerId) {
+      // Update existing
+      const idx = this.customPlayers.findIndex(p => p.id === this.editingCustomPlayerId);
+      if (idx !== -1) {
+        this.customPlayers[idx] = {
+          ...this.customPlayers[idx],
+          name: finalName,
+          rating: ratingVal,
+          position: this.currentWorkshopCat || 'FWD',
+          detailedPosition: this.currentWorkshopPos || 'SNT',
+          teamName: this.currentWorkshopCountry || 'Türkiye',
+          teamFlag: this.currentWorkshopFlag || '🇹🇷',
+          avatar: this.currentWorkshopAvatar || '👑',
+          photoUrl: this.currentWorkshopPhoto || null,
+          cardType: this.currentWorkshopTheme || 'birthday',
+          stats: stats
+        };
+      }
+    } else {
+      // Create new
+      const newId = 'custom_' + Date.now();
+      const newPlayer = {
+        id: newId,
+        name: finalName,
+        rating: ratingVal,
+        position: this.currentWorkshopCat || 'FWD',
+        detailedPosition: this.currentWorkshopPos || 'SNT',
+        club: 'Kupa Efsanesi',
+        teamName: this.currentWorkshopCountry || 'Türkiye',
+        teamFlag: this.currentWorkshopFlag || '🇹🇷',
+        avatar: this.currentWorkshopAvatar || '👑',
+        photoUrl: this.currentWorkshopPhoto || null,
+        cardType: this.currentWorkshopTheme || 'birthday',
+        stats: stats
+      };
+      this.customPlayers.push(newPlayer);
+    }
+
+    this.saveCustomPlayers();
+    window.soundEngine.playGoal();
+    this.renderWorkshopSavedList();
+
+    // Success animation / button feedback
+    const btnSave = document.getElementById('btnSaveCustomCard');
+    if (btnSave) {
+      const origText = btnSave.innerHTML;
+      btnSave.innerHTML = '<span>🎉 HARİKA! KART KAYDEDİLDİ! ✓</span>';
+      btnSave.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+      setTimeout(() => {
+        btnSave.innerHTML = origText;
+        btnSave.style.background = '';
+      }, 1600);
+    }
+
+    // Reset editing state after save
+    this.editingCustomPlayerId = null;
+  }
+
+  renderWorkshopSavedList() {
+    const counter = document.getElementById('wSavedCounter');
+    if (counter) counter.textContent = (this.customPlayers || []).length;
+
+    const track = document.getElementById('wSavedCardsTrack');
+    if (!track) return;
+    track.innerHTML = '';
+
+    (this.customPlayers || []).forEach(player => {
+      const item = document.createElement('div');
+      item.className = 'w-saved-mini-card';
+      
+      const avatarHtml = player.photoUrl 
+        ? `<img src="${player.photoUrl}" class="p-card-avatar-img" alt="${player.name}">`
+        : player.avatar || '👑';
+
+      item.innerHTML = `
+        <div class="w-smc-top">
+          <span class="w-smc-rating">${player.rating}</span>
+          <span class="w-smc-pos">${player.detailedPosition || player.position}</span>
+          <span class="w-smc-flag">${player.teamFlag}</span>
+        </div>
+        <div class="w-smc-avatar">${avatarHtml}</div>
+        <div class="w-smc-name">${player.name}</div>
+        <div class="w-smc-actions">
+          <button type="button" class="btn-smc-action btn-smc-edit" title="Düzenle">✏️</button>
+          <button type="button" class="btn-smc-action btn-smc-del" title="Sil">🗑️</button>
+        </div>
+      `;
+
+      item.querySelector('.btn-smc-edit').addEventListener('click', (e) => {
+        e.stopPropagation();
+        window.soundEngine.playClick();
+        this.editCustomPlayer(player.id);
+      });
+
+      item.querySelector('.btn-smc-del').addEventListener('click', (e) => {
+        e.stopPropagation();
+        window.soundEngine.playClick();
+        this.deleteCustomPlayer(player.id);
+      });
+
+      track.appendChild(item);
+    });
+  }
+
+  editCustomPlayer(id) {
+    const player = this.customPlayers.find(p => p.id === id);
+    if (!player) return;
+
+    this.editingCustomPlayerId = id;
+
+    // Fill form
+    const inputName = document.getElementById('wInputName');
+    if (inputName) inputName.value = player.name;
+
+    const inputRating = document.getElementById('wInputRating');
+    if (inputRating) inputRating.value = player.rating;
+
+    // Position
+    this.currentWorkshopPos = player.detailedPosition || 'SNT';
+    this.currentWorkshopCat = player.position || 'FWD';
+    document.querySelectorAll('#wPosGrid .w-opt-pill').forEach(pill => {
+      pill.classList.toggle('active', pill.dataset.pos === this.currentWorkshopPos);
+    });
+
+    // Theme
+    this.currentWorkshopTheme = player.cardType || 'birthday';
+    document.querySelectorAll('#wThemeGrid .w-theme-chip').forEach(chip => {
+      chip.classList.toggle('active', chip.dataset.theme === this.currentWorkshopTheme);
+    });
+
+    // Photo / Avatar
+    this.currentWorkshopPhoto = player.photoUrl || null;
+    this.currentWorkshopAvatar = player.avatar || '👑';
+    const clearBtn = document.getElementById('wBtnClearPhoto');
+    if (clearBtn) clearBtn.style.display = this.currentWorkshopPhoto ? 'inline-block' : 'none';
+
+    document.querySelectorAll('#wAvatarEmojiRow .w-emoji-btn').forEach(btn => {
+      btn.classList.toggle('active', !this.currentWorkshopPhoto && btn.dataset.icon === this.currentWorkshopAvatar);
+    });
+
+    // Flag
+    this.currentWorkshopFlag = player.teamFlag || '🇹🇷';
+    this.currentWorkshopCountry = player.teamName || 'Türkiye';
+    document.querySelectorAll('#wFlagRow .w-flag-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.flag === this.currentWorkshopFlag);
+    });
+
+    // Save button label update
+    const btnSave = document.getElementById('btnSaveCustomCard');
+    if (btnSave) {
+      btnSave.innerHTML = '<span>💾 DEĞİŞİKLİKLERİ KAYDET ➔</span>';
+    }
+
+    this.updateWorkshopPreview();
+  }
+
+  deleteCustomPlayer(id) {
+    if (this.customPlayers.length <= 1) {
+      alert('En az 1 özel oyuncu kalmalıdır!');
+      return;
+    }
+    this.customPlayers = this.customPlayers.filter(p => p.id !== id);
+    this.saveCustomPlayers();
+    if (this.editingCustomPlayerId === id) {
+      this.resetWorkshopForm();
+    } else {
+      this.renderWorkshopSavedList();
+    }
+  }
+
+  resetWorkshopForm() {
+    this.editingCustomPlayerId = null;
+    const inputName = document.getElementById('wInputName');
+    if (inputName) inputName.value = 'Bera';
+
+    const inputRating = document.getElementById('wInputRating');
+    if (inputRating) inputRating.value = 99;
+
+    this.currentWorkshopPos = 'SNT';
+    this.currentWorkshopCat = 'FWD';
+    document.querySelectorAll('#wPosGrid .w-opt-pill').forEach(p => {
+      p.classList.toggle('active', p.dataset.pos === 'SNT');
+    });
+
+    this.currentWorkshopTheme = 'birthday';
+    document.querySelectorAll('#wThemeGrid .w-theme-chip').forEach(c => {
+      c.classList.toggle('active', c.dataset.theme === 'birthday');
+    });
+
+    this.currentWorkshopPhoto = null;
+    const photoInput = document.getElementById('wPhotoFileInput');
+    if (photoInput) photoInput.value = '';
+    const clearBtn = document.getElementById('wBtnClearPhoto');
+    if (clearBtn) clearBtn.style.display = 'none';
+
+    this.currentWorkshopAvatar = '👑';
+    document.querySelectorAll('#wAvatarEmojiRow .w-emoji-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.icon === '👑');
+    });
+
+    this.currentWorkshopFlag = '🇹🇷';
+    this.currentWorkshopCountry = 'Türkiye';
+    document.querySelectorAll('#wFlagRow .w-flag-btn').forEach(f => {
+      f.classList.toggle('active', f.dataset.flag === '🇹🇷');
+    });
+
+    const btnSave = document.getElementById('btnSaveCustomCard');
+    if (btnSave) {
+      btnSave.innerHTML = '<span>💾 KARTI KAYDET VE OYUNA EKLE! ➔</span>';
+    }
+
+    this.updateWorkshopPreview();
   }
 }
 

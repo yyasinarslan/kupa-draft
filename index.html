@@ -333,6 +333,9 @@
         <button id="btnResetDraft" class="btn-secondary">
           <span>🔄 Kadroyu Sıfırla</span>
         </button>
+        <button id="btnOpenCardWorkshop" class="btn-secondary btn-workshop">
+          <span>🎨 Kart Atölyesi</span>
+        </button>
         <button id="btnCancelTournament" class="btn-secondary btn-danger" style="display: none;">
           <span>🏳️ Turnuvayı İptal Et</span>
         </button>
@@ -480,9 +483,13 @@
           </button>
 
           <div class="menu-sub-actions">
+            <button id="btnMenuCardWorkshop" class="btn-menu-sub btn-menu-workshop">
+              <span class="sub-icon">🎨</span>
+              <span>Kart Atölyesi</span>
+            </button>
             <button id="btnMenuSettings" class="btn-menu-sub">
               <span class="sub-icon">⚙️</span>
-              <span>Ayarlar & Parametreler</span>
+              <span>Ayarlar</span>
             </button>
             <button id="btnMenuHowToPlay" class="btn-menu-sub">
               <span class="sub-icon">📖</span>
@@ -651,6 +658,167 @@
           <button class="btn-primary" id="btnCloseHowToPlayBottom">
             <span>ANLADIM, HAYDİ BAŞLAYALIM! ➔</span>
           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         CARD WORKSHOP MODAL (KART ATÖLYESİ)
+         ========================================== -->
+    <div id="cardWorkshopModal" class="modal-backdrop" style="display: none;">
+      <div class="modal-card workshop-modal-card">
+        <button class="modal-close" id="btnCloseWorkshop">✕</button>
+
+        <div class="workshop-header">
+          <div class="workshop-title-wrap">
+            <span class="workshop-badge">🎨 KART ATÖLYESİ</span>
+            <h2>Özel Futbolcunu Yarat</h2>
+            <p>Kendini veya arkadaşlarını 99'luk bir süperstara dönüştür, kadrona dahil et!</p>
+          </div>
+        </div>
+
+        <div class="workshop-main-grid">
+          <!-- Left: Live FUT Card Preview -->
+          <div class="workshop-preview-column">
+            <div class="w-preview-title">⭐ CANLI KART ÖNİZLEMESİ</div>
+            <div class="w-card-holder">
+              <div id="workshopCardPreview" class="fut-card birthday-special">
+                <span class="captain-tag" id="wPreviewTag">© ÖZEL YILDIZ</span>
+                <div class="card-top">
+                  <div class="card-meta-left">
+                    <div class="card-rating" id="wPreviewRating">99</div>
+                    <div class="card-position" id="wPreviewPos">SNT</div>
+                    <div class="card-meta-flag" id="wPreviewFlag">🇹🇷</div>
+                  </div>
+                  <div class="card-avatar-wrap" id="wPreviewAvatarWrap">
+                    <div class="card-silhouette" id="wPreviewAvatar">👑</div>
+                  </div>
+                </div>
+                <div class="card-mid">
+                  <div class="card-name" id="wPreviewName">BERA</div>
+                  <div class="card-club" id="wPreviewClub">Kupa Efsanesi</div>
+                </div>
+                <div class="card-stats-grid">
+                  <div class="stat-row"><span class="stat-label-fut">PAC</span><span class="stat-val-fut" id="wPreviewPac">99</span></div>
+                  <div class="stat-row"><span class="stat-label-fut">DRI</span><span class="stat-val-fut" id="wPreviewDri">99</span></div>
+                  <div class="stat-row"><span class="stat-label-fut">SHO</span><span class="stat-val-fut" id="wPreviewSho">99</span></div>
+                  <div class="stat-row"><span class="stat-label-fut">DEF</span><span class="stat-val-fut" id="wPreviewDef">85</span></div>
+                  <div class="stat-row"><span class="stat-label-fut">PAS</span><span class="stat-val-fut" id="wPreviewPas">96</span></div>
+                  <div class="stat-row"><span class="stat-label-fut">PHY</span><span class="stat-val-fut" id="wPreviewPhy">92</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="w-preview-hint">Draft ve maçlarda bu görünümle sahaya çıkacak!</div>
+          </div>
+
+          <!-- Right: Customizer Form -->
+          <div class="workshop-form-column">
+            <!-- 1. Player Name -->
+            <div class="w-field-group">
+              <label class="w-field-label">⚽ Futbolcunun Adı</label>
+              <input type="text" id="wInputName" class="w-text-input" placeholder="Adını veya lakabını yaz (Örn: Bera, Kaptan)..." maxlength="15" value="Bera">
+            </div>
+
+            <!-- 2. Position Selection -->
+            <div class="w-field-group">
+              <label class="w-field-label">🎯 Mevki</label>
+              <div class="w-pills-row" id="wPosGrid">
+                <button type="button" class="w-opt-pill active" data-pos="SNT" data-cat="FWD">SNT (Forvet)</button>
+                <button type="button" class="w-opt-pill" data-pos="SLK" data-cat="FWD">SLK (Sol Kanat)</button>
+                <button type="button" class="w-opt-pill" data-pos="SĞK" data-cat="FWD">SĞK (Sağ Kanat)</button>
+                <button type="button" class="w-opt-pill" data-pos="MOO" data-cat="MID">MOO (10 Numara)</button>
+                <button type="button" class="w-opt-pill" data-pos="MO" data-cat="MID">MO (Orta Saha)</button>
+                <button type="button" class="w-opt-pill" data-pos="STP" data-cat="DEF">STP (Stoper)</button>
+                <button type="button" class="w-opt-pill" data-pos="KL" data-cat="GK">KL (Kaleci)</button>
+              </div>
+            </div>
+
+            <!-- 3. Rating Slider -->
+            <div class="w-field-group">
+              <div class="w-field-header-split">
+                <label class="w-field-label">⚡ Genel Güç (Reyting)</label>
+                <span class="w-power-badge" id="wRatingTextBadge">99 • SÜPER EFSANE</span>
+              </div>
+              <input type="range" id="wInputRating" class="w-range-slider" min="85" max="99" value="99">
+            </div>
+
+            <!-- 4. Card Theme -->
+            <div class="w-field-group">
+              <label class="w-field-label">✨ Kart Teması</label>
+              <div class="w-theme-options-row" id="wThemeGrid">
+                <button type="button" class="w-theme-chip active theme-birthday" data-theme="birthday">👑 Kral Moru (99)</button>
+                <button type="button" class="w-theme-chip theme-elite" data-theme="elite">💎 Neon Elmas</button>
+                <button type="button" class="w-theme-chip theme-gold" data-theme="rare-gold">⚡ Saf Altın</button>
+                <button type="button" class="w-theme-chip theme-fire" data-theme="fire">🔥 Ateş Fırtınası</button>
+              </div>
+            </div>
+
+            <!-- 5. Avatar or Photo -->
+            <div class="w-field-group">
+              <label class="w-field-label">📸 Fotoğraf veya Avatar İkonu</label>
+              <div class="w-avatar-control-box">
+                <div class="w-photo-btn-wrap">
+                  <label class="btn-secondary w-upload-btn" for="wPhotoFileInput">
+                    <span>📷 Galeriden / Kameradan Fotoğraf Yükle</span>
+                  </label>
+                  <input type="file" id="wPhotoFileInput" accept="image/*" style="display: none;">
+                  <button type="button" id="wBtnClearPhoto" class="btn-secondary btn-danger w-remove-photo-btn" style="display: none;">
+                    Fotoğrafı Kaldır ✕
+                  </button>
+                </div>
+                <div class="w-avatar-emoji-row" id="wAvatarEmojiRow">
+                  <button type="button" class="w-emoji-btn active" data-icon="👑">👑</button>
+                  <button type="button" class="w-emoji-btn" data-icon="⚡">⚡</button>
+                  <button type="button" class="w-emoji-btn" data-icon="🦁">🦁</button>
+                  <button type="button" class="w-emoji-btn" data-icon="🚀">🚀</button>
+                  <button type="button" class="w-emoji-btn" data-icon="⚽">⚽</button>
+                  <button type="button" class="w-emoji-btn" data-icon="🥷">🥷</button>
+                  <button type="button" class="w-emoji-btn" data-icon="🔥">🔥</button>
+                  <button type="button" class="w-emoji-btn" data-icon="🐯">🐯</button>
+                  <button type="button" class="w-emoji-btn" data-icon="⭐">⭐</button>
+                  <button type="button" class="w-emoji-btn" data-icon="👤">👤</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 6. Country Flag -->
+            <div class="w-field-group">
+              <label class="w-field-label">🇹🇷 Milli Takım / Ülke</label>
+              <div class="w-flag-options-row" id="wFlagRow">
+                <button type="button" class="w-flag-btn active" data-flag="🇹🇷" data-country="Türkiye">🇹🇷 Türkiye</button>
+                <button type="button" class="w-flag-btn" data-flag="🇧🇷" data-country="Brezilya">🇧🇷 Brezilya</button>
+                <button type="button" class="w-flag-btn" data-flag="🇦🇷" data-country="Arjantin">🇦🇷 Arjantin</button>
+                <button type="button" class="w-flag-btn" data-flag="🇫🇷" data-country="Fransa">🇫🇷 Fransa</button>
+                <button type="button" class="w-flag-btn" data-flag="🇩🇪" data-country="Almanya">🇩🇪 Almanya</button>
+                <button type="button" class="w-flag-btn" data-flag="🇵🇹" data-country="Portekiz">🇵🇹 Portekiz</button>
+                <button type="button" class="w-flag-btn" data-flag="🇪🇸" data-country="İspanya">🇪🇸 İspanya</button>
+                <button type="button" class="w-flag-btn" data-flag="🏴󠁧󠁢󠁥󠁮󠁧󠁿" data-country="İngiltere">🏴󠁧󠁢󠁥󠁮󠁧󠁿 İngiltere</button>
+              </div>
+            </div>
+
+            <!-- Save Action Button -->
+            <div class="w-submit-wrap">
+              <button type="button" id="btnSaveCustomCard" class="btn-primary btn-glow btn-full">
+                <span>💾 KARTI KAYDET VE OYUNA EKLE! ➔</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Saved Custom Players Section -->
+        <div class="workshop-saved-container">
+          <div class="w-saved-header-row">
+            <div>
+              <h3>⭐ Kayıtlı Özel Oyuncuların (<span id="wSavedCounter">0</span>)</h3>
+              <p>Bu oyuncular draftlarda ve kaptan seçimlerinde otomatik olarak karşına çıkar!</p>
+            </div>
+            <button type="button" id="btnAddNewCardReset" class="btn-secondary btn-small">
+              <span>➕ Yeni Oyuncu Ekle</span>
+            </button>
+          </div>
+          <div class="w-saved-cards-track" id="wSavedCardsTrack">
+            <!-- Dynamically injected saved cards -->
+          </div>
         </div>
       </div>
     </div>
