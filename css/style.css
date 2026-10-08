@@ -3094,6 +3094,10 @@ input:checked + .slider:before {
   box-shadow: 0 0 20px rgba(236, 72, 153, 0.4) !important;
 }
 
+#cardWorkshopModal {
+  z-index: 99999 !important;
+}
+
 .workshop-modal-card {
   max-width: 920px !important;
   max-height: 92dvh;

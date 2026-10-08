@@ -333,7 +333,7 @@
         <button id="btnResetDraft" class="btn-secondary">
           <span>🔄 Kadroyu Sıfırla</span>
         </button>
-        <button id="btnOpenCardWorkshop" class="btn-secondary btn-workshop">
+        <button id="btnOpenCardWorkshop" class="btn-secondary btn-workshop" onclick="if(window.game) window.game.openCardWorkshopModal();">
           <span>🎨 Kart Atölyesi</span>
         </button>
         <button id="btnCancelTournament" class="btn-secondary btn-danger" style="display: none;">
@@ -483,7 +483,7 @@
           </button>
 
           <div class="menu-sub-actions">
-            <button id="btnMenuCardWorkshop" class="btn-menu-sub btn-menu-workshop">
+            <button id="btnMenuCardWorkshop" class="btn-menu-sub btn-menu-workshop" onclick="if(window.game) window.game.openCardWorkshopModal();">
               <span class="sub-icon">🎨</span>
               <span>Kart Atölyesi</span>
             </button>
@@ -667,7 +667,7 @@
          ========================================== -->
     <div id="cardWorkshopModal" class="modal-backdrop" style="display: none;">
       <div class="modal-card workshop-modal-card">
-        <button class="modal-close" id="btnCloseWorkshop">✕</button>
+        <button class="modal-close" id="btnCloseWorkshop" onclick="document.getElementById('cardWorkshopModal').style.display='none';">✕</button>
 
         <div class="workshop-header">
           <div class="workshop-title-wrap">

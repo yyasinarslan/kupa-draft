@@ -316,8 +316,24 @@ class FutDraftGame {
     const btnMenuSettings = document.getElementById('btnMenuSettings');
     if (btnMenuSettings) {
       btnMenuSettings.addEventListener('click', () => {
-        window.soundEngine.playClick();
+        window.soundEngine?.playClick();
         this.openSettingsModal();
+      });
+    }
+
+    const btnMenuWorkshop = document.getElementById('btnMenuCardWorkshop');
+    if (btnMenuWorkshop) {
+      btnMenuWorkshop.addEventListener('click', () => {
+        window.soundEngine?.playClick();
+        this.openCardWorkshopModal();
+      });
+    }
+
+    const btnPitchWorkshop = document.getElementById('btnOpenCardWorkshop');
+    if (btnPitchWorkshop) {
+      btnPitchWorkshop.addEventListener('click', () => {
+        window.soundEngine?.playClick();
+        this.openCardWorkshopModal();
       });
     }
 
@@ -1540,10 +1556,17 @@ class FutDraftGame {
   }
 
   openCardWorkshopModal() {
-    this.renderWorkshopSavedList();
-    this.updateWorkshopPreview();
     const modal = document.getElementById('cardWorkshopModal');
-    if (modal) modal.style.display = 'flex';
+    if (modal) {
+      modal.style.display = 'flex';
+      modal.style.zIndex = '99999';
+    }
+    try {
+      this.renderWorkshopSavedList();
+      this.updateWorkshopPreview();
+    } catch (e) {
+      console.warn('Workshop render error:', e);
+    }
   }
 
   saveCurrentCustomCard() {
