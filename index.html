@@ -273,6 +273,7 @@
           <!-- 5b. ON-PITCH PENALTY SHOOTOUT ARENA OVERLAY -->
           <div class="pitch-full-overlay" id="penaltyShootoutOverlay" style="display: none;">
             <div class="pitch-penalty-arena">
+              <button class="pen-exit-btn" id="btnExitPenalty" title="Penaltı Modundan Çık">✕</button>
               <!-- Penalty Header & Scoreboard -->
               <div class="pen-header">
                 <div class="pen-badge">⚡ DÜNYA KUPASI SERİ PENALTILAR</div>
@@ -434,6 +435,12 @@
                 <button id="btnRetryMatch" class="btn-secondary btn-large" style="display: none;">
                   <span>🔄 MAÇI TEKRAR OYNA</span>
                 </button>
+                <button id="btnPenaltyPlayAgain" class="btn-primary btn-glow btn-large" style="display: none;">
+                  <span>🔄 YENİDEN PENALTI AT ➔</span>
+                </button>
+                <button id="btnPenaltyExitMenu" class="btn-secondary btn-large" style="display: none;">
+                  <span>🏠 ANA MENÜYE DÖN</span>
+                </button>
               </div>
             </div>
           </div>
@@ -568,6 +575,9 @@
           <button id="btnStartTournamentFromVictory" class="btn-primary btn-glow btn-tournament-cta">
             <span>🏆 DÜNYA KUPASI TURNUVASINA BAŞLA! ➔</span>
           </button>
+          <button id="btnVictoryPenaltyDuel" class="btn-secondary" style="border-color: rgba(56, 189, 248, 0.4); color: #bae6fd;">
+            <span>🧤 Penaltı Düellosu Yap</span>
+          </button>
           <button id="btnVictoryDownload" class="btn-secondary">
             <span>📸 Kadro Kartını İndir</span>
           </button>
@@ -625,6 +635,15 @@
             <span class="btn-arrow">➔</span>
           </button>
 
+          <button id="btnMenuPenaltyMode" class="btn-menu-action btn-menu-penalty">
+            <span class="btn-icon">🧤</span>
+            <div class="btn-text-wrap">
+              <strong>PENALTI DÜELLOSU</strong>
+              <small>Dünya Devlerine Karşı Seri Penaltı Heyecanı</small>
+            </div>
+            <span class="btn-arrow">➔</span>
+          </button>
+
           <div class="menu-sub-actions">
             <button id="btnMenuSettings" class="btn-menu-sub">
               <span class="sub-icon">⚙️</span>
@@ -640,6 +659,86 @@
         <!-- Footer / Version -->
         <div class="menu-footer-meta">
           <span>Kupa Draft 26 • Profesyonel Futbol Simülatörü</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         STANDALONE PENALTY DUEL SETUP MODAL
+         ========================================== -->
+    <div id="penaltyDuelModal" class="modal-backdrop" style="display: none;">
+      <div class="modal-card penalty-duel-modal-content">
+        <div class="pduel-header">
+          <button class="modal-close-btn" id="btnClosePenaltyDuel">✕</button>
+          <div class="pduel-icon-badge">🧤 ⚽</div>
+          <h2>PENALTI DÜELLOSU</h2>
+          <p>Rakip milli takımı ve oyun tarzını seç, doğrudan penaltı noktasına geç!</p>
+        </div>
+
+        <div class="pduel-body">
+          <div class="pduel-section">
+            <span class="pduel-section-title">1. RAKİP MİLLİ TAKIM SEÇ:</span>
+            <div class="pduel-teams-grid" id="pduelTeamsGrid">
+              <div class="pduel-team-card active" data-team="Brezilya" data-flag="🇧🇷" data-ovr="88">
+                <span class="pdt-flag">🇧🇷</span>
+                <span class="pdt-name">Brezilya</span>
+              </div>
+              <div class="pduel-team-card" data-team="Arjantin" data-flag="🇦🇷" data-ovr="89">
+                <span class="pdt-flag">🇦🇷</span>
+                <span class="pdt-name">Arjantin</span>
+              </div>
+              <div class="pduel-team-card" data-team="Fransa" data-flag="🇫🇷" data-ovr="89">
+                <span class="pdt-flag">🇫🇷</span>
+                <span class="pdt-name">Fransa</span>
+              </div>
+              <div class="pduel-team-card" data-team="Almanya" data-flag="🇩🇪" data-ovr="87">
+                <span class="pdt-flag">🇩🇪</span>
+                <span class="pdt-name">Almanya</span>
+              </div>
+              <div class="pduel-team-card" data-team="İngiltere" data-flag="🏴󠁧󠁢󠁥󠁮󠁧󠁿" data-ovr="88">
+                <span class="pdt-flag">🏴󠁧󠁢󠁥󠁮󠁧󠁿</span>
+                <span class="pdt-name">İngiltere</span>
+              </div>
+              <div class="pduel-team-card" data-team="İspanya" data-flag="🇪🇸" data-ovr="88">
+                <span class="pdt-flag">🇪🇸</span>
+                <span class="pdt-name">İspanya</span>
+              </div>
+              <div class="pduel-team-card" data-team="Portekiz" data-flag="🇵🇹" data-ovr="86">
+                <span class="pdt-flag">🇵🇹</span>
+                <span class="pdt-name">Portekiz</span>
+              </div>
+              <div class="pduel-team-card" data-team="Türkiye" data-flag="🇹🇷" data-ovr="83">
+                <span class="pdt-flag">🇹🇷</span>
+                <span class="pdt-name">Türkiye</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pduel-section">
+            <span class="pduel-section-title">2. OYUN TARZI SEÇ:</span>
+            <div class="pduel-mode-toggle">
+              <button type="button" class="btn-pduel-mode active" id="btnPduelModeClassic">
+                <span class="mode-icon">⚡</span>
+                <div class="mode-info">
+                  <strong>Klasik Penaltılar</strong>
+                  <small>Sol 90, Orta veya Sağ 90 köşelerine şut çek & kaleciyle uç</small>
+                </div>
+              </button>
+              <button type="button" class="btn-pduel-mode" id="btnPduelModeMath">
+                <span class="mode-icon">🔢</span>
+                <div class="mode-info">
+                  <strong>Matematik Yıldızı</strong>
+                  <small>4 işlem sorularını bilerek doksana gol at ve kurtarış yap</small>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="pduel-footer">
+          <button id="btnStartPenaltyDuel" class="btn-primary btn-glow btn-large btn-full">
+            <span>DÜELLOYU BAŞLAT ➔</span>
+          </button>
         </div>
       </div>
     </div>

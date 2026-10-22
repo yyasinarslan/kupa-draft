@@ -3659,5 +3659,214 @@ input:checked + .slider:before {
   }
 }
 
+/* ==========================================
+   STANDALONE PENALTY DUEL STYLES
+   ========================================== */
+.btn-menu-penalty {
+  width: 100%;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 50%, #1e3a8a 100%);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  color: #ffffff;
+  padding: 16px 24px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 8px 25px rgba(2, 132, 199, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.25s ease;
+}
+.btn-menu-penalty:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 14px 35px rgba(14, 165, 233, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  border-color: #38bdf8;
+}
+.btn-menu-penalty:active {
+  transform: translateY(0) scale(0.99);
+}
+.btn-menu-penalty .btn-icon {
+  font-size: 2rem;
+}
+.btn-menu-penalty .btn-text-wrap {
+  text-align: left;
+  flex: 1;
+  margin-left: 14px;
+}
+.btn-menu-penalty .btn-text-wrap strong {
+  display: block;
+  font-family: var(--font-fut);
+  font-size: 1.45rem;
+  letter-spacing: 1px;
+  font-weight: 900;
+  line-height: 1.1;
+  color: #ffffff;
+}
+.btn-menu-penalty .btn-text-wrap small {
+  font-size: 0.8rem;
+  color: #bae6fd;
+  font-weight: 600;
+}
+.btn-menu-penalty .btn-arrow {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #38bdf8;
+  transition: transform 0.2s ease;
+}
+.btn-menu-penalty:hover .btn-arrow {
+  transform: translateX(4px);
+}
+
+.pen-exit-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-weight: 800;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  transition: all 0.2s ease;
+}
+.pen-exit-btn:hover {
+  background: rgba(239, 68, 68, 0.4);
+  border-color: #ef4444;
+  transform: scale(1.1);
+}
+
+/* Penalty Duel Modal Content */
+.penalty-duel-modal-content {
+  max-width: 580px;
+  padding: 24px;
+  background: radial-gradient(circle at top, #1e293b 0%, #0f172a 100%);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(2, 132, 199, 0.2);
+}
+.pduel-header {
+  text-align: center;
+  position: relative;
+  margin-bottom: 20px;
+}
+.pduel-icon-badge {
+  font-size: 2.2rem;
+  margin-bottom: 6px;
+}
+.pduel-header h2 {
+  font-family: var(--font-fut);
+  font-size: 1.8rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: #38bdf8;
+  margin: 0;
+  text-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+}
+.pduel-header p {
+  color: #94a3b8;
+  font-size: 0.88rem;
+  margin: 4px 0 0;
+}
+.pduel-section {
+  margin-bottom: 20px;
+}
+.pduel-section-title {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  color: #94a3b8;
+  margin-bottom: 10px;
+}
+.pduel-teams-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+.pduel-team-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 10px 6px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.pduel-team-card:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.5);
+  transform: translateY(-2px);
+}
+.pduel-team-card.active {
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.4) 0%, rgba(30, 58, 138, 0.5) 100%);
+  border-color: #38bdf8;
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+  transform: scale(1.04);
+}
+.pdt-flag {
+  display: block;
+  font-size: 1.7rem;
+  line-height: 1.2;
+}
+.pdt-name {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin-top: 4px;
+}
+.pduel-mode-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.btn-pduel-mode {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 12px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+}
+.btn-pduel-mode:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+.btn-pduel-mode.active {
+  background: rgba(2, 132, 199, 0.25);
+  border-color: #38bdf8;
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+}
+.btn-pduel-mode .mode-icon {
+  font-size: 1.6rem;
+}
+.btn-pduel-mode .mode-info strong {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+.btn-pduel-mode .mode-info small {
+  display: block;
+  font-size: 0.7rem;
+  color: #94a3b8;
+  line-height: 1.2;
+  margin-top: 2px;
+}
+.pduel-footer {
+  margin-top: 20px;
+}
+
+
 
 

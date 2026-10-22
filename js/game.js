@@ -149,7 +149,7 @@ class FutDraftGame {
 
   showMainMenu() {
     // Strictly close all modals
-    ['formationModal', 'draftPickModal', 'completionModal', 'settingsModal', 'howToPlayModal'].forEach(id => {
+    ['formationModal', 'draftPickModal', 'completionModal', 'settingsModal', 'howToPlayModal', 'penaltyDuelModal'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = 'none';
     });
@@ -226,7 +226,7 @@ class FutDraftGame {
       btnStartDraft.addEventListener('click', () => {
         window.soundEngine.playClick();
         // Ensure all modals are strictly closed
-        ['settingsModal', 'howToPlayModal', 'draftPickModal', 'completionModal'].forEach(id => {
+        ['settingsModal', 'howToPlayModal', 'draftPickModal', 'completionModal', 'penaltyDuelModal'].forEach(id => {
           const el = document.getElementById(id);
           if (el) el.style.display = 'none';
         });
@@ -238,6 +238,82 @@ class FutDraftGame {
         setTimeout(() => {
           document.getElementById('formationModal').style.display = 'flex';
         }, 200);
+      });
+    }
+
+    // Standalone Penalty Duel Button in Main Menu & Completion Modal
+    const btnMenuPenalty = document.getElementById('btnMenuPenaltyMode');
+    if (btnMenuPenalty) {
+      btnMenuPenalty.addEventListener('click', () => {
+        window.soundEngine.playClick();
+        this.openPenaltyDuelModal();
+      });
+    }
+
+    const btnVictoryPenalty = document.getElementById('btnVictoryPenaltyDuel');
+    if (btnVictoryPenalty) {
+      btnVictoryPenalty.addEventListener('click', () => {
+        window.soundEngine.playClick();
+        const compModal = document.getElementById('completionModal');
+        if (compModal) compModal.style.display = 'none';
+        this.openPenaltyDuelModal();
+      });
+    }
+
+    const btnClosePenaltyDuel = document.getElementById('btnClosePenaltyDuel');
+    if (btnClosePenaltyDuel) {
+      btnClosePenaltyDuel.addEventListener('click', () => {
+        window.soundEngine.playClick();
+        document.getElementById('penaltyDuelModal').style.display = 'none';
+      });
+    }
+
+    // Penalty Duel Opponent Team Selection
+    document.querySelectorAll('.pduel-team-card').forEach(card => {
+      card.addEventListener('click', () => {
+        window.soundEngine.playClick();
+        document.querySelectorAll('.pduel-team-card').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+      });
+    });
+
+    // Penalty Duel Mode Toggle
+    const btnPduelClassic = document.getElementById('btnPduelModeClassic');
+    const btnPduelMath = document.getElementById('btnPduelModeMath');
+    if (btnPduelClassic && btnPduelMath) {
+      btnPduelClassic.addEventListener('click', () => {
+        window.soundEngine.playClick();
+        btnPduelClassic.classList.add('active');
+        btnPduelMath.classList.remove('active');
+      });
+      btnPduelMath.addEventListener('click', () => {
+        window.soundEngine.playClick();
+        btnPduelMath.classList.add('active');
+        btnPduelClassic.classList.remove('active');
+      });
+    }
+
+    // Start Penalty Duel Button
+    const btnStartPenaltyDuel = document.getElementById('btnStartPenaltyDuel');
+    if (btnStartPenaltyDuel) {
+      btnStartPenaltyDuel.addEventListener('click', () => {
+        window.soundEngine.playWhistle();
+        const activeCard = document.querySelector('.pduel-team-card.active') || document.querySelector('.pduel-team-card');
+        const teamName = activeCard?.dataset.team || 'Brezilya';
+        const teamFlag = activeCard?.dataset.flag || '🇧🇷';
+        const teamOvr = parseInt(activeCard?.dataset.ovr || '88', 10);
+
+        const isMathMode = btnPduelMath?.classList.contains('active') || false;
+
+        document.getElementById('penaltyDuelModal').style.display = 'none';
+        this.hideMainMenu();
+
+        this.tournament.startStandalonePenaltyShootout({
+          name: teamName,
+          flag: teamFlag,
+          ovr: teamOvr,
+          shortName: teamName.substring(0, 3).toUpperCase()
+        }, isMathMode);
       });
     }
 
@@ -455,6 +531,12 @@ class FutDraftGame {
       window.soundEngine.playClick();
       this.exportSquadCard();
     });
+  }
+
+  openPenaltyDuelModal() {
+    const modal = document.getElementById('penaltyDuelModal');
+    if (!modal) return;
+    modal.style.display = 'flex';
   }
 
   openSettingsModal() {
