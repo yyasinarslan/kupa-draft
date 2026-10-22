@@ -171,6 +171,28 @@ class TournamentEngine {
       });
     });
 
+    // Test shortcut: Clicking the match timer during match play jumps to penalties
+    const timerPill = document.querySelector('.psb-timer-pill');
+    if (timerPill) {
+      timerPill.style.cursor = 'pointer';
+      timerPill.title = 'Test: Skorları eşitleyip penaltılara geçmek için tıkla';
+      timerPill.addEventListener('click', () => {
+        if (this.isMatchActive) {
+          this.stopMatchSimulation();
+          this.userScore = 2;
+          this.oppScore = 2;
+          const uScoreEl = document.getElementById('sbUserScore');
+          const oScoreEl = document.getElementById('sbOppScore');
+          const minEl = document.getElementById('sbMatchMinute');
+          if (uScoreEl) uScoreEl.textContent = '2';
+          if (oScoreEl) oScoreEl.textContent = '2';
+          if (minEl) minEl.textContent = "120'";
+          this.openPenaltyShootout();
+        }
+      });
+    }
+
+
     // Next round
     document.getElementById('btnNextRound')?.addEventListener('click', () => this.nextRound());
     document.getElementById('btnRetryMatch')?.addEventListener('click', () => this.showPreviewView());
@@ -1495,9 +1517,14 @@ class TournamentEngine {
     this.hideAllOverlays();
     this.showOverlay('penaltyShootoutOverlay');
 
+    const opp = this.activeOpponent || { name: 'Brezilya', flag: '🇧🇷', ovr: 88, shortName: 'BRA' };
+    this.activeOpponent = opp;
+    if (typeof this.userScore !== 'number') this.userScore = 2;
+    if (typeof this.oppScore !== 'number') this.oppScore = 2;
+
     document.getElementById('penRegularScoreText').textContent = `90' + 120' Normal Süre: ${this.userScore} - ${this.oppScore}`;
-    document.getElementById('penOppFlag').textContent = this.activeOpponent.flag;
-    document.getElementById('penOppName').textContent = this.activeOpponent.name.toUpperCase();
+    document.getElementById('penOppFlag').textContent = opp.flag;
+    document.getElementById('penOppName').textContent = opp.name.toUpperCase();
     document.getElementById('penUserScoreDigit').textContent = '0';
     document.getElementById('penOppScoreDigit').textContent = '0';
 
@@ -1910,3 +1937,18 @@ class TournamentEngine {
 }
 
 window.TournamentEngine = TournamentEngine;
+
+// Global helper to test penalty shootout from console or anytime
+window.testPenalties = function(isMath = false) {
+  if (window.game) {
+    if (isMath) window.game.isMathMode = true;
+    const t = window.game.tournament;
+    t.activeOpponent = t.activeOpponent || { name: 'Brezilya', flag: '🇧🇷', ovr: 88, shortName: 'BRA' };
+    t.userScore = 2;
+    t.oppScore = 2;
+    document.getElementById('welcomeScreen')?.classList.remove('active');
+    document.getElementById('draftSetupModal')?.classList.remove('active');
+    document.getElementById('pitchContainer')?.classList.remove('hidden');
+    t.openPenaltyShootout();
+  }
+};
