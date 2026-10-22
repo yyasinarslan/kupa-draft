@@ -241,12 +241,22 @@ class FutDraftGame {
       });
     }
 
-    // Standalone Penalty Duel Button in Main Menu & Completion Modal
-    const btnMenuPenalty = document.getElementById('btnMenuPenaltyMode');
-    if (btnMenuPenalty) {
-      btnMenuPenalty.addEventListener('click', () => {
+    // Auto-Draft / Random Squad Buttons
+    const btnMenuAutoDraft = document.getElementById('btnMenuAutoDraft');
+    if (btnMenuAutoDraft) {
+      btnMenuAutoDraft.addEventListener('click', () => {
         window.soundEngine.playClick();
-        this.openPenaltyDuelModal();
+        this.generateRandomSquad();
+      });
+    }
+
+    const btnAutoDraftFromFormation = document.getElementById('btnAutoDraftFromFormation');
+    if (btnAutoDraftFromFormation) {
+      btnAutoDraftFromFormation.addEventListener('click', () => {
+        window.soundEngine.playClick();
+        const activeFormationBtn = document.querySelector('.formation-card-btn.active');
+        const fKey = activeFormationBtn ? activeFormationBtn.dataset.formation : this.currentFormation;
+        this.generateRandomSquad(fKey);
       });
     }
 
@@ -635,6 +645,83 @@ class FutDraftGame {
     if (soundToggle) soundToggle.checked = this.settings.sound;
 
     document.getElementById('settingsModal').style.display = 'flex';
+  }
+
+  generateRandomSquad(formationKey = null) {
+    window.soundEngine?.playWhistle();
+
+    // 1. Choose formation (either specified or random from available formations)
+    const availableFormations = Object.keys(FORMATIONS);
+    const chosenFormation = formationKey || availableFormations[Math.floor(Math.random() * availableFormations.length)];
+    this.setFormation(chosenFormation);
+
+    // 2. Select Captain first (pick one superstar)
+    this.captainPicked = true;
+    this.isCaptainDraft = false;
+
+    const usedPlayerIds = new Set();
+    const superstars = this.allPlayers.filter(p => p.rating >= 88);
+    const poolSuperstars = superstars.length > 0 ? superstars : this.allPlayers.filter(p => p.rating >= 84);
+    const captainPick = poolSuperstars[Math.floor(Math.random() * poolSuperstars.length)];
+
+    let captainSlot = this.squadSlots.find(s => !s.player && s.detailed === captainPick.detailedPosition);
+    if (!captainSlot) {
+      captainSlot = this.squadSlots.find(s => !s.player && COMPATIBLE_POSITIONS[s.detailed]?.includes(captainPick.detailedPosition));
+    }
+    if (!captainSlot) {
+      captainSlot = this.squadSlots.find(s => !s.player && s.category === captainPick.position);
+    }
+    if (!captainSlot) {
+      captainSlot = this.squadSlots.find(s => !s.player);
+    }
+    if (captainSlot) {
+      captainSlot.player = { ...captainPick, isCaptain: true };
+      usedPlayerIds.add(captainPick.id);
+    }
+
+    // 3. Fill the remaining empty slots with high-quality compatible players
+    this.squadSlots.forEach(slot => {
+      if (slot.player) return;
+
+      const allowedPositions = COMPATIBLE_POSITIONS[slot.detailed] || [slot.detailed];
+      let pool = this.allPlayers.filter(p => 
+        allowedPositions.includes(p.detailedPosition) && !usedPlayerIds.has(p.id)
+      );
+
+      if (pool.length === 0) {
+        pool = this.allPlayers.filter(p => p.position === slot.category && !usedPlayerIds.has(p.id));
+      }
+      if (pool.length === 0) {
+        pool = this.allPlayers.filter(p => !usedPlayerIds.has(p.id));
+      }
+
+      // Weight towards good cards so random squad feels rewarding (top 6 available)
+      pool.sort((a, b) => b.rating - a.rating);
+      const topSlice = pool.slice(0, Math.min(6, pool.length));
+      const chosenPlayer = topSlice[Math.floor(Math.random() * topSlice.length)];
+
+      if (chosenPlayer) {
+        slot.player = chosenPlayer;
+        usedPlayerIds.add(chosenPlayer.id);
+      }
+    });
+
+    // Close any open modals
+    ['formationModal', 'draftPickModal', 'settingsModal', 'howToPlayModal', 'penaltyDuelModal'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+
+    this.hideMainMenu();
+    document.getElementById('pitchContainer')?.classList.remove('hidden');
+
+    this.renderPitch();
+    this.updateStatsDisplay();
+
+    // Trigger celebration & hero mode choices!
+    setTimeout(() => {
+      this.showCompletionModal();
+    }, 450);
   }
 
   setFormation(formationKey) {
