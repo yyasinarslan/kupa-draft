@@ -241,15 +241,7 @@ class FutDraftGame {
       });
     }
 
-    // Auto-Draft / Random Squad Buttons
-    const btnMenuAutoDraft = document.getElementById('btnMenuAutoDraft');
-    if (btnMenuAutoDraft) {
-      btnMenuAutoDraft.addEventListener('click', () => {
-        window.soundEngine.playClick();
-        this.generateRandomSquad();
-      });
-    }
-
+    // Auto-Draft / Random Squad from Formation Modal
     const btnAutoDraftFromFormation = document.getElementById('btnAutoDraftFromFormation');
     if (btnAutoDraftFromFormation) {
       btnAutoDraftFromFormation.addEventListener('click', () => {
