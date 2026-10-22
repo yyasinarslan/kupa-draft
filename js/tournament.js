@@ -937,7 +937,7 @@ class TournamentEngine {
     desc.innerHTML = `
       🔥 <strong>${star.name}</strong> (${star.rating} Rating) ceza sahasına fırtına gibi girdi!
       ${starAdvantageHint}
-      <div style="margin-top: 8px; font-size: 0.82rem; color: #94a3b8;"><strong>${durationSec}</strong> saniye içinde kararını ver (Seçmezsen otomatik şut çekilir):</div>
+      <div style="margin-top: 8px; font-size: 0.82rem; color: #ef4444; font-weight: 700;">⏱️ <strong>${durationSec}</strong> saniye içinde kararını ver! Seçim yapmazsan süre dolar ve gol kaçar!</div>
     `;
 
     document.getElementById('pdecAttackButtons').style.display = 'flex';
@@ -957,11 +957,10 @@ class TournamentEngine {
 
     overlay.style.display = 'flex';
 
-    // Auto-resolve after dynamic seconds if user doesn't click
+    // Auto-resolve after dynamic seconds if user doesn't click: STRICTLY ALEYHİNE (Süre biter ve gol kaçar)
     this.decisionTimer = setTimeout(() => {
       if (this.isMatchPaused) {
-        const randomChoice = allChoices[Math.floor(Math.random() * allChoices.length)];
-        this.handleDecisionChoice(randomChoice);
+        this.handleDecisionChoice('timeout');
       }
     }, durationMs);
   }
@@ -982,6 +981,23 @@ class TournamentEngine {
 
     const player = this.decisionActivePlayer;
     const tier = this.decisionActiveTier || this.getPlayerTier(player.rating, player.name);
+
+    // Timeout: strictly negative outcome (no goal)
+    if (choiceType === 'timeout') {
+      window.soundEngine.playWhistle();
+      const comment = `⏱️ <strong>SÜRE DOLDU!</strong> Kararsız kalındı! ${player.name} (${player.rating} OVR) zamanında karar veremeyince rakip savunma topu söktü aldı ve mutlak gol kaçtı!`;
+      this.updateLiveSpiker(comment, 'danger');
+
+      // Pause match simulation for 2.8 seconds so the player can comfortably read the commentary reaction!
+      this.isMatchPaused = true;
+      setTimeout(() => {
+        if (this.isMatchActive && !this.decisionTimer) {
+          this.isMatchPaused = false;
+        }
+      }, 2800);
+      return;
+    }
+
     let isGoal = false;
     let isReboundGoal = false;
     let comment = '';
@@ -1198,7 +1214,7 @@ class TournamentEngine {
     title.textContent = `⚡ ${this.matchMinute}. DAKİKA: Kalenle Karşı Karşıya!`;
     desc.innerHTML = `
       ⚠️ <strong>${oppStar}</strong> (${this.activeOpponent.name}) savunmanı deldi ve karşı karşıya kaldı!
-      <br>Kalecin <strong>${gk.name}</strong> (${gk.rating} OVR) nereye hamle yapsın? Yanlış seçersen gol yiyeceksin! (${durationSec} sn):
+      <br>Kalecin <strong>${gk.name}</strong> (${gk.rating} OVR) nereye hamle yapsın? Yanlış seçersen veya süre dolarsa gol yiyeceksin! (${durationSec} sn):
     `;
 
     document.getElementById('pdecAttackButtons').style.display = 'none';
