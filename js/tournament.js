@@ -73,6 +73,12 @@ class TournamentEngine {
       goalsByPlayer: {}
     };
 
+    this.isExtraTime = false;
+    this.penaltyShootoutActive = false;
+    this.penaltyState = null;
+    this.penaltyResult = null;
+    this.currentPenaltyMathAnswer = null;
+
     this.isTournamentActive = false;
     this.bindEvents();
   }
@@ -144,6 +150,24 @@ class TournamentEngine {
       document.getElementById(id)?.addEventListener('click', (e) => {
         const btn = e.currentTarget;
         this.handleMathChoice(btn.dataset.val);
+      });
+    });
+
+    // Penalty Shootout Action Buttons (User Shoots)
+    document.getElementById('btnPenShootLeft')?.addEventListener('click', () => this.handleUserPenaltyAction('left'));
+    document.getElementById('btnPenShootCenter')?.addEventListener('click', () => this.handleUserPenaltyAction('center'));
+    document.getElementById('btnPenShootRight')?.addEventListener('click', () => this.handleUserPenaltyAction('right'));
+
+    // Penalty Shootout Action Buttons (User Goalkeeper Dives)
+    document.getElementById('btnPenDiveLeft')?.addEventListener('click', () => this.handleUserPenaltyAction('left'));
+    document.getElementById('btnPenDiveCenter')?.addEventListener('click', () => this.handleUserPenaltyAction('center'));
+    document.getElementById('btnPenDiveRight')?.addEventListener('click', () => this.handleUserPenaltyAction('right'));
+
+    // Penalty Math Mode Buttons
+    ['btnPenMath0', 'btnPenMath1', 'btnPenMath2'].forEach(id => {
+      document.getElementById(id)?.addEventListener('click', (e) => {
+        const btn = e.currentTarget;
+        this.handlePenaltyMathChoice(btn.dataset.val);
       });
     });
 
@@ -261,6 +285,7 @@ class TournamentEngine {
     const overlays = [
       'tournamentPreviewView', 
       'decisionOverlay', 
+      'penaltyShootoutOverlay',
       'tournamentResultView', 
       'tournamentTrophyView'
     ];
@@ -300,6 +325,10 @@ class TournamentEngine {
     this.oppScore = 0;
     this.matchMinute = 0;
     this.isMatchPaused = false;
+    this.isExtraTime = false;
+    this.penaltyShootoutActive = false;
+    this.penaltyState = null;
+    this.penaltyResult = null;
     this.scorersList = [];
 
     // Scoreboard setup
@@ -453,8 +482,9 @@ class TournamentEngine {
       // Check Ambient Commentary
       this.checkAmbientMatchEvent();
 
-      // End of 90'
-      if (this.matchMinute >= 90) {
+      // End of regular time (90') or extra time (120')
+      const targetEndMinute = this.isExtraTime ? 120 : 90;
+      if (this.matchMinute >= targetEndMinute) {
         this.stopMatchSimulation();
         this.endMatch();
       }
@@ -1337,24 +1367,46 @@ class TournamentEngine {
   }
 
   // ==========================================
-  // MATCH END & RESULTS
+  // MATCH END & RESULTS (EXTRA TIME & PENALTIES)
   // ==========================================
   endMatch() {
-    window.soundEngine.playWhistle();
+    window.soundEngine?.playWhistle();
 
-    // No ties in World Cup Knockouts
-    if (this.userScore === this.oppScore) {
-      this.userScore++;
-      const hero = this.getRandomUserPlayer(['FWD', 'MOO']);
-      this.recordGoal(hero.name);
-      this.updateLiveSpiker(`⚽ <strong>90+3' ALTIN GOL!</strong> ${hero.name} maçı kazandıran golü attı!`, 'goal');
-      document.getElementById('sbUserScore').textContent = this.userScore;
+    // 1. Regular 90' ended in a draw -> Go to Extra Time (120')
+    if (!this.isExtraTime && this.userScore === this.oppScore) {
+      this.isExtraTime = true;
+      const roundTag = document.getElementById('sbRoundTag');
+      if (roundTag) roundTag.textContent = "120' UZATMALAR";
+
+      this.updateLiveSpiker(
+        `⏱️ <strong>90 DAKİKA BERABERE BİTTİ (${this.userScore}-${this.oppScore})!</strong> Dünya Kupası heyecanı Uzatmalara (120') taşınıyor!`, 
+        'warning'
+      );
+
+      // Schedule 1 critical decision during extra time
+      const isUserAdvantaged = this.powerAdvantage >= 0;
+      const extraEvtType = (Math.random() < (isUserAdvantaged ? 0.65 : 0.45)) ? 'attack' : 'defense';
+      this.decisionEvents = [{ minute: 106, type: extraEvtType }];
+
       setTimeout(() => {
-        this.showMatchResultView();
-      }, 2500);
+        this.startMatchTimer();
+      }, 1600);
       return;
     }
 
+    // 2. Extra Time 120' ended in a draw -> Go to Penalty Shootout!
+    if (this.userScore === this.oppScore) {
+      this.updateLiveSpiker(
+        `🚨 <strong>120 DAKİKA BERABERE BİTTİ (${this.userScore}-${this.oppScore})!</strong> Kazanan SERİ PENALTI ATIŞLARIYLA belirlenecek!`, 
+        'warning'
+      );
+      setTimeout(() => {
+        this.openPenaltyShootout();
+      }, 1800);
+      return;
+    }
+
+    // 3. Regular victory or defeat at 90' or 120'
     setTimeout(() => {
       this.showMatchResultView();
     }, 1800);
@@ -1363,13 +1415,31 @@ class TournamentEngine {
   showMatchResultView() {
     this.hideMatchUi();
 
-    const isWinner = this.userScore > this.oppScore;
+    const isWinner = this.penaltyResult ? this.penaltyResult.isWinner : (this.userScore > this.oppScore);
     const isGrandFinal = this.currentRoundIndex === 3;
 
     document.getElementById('resultUserScore').textContent = this.userScore;
     document.getElementById('resultOppScore').textContent = this.oppScore;
     document.getElementById('resultOppName').textContent = this.activeOpponent.name;
     document.getElementById('resultOppFlag').textContent = this.activeOpponent.flag;
+
+    const penSummaryEl = document.getElementById('resultPenSummary');
+    if (this.penaltyResult) {
+      if (penSummaryEl) {
+        penSummaryEl.style.display = 'inline-block';
+        if (this.penaltyResult.isWinner) {
+          penSummaryEl.innerHTML = `⚡ Seri Penaltılar: <strong>${this.penaltyResult.userScore} - ${this.penaltyResult.oppScore}</strong> (Kazandın! 🏆)`;
+          penSummaryEl.style.borderColor = '#22c55e';
+          penSummaryEl.style.color = '#86efac';
+        } else {
+          penSummaryEl.innerHTML = `⚡ Seri Penaltılar: <strong>${this.penaltyResult.userScore} - ${this.penaltyResult.oppScore}</strong> (Mağlubiyet)`;
+          penSummaryEl.style.borderColor = '#ef4444';
+          penSummaryEl.style.color = '#fca5a5';
+        }
+      }
+    } else {
+      if (penSummaryEl) penSummaryEl.style.display = 'none';
+    }
 
     const scorersBox = document.getElementById('matchScorersBox');
     if (this.scorersList.length > 0) {
@@ -1394,18 +1464,344 @@ class TournamentEngine {
       }
 
       icon.textContent = '🎉';
-      title.textContent = 'TURU GEÇTİN! TEBRİKLER!';
+      title.textContent = this.penaltyResult ? 'PENALTILARLA TURU GEÇTİN! TEBRİKLER!' : 'TURU GEÇTİN! TEBRİKLER!';
       btnNext.style.display = 'inline-flex';
       btnRetry.style.display = 'none';
       btnNext.querySelector('span').textContent = 'SONRAKİ MAÇA GEÇ ➔';
     } else {
       icon.textContent = '😢';
-      title.textContent = 'MAĞLUBİYET! PES ETME!';
+      title.textContent = this.penaltyResult ? 'PENALTILARLA MAĞLUBİYET! PES ETME!' : 'MAĞLUBİYET! PES ETME!';
       btnNext.style.display = 'none';
       btnRetry.style.display = 'inline-flex';
     }
 
     this.showOverlay('tournamentResultView');
+  }
+
+  // ==========================================
+  // PENALTY SHOOTOUT ENGINE (SERİ PENALTILAR)
+  // ==========================================
+  openPenaltyShootout() {
+    this.penaltyShootoutActive = true;
+    this.penaltyState = {
+      userKicks: [],
+      oppKicks: [],
+      userGoals: 0,
+      oppGoals: 0,
+      isUserTurn: true,
+      isLocked: false
+    };
+
+    this.hideAllOverlays();
+    this.showOverlay('penaltyShootoutOverlay');
+
+    document.getElementById('penRegularScoreText').textContent = `90' + 120' Normal Süre: ${this.userScore} - ${this.oppScore}`;
+    document.getElementById('penOppFlag').textContent = this.activeOpponent.flag;
+    document.getElementById('penOppName').textContent = this.activeOpponent.name.toUpperCase();
+    document.getElementById('penUserScoreDigit').textContent = '0';
+    document.getElementById('penOppScoreDigit').textContent = '0';
+
+    this.renderPenaltyDots();
+    this.setupPenaltyTurn();
+  }
+
+  renderPenaltyDots() {
+    const userDotsCont = document.getElementById('penUserDots');
+    const oppDotsCont = document.getElementById('penOppDots');
+    if (!userDotsCont || !oppDotsCont) return;
+
+    const currentRound = Math.max(this.penaltyState.userKicks.length, this.penaltyState.oppKicks.length);
+    const totalDisplay = Math.max(5, currentRound + 1);
+
+    const renderSide = (cont, kicks, isCurrentSide) => {
+      cont.innerHTML = '';
+      for (let i = 0; i < totalDisplay; i++) {
+        const dot = document.createElement('span');
+        dot.className = 'pen-dot';
+        if (i < kicks.length) {
+          dot.classList.add(kicks[i] ? 'goal' : 'miss');
+        } else if (i === kicks.length && isCurrentSide) {
+          dot.classList.add('current');
+        } else {
+          dot.classList.add('pending');
+        }
+        cont.appendChild(dot);
+      }
+    };
+
+    renderSide(userDotsCont, this.penaltyState.userKicks, this.penaltyState.isUserTurn);
+    renderSide(oppDotsCont, this.penaltyState.oppKicks, !this.penaltyState.isUserTurn);
+  }
+
+  setupPenaltyTurn() {
+    const state = this.penaltyState;
+    state.isLocked = false;
+
+    // Reset ball & goalkeeper visuals
+    const ballEl = document.getElementById('penBallEl');
+    const gkEl = document.getElementById('penGoalkeeperEl');
+    const toastEl = document.getElementById('penFeedbackToast');
+    if (toastEl) toastEl.style.display = 'none';
+
+    if (ballEl) {
+      ballEl.className = 'pen-ball';
+    }
+    if (gkEl) {
+      gkEl.className = 'pen-goalkeeper';
+    }
+
+    const roundStatusEl = document.getElementById('penRoundStatusText');
+    const actorLabelEl = document.getElementById('penActiveActorLabel');
+    const shootBtns = document.getElementById('penShootButtons');
+    const defendBtns = document.getElementById('penDefendButtons');
+    const mathBtns = document.getElementById('penMathButtons');
+
+    const isMathMode = (this.game.settings && this.game.settings.decisionMode === 'math');
+    const kickIndex = state.isUserTurn ? state.userKicks.length : state.oppKicks.length;
+    const roundNumber = kickIndex + 1;
+    const isSuddenDeath = roundNumber > 5;
+    const roundName = isSuddenDeath ? `⚡ Ani Ölüm • ${roundNumber}. Penaltı` : `Tur ${roundNumber} / 5`;
+
+    if (state.isUserTurn) {
+      // User Shoots!
+      const shooters = this.game.squadSlots.filter(s => s.player).map(s => s.player);
+      const shooter = shooters[kickIndex % shooters.length] || { name: 'Kaptan' };
+
+      roundStatusEl.textContent = `${roundName} • 🎯 Şut Sırası Sende!`;
+      actorLabelEl.innerHTML = `Vuruşu Yapacak: <strong>${shooter.name}</strong>`;
+      document.getElementById('penGkLabel').textContent = `${this.activeOpponent.name} Kalecisi`;
+
+      if (isMathMode) {
+        shootBtns.style.display = 'none';
+        defendBtns.style.display = 'none';
+        mathBtns.style.display = 'grid';
+        this.setupPenaltyMathButtons('shoot');
+      } else {
+        mathBtns.style.display = 'none';
+        defendBtns.style.display = 'none';
+        shootBtns.style.display = 'grid';
+      }
+    } else {
+      // Opponent Shoots! User GK Defends!
+      const userGkSlot = this.game.squadSlots.find(s => s.category === 'GK') || this.game.squadSlots[0];
+      const userGk = userGkSlot?.player || { name: 'Kaleci' };
+
+      const oppStars = this.activeOpponent.star ? this.activeOpponent.star.replace('⭐', '').split(',') : ['Yıldız Oyuncu'];
+      const oppShooter = oppStars[kickIndex % oppStars.length].trim();
+
+      roundStatusEl.textContent = `${roundName} • 🧤 Kaleni Koru! Kurtarış Yap!`;
+      actorLabelEl.innerHTML = `Rakip Vuruyor: <strong>${oppShooter}</strong> (${this.activeOpponent.name})`;
+      document.getElementById('penGkLabel').textContent = userGk.name;
+
+      if (isMathMode) {
+        shootBtns.style.display = 'none';
+        defendBtns.style.display = 'none';
+        mathBtns.style.display = 'grid';
+        this.setupPenaltyMathButtons('defend');
+      } else {
+        mathBtns.style.display = 'none';
+        shootBtns.style.display = 'none';
+        defendBtns.style.display = 'grid';
+      }
+    }
+
+    this.renderPenaltyDots();
+  }
+
+  setupPenaltyMathButtons(type) {
+    const problem = this.generateMathProblem();
+    this.currentPenaltyMathAnswer = String(problem.correct);
+
+    const actorLabelEl = document.getElementById('penActiveActorLabel');
+    const actionText = (type === 'shoot') ? 'Hesapla ve Şutu Patlat!' : 'Hesapla ve Topu Kurtar!';
+    actorLabelEl.innerHTML += ` &nbsp;•&nbsp; <strong>${problem.question} = ?</strong> (${actionText})`;
+
+    ['btnPenMath0', 'btnPenMath1', 'btnPenMath2'].forEach((id, idx) => {
+      const btn = document.getElementById(id);
+      if (btn) {
+        btn.dataset.val = String(problem.choices[idx]);
+        const valEl = btn.querySelector('.pen-math-val');
+        if (valEl) valEl.textContent = problem.choices[idx];
+      }
+    });
+  }
+
+  handleUserPenaltyAction(chosenDirection, isMathCorrect = null) {
+    if (this.penaltyState.isLocked) return;
+    this.penaltyState.isLocked = true;
+    window.soundEngine?.playClick();
+
+    const state = this.penaltyState;
+    const directions = ['left', 'center', 'right'];
+    let userAim = chosenDirection;
+    let gkAim = directions[Math.floor(Math.random() * directions.length)];
+    let isGoal = false;
+
+    const ballEl = document.getElementById('penBallEl');
+    const gkEl = document.getElementById('penGoalkeeperEl');
+    const toastEl = document.getElementById('penFeedbackToast');
+
+    if (state.isUserTurn) {
+      // User is Shooting
+      if (isMathCorrect !== null) {
+        isGoal = isMathCorrect;
+        if (isGoal) {
+          gkAim = directions.filter(d => d !== userAim)[Math.floor(Math.random() * 2)] || 'center';
+        } else {
+          gkAim = userAim;
+        }
+      } else {
+        // Classic mode
+        if (userAim !== gkAim) {
+          isGoal = true;
+        } else {
+          // GK guessed same side: 75% save, 25% powered in
+          isGoal = Math.random() < 0.25;
+        }
+      }
+
+      ballEl.classList.add('shoot-' + userAim);
+      gkEl.classList.add('dive-' + gkAim);
+
+      setTimeout(() => {
+        state.userKicks.push(isGoal);
+        if (isGoal) {
+          state.userGoals++;
+          document.getElementById('penUserScoreDigit').textContent = state.userGoals;
+          window.soundEngine?.playGoalHorn();
+          window.soundEngine?.playCrowdCheer();
+          if (toastEl) {
+            toastEl.className = 'pen-feedback-toast toast-goal';
+            toastEl.textContent = '⚡ GOOOOOOL! Harika bir penaltı vuruşu!';
+            toastEl.style.display = 'block';
+          }
+        } else {
+          window.soundEngine?.playSave();
+          if (toastEl) {
+            toastEl.className = 'pen-feedback-toast toast-miss';
+            toastEl.textContent = '❌ KAÇTI! Kaleci penaltıyı kurtardı!';
+            toastEl.style.display = 'block';
+          }
+        }
+        this.renderPenaltyDots();
+        this.checkShootoutStep();
+      }, 450);
+
+    } else {
+      // Opponent is Shooting, User GK is Defending
+      const oppAim = directions[Math.floor(Math.random() * directions.length)];
+      gkAim = userAim;
+
+      if (isMathCorrect !== null) {
+        isGoal = !isMathCorrect;
+      } else {
+        if (gkAim === oppAim) {
+          isGoal = Math.random() < 0.25;
+        } else {
+          isGoal = true;
+        }
+      }
+
+      ballEl.classList.add('shoot-' + oppAim);
+      gkEl.classList.add('dive-' + gkAim);
+
+      setTimeout(() => {
+        state.oppKicks.push(isGoal);
+        if (isGoal) {
+          state.oppGoals++;
+          document.getElementById('penOppScoreDigit').textContent = state.oppGoals;
+          window.soundEngine?.playGoalHorn();
+          if (toastEl) {
+            toastEl.className = 'pen-feedback-toast toast-miss';
+            toastEl.textContent = `⚽ Gol! ${this.activeOpponent.name} penaltıyı gole çevirdi.`;
+            toastEl.style.display = 'block';
+          }
+        } else {
+          window.soundEngine?.playSave();
+          window.soundEngine?.playCrowdCheer();
+          if (toastEl) {
+            toastEl.className = 'pen-feedback-toast toast-save';
+            toastEl.textContent = '🧤 HARİKA KURTARIŞ! Kalecimiz penaltıyı kurtardı!';
+            toastEl.style.display = 'block';
+          }
+        }
+        this.renderPenaltyDots();
+        this.checkShootoutStep();
+      }, 450);
+    }
+  }
+
+  handlePenaltyMathChoice(val) {
+    if (this.penaltyState.isLocked) return;
+    const isCorrect = (String(val) === String(this.currentPenaltyMathAnswer));
+    const directions = ['left', 'center', 'right'];
+    const aim = directions[Math.floor(Math.random() * directions.length)];
+    this.handleUserPenaltyAction(aim, isCorrect);
+  }
+
+  checkShootoutStep() {
+    const state = this.penaltyState;
+    const uKicks = state.userKicks.length;
+    const oKicks = state.oppKicks.length;
+    const uGoals = state.userGoals;
+    const oGoals = state.oppGoals;
+
+    // Check if standard 5-kick shootout has a mathematical winner
+    if (uKicks <= 5 || oKicks <= 5) {
+      const uRem = Math.max(0, 5 - uKicks);
+      const oRem = Math.max(0, 5 - oKicks);
+
+      if (uGoals > oGoals + oRem) {
+        setTimeout(() => this.finishPenaltyShootout(true), 1500);
+        return;
+      }
+      if (oGoals > uGoals + uRem) {
+        setTimeout(() => this.finishPenaltyShootout(false), 1500);
+        return;
+      }
+    }
+
+    // Both completed 5 kicks:
+    if (uKicks >= 5 && oKicks >= 5 && uKicks === oKicks) {
+      if (uGoals > oGoals) {
+        setTimeout(() => this.finishPenaltyShootout(true), 1500);
+        return;
+      }
+      if (oGoals > uGoals) {
+        setTimeout(() => this.finishPenaltyShootout(false), 1500);
+        return;
+      }
+      // Sudden death continues if tied!
+    }
+
+    // Switch turn
+    setTimeout(() => {
+      state.isUserTurn = !state.isUserTurn;
+      this.setupPenaltyTurn();
+    }, 1400);
+  }
+
+  finishPenaltyShootout(isUserWinner) {
+    this.penaltyShootoutActive = false;
+    const userPenScore = this.penaltyState.userGoals;
+    const oppPenScore = this.penaltyState.oppGoals;
+    this.penaltyResult = {
+      isWinner: isUserWinner,
+      userScore: userPenScore,
+      oppScore: oppPenScore
+    };
+
+    if (isUserWinner) {
+      window.soundEngine?.playVictory();
+      window.confettiEngine?.fire(120, 3500);
+      this.updateLiveSpiker(`🏆 <strong>PENALTILARLA ZAFER! (${userPenScore}-${oppPenScore})</strong> Takımımız tur atladı!`, 'goal');
+    } else {
+      this.updateLiveSpiker(`😢 <strong>PENALTILARLA ELENDİK (${userPenScore}-${oppPenScore})!</strong> Çok mücadele ettik ama şans rakibin yanındaydı.`, 'danger');
+    }
+
+    setTimeout(() => {
+      this.showMatchResultView();
+    }, 2000);
   }
 
   nextRound() {

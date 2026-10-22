@@ -198,6 +198,29 @@ class SoundEngine {
     noise.start(this.ctx.currentTime);
     noise.stop(this.ctx.currentTime + 1.55);
   }
+
+  playSave() {
+    if (this.isMuted) return;
+    this.init();
+    if (!this.ctx) return;
+
+    // Deep leather glove impact / deflection thump
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(45, this.ctx.currentTime + 0.15);
+
+    gain.gain.setValueAtTime(0.35, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.18);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.2);
+  }
 }
 
 window.soundEngine = new SoundEngine();

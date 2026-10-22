@@ -270,6 +270,151 @@
             </div>
           </div>
 
+          <!-- 5b. ON-PITCH PENALTY SHOOTOUT ARENA OVERLAY -->
+          <div class="pitch-full-overlay" id="penaltyShootoutOverlay" style="display: none;">
+            <div class="pitch-penalty-arena">
+              <!-- Penalty Header & Scoreboard -->
+              <div class="pen-header">
+                <div class="pen-badge">⚡ DÜNYA KUPASI SERİ PENALTILAR</div>
+                <div class="pen-match-score" id="penRegularScoreText">90' + 120' Skor: 2 - 2</div>
+                
+                <div class="pen-score-board">
+                  <!-- User Side -->
+                  <div class="pen-team-col pen-user-col">
+                    <div class="pen-team-name">⭐ RÜYA TAKIM</div>
+                    <div class="pen-dots-row" id="penUserDots">
+                      <span class="pen-dot pending"></span>
+                      <span class="pen-dot pending"></span>
+                      <span class="pen-dot pending"></span>
+                      <span class="pen-dot pending"></span>
+                      <span class="pen-dot pending"></span>
+                    </div>
+                    <div class="pen-big-digit" id="penUserScoreDigit">0</div>
+                  </div>
+
+                  <div class="pen-vs-tag">PEN</div>
+
+                  <!-- Opponent Side -->
+                  <div class="pen-team-col pen-opp-col">
+                    <div class="pen-team-name"><span id="penOppFlag">🇯🇵</span> <span id="penOppName">Japonya</span></div>
+                    <div class="pen-dots-row" id="penOppDots">
+                      <span class="pen-dot pending"></span>
+                      <span class="pen-dot pending"></span>
+                      <span class="pen-dot pending"></span>
+                      <span class="pen-dot pending"></span>
+                      <span class="pen-dot pending"></span>
+                    </div>
+                    <div class="pen-big-digit" id="penOppScoreDigit">0</div>
+                  </div>
+                </div>
+
+                <div class="pen-round-status" id="penRoundStatusText">1. Tur • Şut Sırası Sende!</div>
+              </div>
+
+              <!-- Visual Stadium Goal Net & Pitch Stage -->
+              <div class="pen-stage">
+                <div class="pen-goal-frame" id="penGoalFrame">
+                  <div class="pen-goal-net"></div>
+                  <!-- Goalkeeper with animated avatar/gloves -->
+                  <div class="pen-goalkeeper" id="penGoalkeeperEl">
+                    <div class="pen-gk-avatar" id="penGkAvatarIcon">🧤</div>
+                    <div class="pen-gk-label" id="penGkLabel">Kaleci</div>
+                  </div>
+                  <!-- Animated Penalty Ball -->
+                  <div class="pen-ball" id="penBallEl">⚽</div>
+                  <!-- 3 Visual Target Zones in Goal -->
+                  <div class="pen-target-zone zone-left" id="zoneLeft"><span>Sol</span></div>
+                  <div class="pen-target-zone zone-center" id="zoneCenter"><span>Orta</span></div>
+                  <div class="pen-target-zone zone-right" id="zoneRight"><span>Sağ</span></div>
+                </div>
+                <div class="pen-spot">
+                  <div class="pen-spot-dot"></div>
+                  <div class="pen-striker-label" id="penActiveActorLabel">Vuruşu Yapacak: <strong>Mbappé</strong></div>
+                </div>
+              </div>
+
+              <!-- Penalty Controls & Buttons -->
+              <div class="pen-controls">
+                <div class="pen-feedback-toast" id="penFeedbackToast" style="display: none;"></div>
+
+                <!-- 1. Attack Buttons (User Shoots) -->
+                <div class="pen-btn-row" id="penShootButtons">
+                  <button class="btn-pen-action btn-pen-left" id="btnPenShootLeft">
+                    <span class="pen-btn-icon">🎯</span>
+                    <div class="pen-btn-text">
+                      <strong>Sol Köşe</strong>
+                      <small>Plase / Direk Dibi</small>
+                    </div>
+                  </button>
+                  <button class="btn-pen-action btn-pen-center" id="btnPenShootCenter">
+                    <span class="pen-btn-icon">⚡</span>
+                    <div class="pen-btn-text">
+                      <strong>Merkeze Panenka</strong>
+                      <small>Soğukkanlı Aşırtma</small>
+                    </div>
+                  </button>
+                  <button class="btn-pen-action btn-pen-right" id="btnPenShootRight">
+                    <span class="pen-btn-icon">🎯</span>
+                    <div class="pen-btn-text">
+                      <strong>Sağ Köşe</strong>
+                      <small>90'a Sert Şut</small>
+                    </div>
+                  </button>
+                </div>
+
+                <!-- 2. Defense Buttons (User Goalkeeper Dives) -->
+                <div class="pen-btn-row" id="penDefendButtons" style="display: none;">
+                  <button class="btn-pen-action btn-pen-dive-left" id="btnPenDiveLeft">
+                    <span class="pen-btn-icon">🧤</span>
+                    <div class="pen-btn-text">
+                      <strong>Sola Uzan</strong>
+                      <small>Sol Direğe Uç</small>
+                    </div>
+                  </button>
+                  <button class="btn-pen-action btn-pen-dive-center" id="btnPenDiveCenter">
+                    <span class="pen-btn-icon">🧍</span>
+                    <div class="pen-btn-text">
+                      <strong>Ortada Kal</strong>
+                      <small>Merkezi Koru</small>
+                    </div>
+                  </button>
+                  <button class="btn-pen-action btn-pen-dive-right" id="btnPenDiveRight">
+                    <span class="pen-btn-icon">🧤</span>
+                    <div class="pen-btn-text">
+                      <strong>Sağa Uzan</strong>
+                      <small>Sağ Direğe Uç</small>
+                    </div>
+                  </button>
+                </div>
+
+                <!-- 3. Math Mode Buttons (Educational Math Mode) -->
+                <div class="pen-btn-row" id="penMathButtons" style="display: none;">
+                  <button class="btn-pen-action btn-pen-math" id="btnPenMath0">
+                    <span class="pen-btn-icon">🔢</span>
+                    <div class="pen-btn-text">
+                      <strong class="pen-math-val">42</strong>
+                      <small class="pen-math-sub">Hesapla ve Vur</small>
+                    </div>
+                  </button>
+                  <button class="btn-pen-action btn-pen-math" id="btnPenMath1">
+                    <span class="pen-btn-icon">🔢</span>
+                    <div class="pen-btn-text">
+                      <strong class="pen-math-val">56</strong>
+                      <small class="pen-math-sub">Hesapla ve Vur</small>
+                    </div>
+                  </button>
+                  <button class="btn-pen-action btn-pen-math" id="btnPenMath2">
+                    <span class="pen-btn-icon">🔢</span>
+                    <div class="pen-btn-text">
+                      <strong class="pen-math-val">48</strong>
+                      <small class="pen-math-sub">Hesapla ve Vur</small>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- 6. ON-PITCH MATCH RESULT OVERLAY -->
           <div class="pitch-full-overlay" id="tournamentResultView" style="display: none;">
             <div class="pitch-result-card">
@@ -280,6 +425,7 @@
                 <span class="prc-big-score"><span id="resultUserScore">3</span> - <span id="resultOppScore">1</span></span>
                 <span id="resultOppName">Japonya</span> <span id="resultOppFlag">🇯🇵</span>
               </div>
+              <div class="prc-pen-summary" id="resultPenSummary" style="display: none;"></div>
               <div class="prc-scorers" id="matchScorersBox"></div>
               <div class="prc-actions">
                 <button id="btnNextRound" class="btn-primary btn-glow btn-large">

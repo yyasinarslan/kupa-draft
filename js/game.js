@@ -561,6 +561,8 @@ class FutDraftGame {
           cardTierClass = 'birthday-special';
         } else if (p.rating >= 87) {
           cardTierClass = 'elite';
+        } else if (p.rating < 77) {
+          cardTierClass = 'underdog';
         }
         const avatarIcon = isBirthday ? '👑' : '👤';
         const displayName = isBirthday ? 'Y. Bera' : p.name.split(' ').pop();
