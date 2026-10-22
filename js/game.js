@@ -297,6 +297,18 @@ class FutDraftGame {
     const btnStartPenaltyDuel = document.getElementById('btnStartPenaltyDuel');
     if (btnStartPenaltyDuel) {
       btnStartPenaltyDuel.addEventListener('click', () => {
+        // Check if action is to start drafting
+        if (btnStartPenaltyDuel.dataset.action === 'draft') {
+          window.soundEngine.playClick();
+          document.getElementById('penaltyDuelModal').style.display = 'none';
+          this.hideMainMenu();
+          this.resetDraft(false);
+          setTimeout(() => {
+            document.getElementById('formationModal').style.display = 'flex';
+          }, 200);
+          return;
+        }
+
         window.soundEngine.playWhistle();
         const activeCard = document.querySelector('.pduel-team-card.active') || document.querySelector('.pduel-team-card');
         const teamName = activeCard?.dataset.team || 'Brezilya';
@@ -314,6 +326,18 @@ class FutDraftGame {
           ovr: teamOvr,
           shortName: teamName.substring(0, 3).toUpperCase()
         }, isMathMode);
+      });
+    }
+
+    const btnHeaderPenalty = document.getElementById('btnHeaderPenalty');
+    if (btnHeaderPenalty) {
+      btnHeaderPenalty.addEventListener('click', () => {
+        window.soundEngine.playClick();
+        if (this.squadSlots.filter(s => s.player).length < 11) {
+          alert('Penaltı Düellosuna başlamak için önce 11 kişilik kadronu tamamlamalısın!');
+          return;
+        }
+        this.openPenaltyDuelModal();
       });
     }
 
@@ -536,6 +560,47 @@ class FutDraftGame {
   openPenaltyDuelModal() {
     const modal = document.getElementById('penaltyDuelModal');
     if (!modal) return;
+
+    const squad = this.squadSlots.filter(s => s.player).map(s => s.player);
+    const count = squad.length;
+
+    const squadPreview = document.getElementById('pduelSquadPreview');
+    const warningBox = document.getElementById('pduelSquadWarning');
+    const btnStart = document.getElementById('btnStartPenaltyDuel');
+
+    if (count < 11) {
+      if (squadPreview) squadPreview.style.display = 'none';
+      if (warningBox) {
+        warningBox.style.display = 'block';
+        warningBox.innerHTML = `<span>⚠️ Şu an kadroda <strong>${count} / 11</strong> oyuncu var. Kendi seçtiğin oyuncuların penaltı atması için önce kadronu tamamlamalısın!</span>`;
+      }
+      if (btnStart) {
+        btnStart.innerHTML = '<span>ÖNCE KADROYU TAMAMLA ➔</span>';
+        btnStart.dataset.action = 'draft';
+      }
+    } else {
+      if (warningBox) warningBox.style.display = 'none';
+      if (squadPreview) {
+        squadPreview.style.display = 'flex';
+        const captain = squad.find(p => p.isCaptain) || squad[0];
+        const gkSlot = this.squadSlots.find(s => s.category === 'GK');
+        const gk = gkSlot?.player || { name: 'Seçilen Kaleci' };
+        const ovr = Math.round(squad.reduce((a, b) => a + b.rating, 0) / count);
+
+        const capEl = document.getElementById('pspCaptainName');
+        const gkEl = document.getElementById('pspGkName');
+        const rateEl = document.getElementById('pspRating');
+
+        if (capEl) capEl.textContent = `⭐ Kaptan: ${captain.name}`;
+        if (gkEl) gkEl.textContent = `🧤 Kalecin: ${gk.name}`;
+        if (rateEl) rateEl.textContent = `🔥 Güç: ${ovr} OVR`;
+      }
+      if (btnStart) {
+        btnStart.innerHTML = '<span>DÜELLOYU BAŞLAT ➔</span>';
+        btnStart.dataset.action = 'start';
+      }
+    }
+
     modal.style.display = 'flex';
   }
 

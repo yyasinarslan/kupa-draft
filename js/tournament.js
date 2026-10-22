@@ -236,16 +236,28 @@ class TournamentEngine {
   updateHeaderButton(isReady) {
     const btn = document.getElementById('btnHeaderTournament');
     const badge = document.getElementById('headerTournamentBadge');
-    if (!btn) return;
+    const btnPen = document.getElementById('btnHeaderPenalty');
 
-    if (isReady) {
-      btn.disabled = false;
-      btn.classList.add('ready-glow');
-      badge.textContent = `🏆 KUPA (${this.currentRoundIndex}/4)`;
-    } else {
-      btn.disabled = true;
-      btn.classList.remove('ready-glow');
-      badge.textContent = `🏆 KUPA (0/4)`;
+    if (btn) {
+      if (isReady) {
+        btn.disabled = false;
+        btn.classList.add('ready-glow');
+        if (badge) badge.textContent = `🏆 KUPA (${this.currentRoundIndex}/4)`;
+      } else {
+        btn.disabled = true;
+        btn.classList.remove('ready-glow');
+        if (badge) badge.textContent = `🏆 KUPA (0/4)`;
+      }
+    }
+
+    if (btnPen) {
+      if (isReady) {
+        btnPen.disabled = false;
+        btnPen.classList.add('ready-glow-cyan');
+      } else {
+        btnPen.disabled = true;
+        btnPen.classList.remove('ready-glow-cyan');
+      }
     }
   }
 
@@ -1633,10 +1645,10 @@ class TournamentEngine {
     if (state.isUserTurn) {
       // User Shoots!
       const shooters = this.game.squadSlots.filter(s => s.player).map(s => s.player);
-      const shooter = shooters[kickIndex % shooters.length] || { name: 'Kaptan' };
+      const shooter = shooters[kickIndex % shooters.length] || { name: 'Kaptan', rating: 88, teamFlag: '⭐' };
 
       roundStatusEl.textContent = `${roundName} • 🎯 Şut Sırası Sende!`;
-      actorLabelEl.innerHTML = `Vuruşu Yapacak: <strong>${shooter.name}</strong>`;
+      actorLabelEl.innerHTML = `Topun Başında: <strong>${shooter.teamFlag || '⭐'} ${shooter.name}</strong> <span style="color:#ffd700;font-weight:800;margin-left:4px;">(${shooter.rating} OVR)</span>`;
       document.getElementById('penGkLabel').textContent = `${this.activeOpponent.name} Kalecisi`;
 
       if (isMathMode) {
@@ -1652,14 +1664,14 @@ class TournamentEngine {
     } else {
       // Opponent Shoots! User GK Defends!
       const userGkSlot = this.game.squadSlots.find(s => s.category === 'GK') || this.game.squadSlots[0];
-      const userGk = userGkSlot?.player || { name: 'Kaleci' };
+      const userGk = userGkSlot?.player || { name: 'Kaleci', teamFlag: '🧤' };
 
       const oppStars = this.activeOpponent.star ? this.activeOpponent.star.replace('⭐', '').split(',') : ['Yıldız Oyuncu'];
       const oppShooter = oppStars[kickIndex % oppStars.length].trim();
 
       roundStatusEl.textContent = `${roundName} • 🧤 Kaleni Koru! Kurtarış Yap!`;
       actorLabelEl.innerHTML = `Rakip Vuruyor: <strong>${oppShooter}</strong> (${this.activeOpponent.name})`;
-      document.getElementById('penGkLabel').textContent = userGk.name;
+      document.getElementById('penGkLabel').textContent = `${userGk.teamFlag || '🧤'} ${userGk.name}`;
 
       if (isMathMode) {
         shootBtns.style.display = 'none';

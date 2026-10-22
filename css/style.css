@@ -3867,6 +3867,139 @@ input:checked + .slider:before {
   margin-top: 20px;
 }
 
+/* Header Penalty Button */
+.btn-header-penalty:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+}
+.btn-header-penalty.ready-glow-cyan {
+  border-color: #38bdf8;
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.25) 0%, rgba(14, 165, 233, 0.35) 100%);
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.45);
+  animation: pulse-glow-cyan 2s infinite ease-in-out;
+}
+.penalty-badge {
+  color: #38bdf8;
+  font-weight: 700;
+}
+@keyframes pulse-glow-cyan {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 22px rgba(56, 189, 248, 0.7);
+  }
+}
+
+/* Victory Modal Hero Modes */
+.victory-hero-modes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+  width: 100%;
+}
+.btn-hero-mode {
+  padding: 14px 18px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.btn-hero-mode:hover {
+  transform: translateY(-3px) scale(1.02);
+}
+.btn-hero-mode .vhm-icon {
+  font-size: 2rem;
+}
+.btn-hero-mode .vhm-text {
+  flex: 1;
+}
+.btn-hero-mode .vhm-text strong {
+  display: block;
+  font-family: var(--font-fut);
+  font-size: 1.15rem;
+  font-weight: 900;
+  line-height: 1.15;
+}
+.btn-hero-mode .vhm-text small {
+  display: block;
+  font-size: 0.72rem;
+  opacity: 0.9;
+  line-height: 1.2;
+  margin-top: 3px;
+}
+.btn-hero-mode .vhm-arrow {
+  font-size: 1.3rem;
+  font-weight: 900;
+}
+.btn-hero-tournament {
+  background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%);
+  color: #0f172a;
+  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.35);
+}
+.btn-hero-penalty {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 50%, #1e3a8a 100%);
+  color: #ffffff;
+  border-color: rgba(56, 189, 248, 0.5);
+  box-shadow: 0 8px 25px rgba(2, 132, 199, 0.4);
+}
+.victory-sub-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Squad Summary in Penalty Duel Modal */
+.pduel-squad-box {
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: center;
+}
+.pduel-squad-box .psb-tag {
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: #38bdf8;
+  letter-spacing: 1px;
+}
+.pduel-squad-box .psb-details {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+.pduel-squad-warning {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  color: #fef08a;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .victory-hero-modes {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+
 
 
 

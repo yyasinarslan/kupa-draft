@@ -50,6 +50,10 @@
           <span class="stat-label">TURNUVA</span>
           <span class="stat-val tournament-badge" id="headerTournamentBadge">🏆 KUPA (0/4)</span>
         </button>
+        <button class="btn-change-formation btn-header-penalty" id="btnHeaderPenalty" disabled title="Önce 11 kişilik kadroyu tamamla!">
+          <span class="stat-label">PENALTI</span>
+          <span class="stat-val penalty-badge" id="headerPenaltyBadge">🧤 DÜELLO</span>
+        </button>
         <button class="btn-change-formation btn-header-menu" id="btnHeaderMainMenu" title="Ana Menüye Dön">
           <span class="stat-label">MENÜ</span>
           <span class="stat-val menu-badge">🏠 MENÜ</span>
@@ -572,21 +576,35 @@
         </div>
 
         <div class="victory-actions">
-          <button id="btnStartTournamentFromVictory" class="btn-primary btn-glow btn-tournament-cta">
-            <span>🏆 DÜNYA KUPASI TURNUVASINA BAŞLA! ➔</span>
-          </button>
-          <button id="btnVictoryPenaltyDuel" class="btn-secondary" style="border-color: rgba(56, 189, 248, 0.4); color: #bae6fd;">
-            <span>🧤 Penaltı Düellosu Yap</span>
-          </button>
-          <button id="btnVictoryDownload" class="btn-secondary">
-            <span>📸 Kadro Kartını İndir</span>
-          </button>
-          <button id="btnVictoryClose" class="btn-secondary">
-            <span>🏟️ Sahada İncele</span>
-          </button>
-          <button id="btnVictoryRestart" class="btn-secondary">
-            <span>🔄 Yeni Kadro Kur</span>
-          </button>
+          <div class="victory-hero-modes">
+            <button id="btnStartTournamentFromVictory" class="btn-primary btn-glow btn-hero-mode btn-hero-tournament">
+              <span class="vhm-icon">🏆</span>
+              <div class="vhm-text">
+                <strong>DÜNYA KUPASI TURNUVASI</strong>
+                <small>Canlı Maç Karar Anları ile Kupayı Kaldır!</small>
+              </div>
+              <span class="vhm-arrow">➔</span>
+            </button>
+            <button id="btnVictoryPenaltyDuel" class="btn-primary btn-glow btn-hero-mode btn-hero-penalty">
+              <span class="vhm-icon">🧤</span>
+              <div class="vhm-text">
+                <strong>SERİ PENALTI DÜELLOSU</strong>
+                <small>Kurduğun 11'le Dünya Devine Karşı Penaltı At!</small>
+              </div>
+              <span class="vhm-arrow">➔</span>
+            </button>
+          </div>
+          <div class="victory-sub-actions">
+            <button id="btnVictoryDownload" class="btn-secondary">
+              <span>📸 Kadro Kartını İndir</span>
+            </button>
+            <button id="btnVictoryClose" class="btn-secondary">
+              <span>🏟️ Sahada İncele</span>
+            </button>
+            <button id="btnVictoryRestart" class="btn-secondary">
+              <span>🔄 Yeni Kadro Kur</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -672,7 +690,21 @@
           <button class="modal-close-btn" id="btnClosePenaltyDuel">✕</button>
           <div class="pduel-icon-badge">🧤 ⚽</div>
           <h2>PENALTI DÜELLOSU</h2>
-          <p>Rakip milli takımı ve oyun tarzını seç, doğrudan penaltı noktasına geç!</p>
+          <p>Kendi kurduğun kadroyla dünya devine meydan oku!</p>
+        </div>
+
+        <!-- Squad summary box -->
+        <div class="pduel-squad-box" id="pduelSquadPreview" style="display: none;">
+          <div class="psb-tag">⭐ KURDUĞUN KADROYLA OYNUYORSUN</div>
+          <div class="psb-details">
+            <span id="pspCaptainName">⭐ Kaptan: Messi</span> • 
+            <span id="pspGkName">🧤 Kaleci: Courtois</span> • 
+            <span id="pspRating">🔥 88 OVR</span>
+          </div>
+        </div>
+
+        <div class="pduel-squad-warning" id="pduelSquadWarning" style="display: none;">
+          <span>⚠️ Kendi seçtiğin oyuncuların penaltı atması için önce 11 kişilik kadronu kurmalısın.</span>
         </div>
 
         <div class="pduel-body">
