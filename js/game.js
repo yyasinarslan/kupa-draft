@@ -770,6 +770,8 @@ class FutDraftGame {
     if (!pitchLayer) return;
 
     pitchLayer.innerHTML = '';
+    const filledSlots = this.squadSlots.filter(s => s.player);
+
     this.squadSlots.forEach((slot, index) => {
       const slotDiv = document.createElement('div');
       slotDiv.className = 'pitch-slot';
@@ -792,6 +794,7 @@ class FutDraftGame {
         }
         const avatarIcon = isBirthday ? '👑' : '👤';
         const displayName = isBirthday ? 'Y. Bera' : p.name.split(' ').pop();
+        const pChem = this.calculatePlayerChemistry(slot, filledSlots);
 
         slotDiv.innerHTML = `
           <div class="pitch-card-filled ${cardTierClass}">
@@ -803,6 +806,11 @@ class FutDraftGame {
             </div>
             <div class="p-card-avatar">${avatarIcon}</div>
             <div class="p-card-name">${displayName}</div>
+            <div class="p-card-chem-pips" title="Kimya: ${pChem}/3">
+              <span class="p-pip ${pChem >= 1 ? 'active' : ''}">◆</span>
+              <span class="p-pip ${pChem >= 2 ? 'active' : ''}">◆</span>
+              <span class="p-pip ${pChem >= 3 ? 'active' : ''}">◆</span>
+            </div>
           </div>
           <div class="slot-pos-badge">${slot.label}</div>
         `;
@@ -1185,34 +1193,89 @@ class FutDraftGame {
   }
 
   calculateAverageRating(slots) {
-    const filled = slots.filter(s => s.player);
+    const filled = (slots || this.squadSlots).filter(s => s && s.player);
     if (filled.length === 0) return 0;
     return Math.round(filled.reduce((sum, s) => sum + s.player.rating, 0) / filled.length);
   }
 
-  calculateChemistry(filledSlots) {
+  // Gerçekçi EA FC 33 Kimya Sistemi:
+  // Her oyuncu 0 ile 3 elmas (pip) kimya kazanabilir:
+  // 1. Pozisyon uyumu: Doğru mevkide değilse kesinlikle 0 kimya.
+  // 2. Kulüp eşleşmesi: 2 oyuncu (+1), 4 oyuncu (+2), 7 oyuncu (+3)
+  // 3. Ülke eşleşmesi: 2 oyuncu (+1), 4 oyuncu (+2), 7 oyuncu (+3)
+  // 4. Kaptanlık bağı: Kaptan +1 liderlik puanı alır; kaptanla aynı kulüp/ülkeyi paylaşan takım arkadaşı +1 bonus alır.
+  // Toplam takım kimyası = 11 oyuncunun bireysel kimya puanları toplamı (maksimum 33).
+  calculatePlayerChemistry(slot, allFilledSlots) {
+    if (!slot || !slot.player) return 0;
+    const player = slot.player;
+    const filled = (allFilledSlots || this.squadSlots).filter(s => s && s.player);
+
+    // 1. Pozisyon kontrolü
+    const isCompatible = (COMPATIBLE_POSITIONS[slot.detailed] && COMPATIBLE_POSITIONS[slot.detailed].includes(player.detailedPosition))
+      || slot.detailed === player.detailedPosition
+      || slot.category === player.position;
+
+    if (!isCompatible) return 0;
+
+    let chem = 0;
+
+    // Kaptanı bul
+    const captainSlot = filled.find(s => s.player && s.player.isCaptain);
+    const captain = captainSlot ? captainSlot.player : null;
+
+    let sameClubCount = 0;
+    let sameNationCount = 0;
+
+    filled.forEach(s => {
+      if (!s.player) return;
+      if (s.player.club && player.club && s.player.club === player.club) {
+        sameClubCount++;
+      }
+      if (s.player.teamName && player.teamName && s.player.teamName === player.teamName) {
+        sameNationCount++;
+      }
+    });
+
+    // Kulüp eşiği (EA FC standardı)
+    if (sameClubCount >= 7) {
+      chem += 3;
+    } else if (sameClubCount >= 4) {
+      chem += 2;
+    } else if (sameClubCount >= 2) {
+      chem += 1;
+    }
+
+    // Ülke eşiği (EA FC standardı)
+    if (sameNationCount >= 7) {
+      chem += 3;
+    } else if (sameNationCount >= 4) {
+      chem += 2;
+    } else if (sameNationCount >= 2) {
+      chem += 1;
+    }
+
+    // Kaptanlık sinerjisi
+    if (player.isCaptain) {
+      chem += 1;
+    } else if (captain) {
+      if ((captain.club && captain.club === player.club) || (captain.teamName && captain.teamName === player.teamName)) {
+        chem += 1;
+      }
+    }
+
+    return Math.min(3, Math.max(0, chem));
+  }
+
+  calculateChemistry(slots) {
+    const filledSlots = (slots || this.squadSlots).filter(s => s && s.player);
     if (filledSlots.length === 0) return 0;
-    let score = Math.round((filledSlots.length / 11) * 16); // base progression
-    
-    // Nationality and club synergies
-    const nations = {};
-    const clubs = {};
 
-    filledSlots.forEach(s => {
-      nations[s.player.teamName] = (nations[s.player.teamName] || 0) + 1;
-      clubs[s.player.club] = (clubs[s.player.club] || 0) + 1;
+    let totalScore = 0;
+    filledSlots.forEach(slot => {
+      totalScore += this.calculatePlayerChemistry(slot, filledSlots);
     });
 
-    Object.values(nations).forEach(c => {
-      if (c >= 2) score += 2;
-      if (c >= 3) score += 3;
-    });
-
-    Object.values(clubs).forEach(c => {
-      if (c >= 2) score += 3;
-    });
-
-    return Math.min(33, score);
+    return Math.min(33, totalScore);
   }
 
   // ==========================================
