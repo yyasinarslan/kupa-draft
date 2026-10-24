@@ -150,6 +150,296 @@ const CLUB_TO_LEAGUE = {
   'Ajax': 'NED_ED'
 };
 
+const ICON_PLAYERS = [
+  // Forvetler (FWD)
+  {
+    id: "icon_pele",
+    name: "Pelé",
+    rating: 98,
+    position: "FWD",
+    detailedPosition: "SNT",
+    club: "ICON",
+    teamName: "Brezilya",
+    teamFlag: "🇧🇷",
+    teamCode: "BRA",
+    isIcon: true,
+    cardType: "icon",
+    stats: { pac: 95, sho: 96, pas: 93, dri: 96, def: 58, phy: 78 }
+  },
+  {
+    id: "icon_r9",
+    name: "Ronaldo Nazário",
+    rating: 96,
+    position: "FWD",
+    detailedPosition: "SNT",
+    club: "ICON",
+    teamName: "Brezilya",
+    teamFlag: "🇧🇷",
+    teamCode: "BRA",
+    isIcon: true,
+    cardType: "icon",
+    stats: { pac: 97, sho: 95, pas: 81, dri: 95, def: 45, phy: 80 }
+  },
+  {
+    id: "icon_cruyff",
+    name: "Johan Cruyff",
+    rating: 95,
+    position: "FWD",
+    detailedPosition: "SNT",
+    club: "ICON",
+    teamName: "Hollanda",
+    teamFlag: "🇳🇱",
+    teamCode: "NED",
+    isIcon: true,
+    cardType: "icon",
+    stats: { pac: 91, sho: 92, pas: 91, dri: 94, def: 42, phy: 73 }
+  },
+  {
+    id: "icon_puskas",
+    name: "Ferenc Puskás",
+    rating: 94,
+    position: "FWD",
+    detailedPosition: "SNT",
+    club: "ICON",
+    teamName: "Macaristan",
+    teamFlag: "🇭🇺",
+    teamCode: "HUN",
+    isIcon: true,
+    cardType: "icon",
+    stats: { pac: 89, sho: 96, pas: 88, dri: 91, def: 45, phy: 74 }
+  },
+  {
+    id: "icon_henry",
+    name: "Thierry Henry",
+    rating: 93,
+    position: "FWD",
+    detailedPosition: "SLK",
+    club: "ICON",
+    teamName: "Fransa",
+    teamFlag: "🇫🇷",
+    teamCode: "FRA",
+    isIcon: true,
+    cardType: "icon",
+    stats: { pac: 94, sho: 91, pas: 83, dri: 90, def: 53, phy: 80 }
+  },
+
+  // Orta Sahalar (MID)
+  {
+    id: "icon_maradona",
+    name: "Diego Maradona",
+    rating: 97,
+    position: "MID",
+    detailedPosition: "MOO",
+    club: "ICON",
+    teamName: "Arjantin",
+    teamFlag: "🇦🇷",
+    teamCode: "ARG",
+    isIcon: true,
+    cardType: "icon",
+    stats: { pac: 92, sho: 93, pas: 92, dri: 97, def: 42, phy: 76 }
+  },
+  {
+    id: "icon_zidane",
+    name: "Zinedine Zidane",
+    rating: 96,
+    position: "MID",
+    detailedPosition: "MOO",
+    club: "ICON",
+    teamName: "Fransa",
+    teamFlag: "🇫🇷",
+    teamCode: "FRA",
+    isIcon: true,
+    cardType: "icon",
+    stats: { pac: 84, sho: 92, pas: 96, dri: 95, def: 75, phy: 86 }
+  },
+  {
+    id: "icon_ronaldinho",
+    name: "Ronaldinho",
+    rating: 95,
+    position: "MID",
+    detailedPosition: "SLO",
+    club: "ICON",
+    teamName: "Brezilya",
+    teamFlag: "🇧🇷",
+    teamCode: "BRA",
+    isIcon: true,
+    cardType: "icon",
+    stats: { pac: 92, sho: 90, pas: 91, dri: 95, def: 40, phy: 82 }
+  },
+  {
+    id: "icon_gullit",
+    name: "Ruud Gullit",
+    rating: 93,
+    position: "MID",
+    detailedPosition: "MO",
+    club: "ICON",
+    teamName: "Hollanda",
+    teamFlag: "🇳🇱",
+    teamCode: "NED",
+    isIcon: true,
+    cardType: "icon",
+    stats: { pac: 86, sho: 88, pas: 88, dri: 88, def: 82, phy: 88 }
+  },
+  {
+    id: "icon_xavi",
+    name: "Xavi",
+    rating: 93,
+    position: "MID",
+    detailedPosition: "MO",
+    club: "ICON",
+    teamName: "İspanya",
+    teamFlag: "🇪🇸",
+    teamCode: "ESP",
+    isIcon: true,
+    cardType: "icon",
+    stats: { pac: 77, sho: 75, pas: 95, dri: 92, def: 72, phy: 72 }
+  },
+  {
+    id: "icon_pirlo",
+    name: "Andrea Pirlo",
+    rating: 92,
+    position: "MID",
+    detailedPosition: "MO",
+    club: "ICON",
+    teamName: "İtalya",
+    teamFlag: "🇮🇹",
+    teamCode: "ITA",
+    isIcon: true,
+    cardType: "icon",
+    stats: { pac: 74, sho: 80, pas: 95, dri: 90, def: 70, phy: 70 }
+  },
+  {
+    id: "icon_vieira",
+    name: "Patrick Vieira",
+    rating: 91,
+    position: "MID",
+    detailedPosition: "MDO",
+    club: "ICON",
+    teamName: "Fransa",
+    teamFlag: "🇫🇷",
+    teamCode: "FRA",
+    isIcon: true,
+    cardType: "icon",
+    stats: { pac: 83, sho: 78, pas: 82, dri: 82, def: 91, phy: 91 }
+  },
+
+  // Defanslar (DEF)
+  {
+    id: "icon_maldini",
+    name: "Paolo Maldini",
+    rating: 94,
+    position: "DEF",
+    detailedPosition: "STP",
+    club: "ICON",
+    teamName: "İtalya",
+    teamFlag: "🇮🇹",
+    teamCode: "ITA",
+    isIcon: true,
+    cardType: "icon",
+    stats: { pac: 86, sho: 56, pas: 75, dri: 70, def: 96, phy: 84 }
+  },
+  {
+    id: "icon_beckenbauer",
+    name: "Franz Beckenbauer",
+    rating: 94,
+    position: "DEF",
+    detailedPosition: "STP",
+    club: "ICON",
+    teamName: "Almanya",
+    teamFlag: "🇩🇪",
+    teamCode: "GER",
+    isIcon: true,
+    cardType: "icon",
+    stats: { pac: 83, sho: 72, pas: 88, dri: 86, def: 95, phy: 84 }
+  },
+  {
+    id: "icon_cafu",
+    name: "Cafu",
+    rating: 93,
+    position: "DEF",
+    detailedPosition: "SĞB",
+    club: "ICON",
+    teamName: "Brezilya",
+    teamFlag: "🇧🇷",
+    teamCode: "BRA",
+    isIcon: true,
+    cardType: "icon",
+    stats: { pac: 91, sho: 70, pas: 84, dri: 86, def: 89, phy: 88 }
+  },
+  {
+    id: "icon_roberto_carlos",
+    name: "Roberto Carlos",
+    rating: 91,
+    position: "DEF",
+    detailedPosition: "SLB",
+    club: "ICON",
+    teamName: "Brezilya",
+    teamFlag: "🇧🇷",
+    teamCode: "BRA",
+    isIcon: true,
+    cardType: "icon",
+    stats: { pac: 92, sho: 86, pas: 84, dri: 83, def: 84, phy: 88 }
+  },
+  {
+    id: "icon_cannavaro",
+    name: "Fabio Cannavaro",
+    rating: 92,
+    position: "DEF",
+    detailedPosition: "STP",
+    club: "ICON",
+    teamName: "İtalya",
+    teamFlag: "🇮🇹",
+    teamCode: "ITA",
+    isIcon: true,
+    cardType: "icon",
+    stats: { pac: 83, sho: 45, pas: 65, dri: 72, def: 95, phy: 87 }
+  },
+
+  // Kaleciler (GK)
+  {
+    id: "icon_yashin",
+    name: "Lev Yashin",
+    rating: 94,
+    position: "GK",
+    detailedPosition: "KL",
+    club: "ICON",
+    teamName: "Rusya",
+    teamFlag: "🇷🇺",
+    teamCode: "RUS",
+    isIcon: true,
+    cardType: "icon",
+    stats: { pac: 60, sho: 45, pas: 70, dri: 85, def: 95, phy: 88 }
+  },
+  {
+    id: "icon_buffon",
+    name: "Gianluigi Buffon",
+    rating: 93,
+    position: "GK",
+    detailedPosition: "KL",
+    club: "ICON",
+    teamName: "İtalya",
+    teamFlag: "🇮🇹",
+    teamCode: "ITA",
+    isIcon: true,
+    cardType: "icon",
+    stats: { pac: 50, sho: 45, pas: 75, dri: 80, def: 94, phy: 86 }
+  },
+  {
+    id: "icon_casillas",
+    name: "Iker Casillas",
+    rating: 92,
+    position: "GK",
+    detailedPosition: "KL",
+    club: "ICON",
+    teamName: "İspanya",
+    teamFlag: "🇪🇸",
+    teamCode: "ESP",
+    isIcon: true,
+    cardType: "icon",
+    stats: { pac: 55, sho: 40, pas: 72, dri: 84, def: 93, phy: 84 }
+  }
+];
+
 class FutDraftGame {
   constructor() {
     this.teams = [];
@@ -264,6 +554,11 @@ class FutDraftGame {
         });
       });
     });
+
+    // Efsanevi İkon Futbolcuları havuza ekle
+    if (typeof ICON_PLAYERS !== 'undefined' && Array.isArray(ICON_PLAYERS)) {
+      this.allPlayers.push(...ICON_PLAYERS);
+    }
   }
 
   bindEvents() {
@@ -831,17 +1126,25 @@ class FutDraftGame {
         slotDiv.classList.add('slot-filled');
         const p = slot.player;
         const posText = slot.label;
-        const captainBadgeHtml = p.isCaptain ? `<span class="p-card-captain-tag">© C</span>` : '';
+        const isIcon = p.isIcon || p.cardType === 'icon';
         const isBirthday = p.cardType === 'birthday' || p.rating === 99;
+        let captainBadgeHtml = '';
+        if (p.isCaptain) {
+          captainBadgeHtml = `<span class="p-card-captain-tag">© C</span>`;
+        } else if (isIcon) {
+          captainBadgeHtml = `<span class="p-card-icon-tag">🏛️</span>`;
+        }
         let cardTierClass = '';
-        if (isBirthday) {
+        if (isIcon) {
+          cardTierClass = 'icon-card';
+        } else if (isBirthday) {
           cardTierClass = 'birthday-special';
         } else if (p.rating >= 87) {
           cardTierClass = 'elite';
         } else if (p.rating < 77) {
           cardTierClass = 'underdog';
         }
-        const avatarIcon = isBirthday ? '👑' : '👤';
+        const avatarIcon = isBirthday ? '👑' : (isIcon ? '🏛️' : '👤');
         const displayName = isBirthday ? 'Y. Bera' : p.name.split(' ').pop();
         const pChem = this.calculatePlayerChemistry(slot, filledSlots);
 
@@ -910,7 +1213,7 @@ class FutDraftGame {
     if (!this.captainCandidates) {
       // 5 World-class superstars (87-99) across different formation positions
       const superstars = this.allPlayers
-        .filter(p => p.rating >= 86)
+        .filter(p => p.rating >= 86 && !p.isIcon)
         .sort(() => 0.5 - Math.random());
 
       const candidates = [];
@@ -924,6 +1227,24 @@ class FutDraftGame {
         candidates.push({ ...bera, isCaptain: true });
         usedPositions.add(bera.detailedPosition);
         usedNations.add(bera.teamName);
+      }
+
+      // ~25% chance of a Legendary ICON captain candidate!
+      if (Math.random() < 0.25) {
+        const availableIcons = ICON_PLAYERS.filter(ic => {
+          const matchingSlot = this.squadSlots.find(s => 
+            s.detailed === ic.detailedPosition || 
+            (COMPATIBLE_POSITIONS[s.detailed] && COMPATIBLE_POSITIONS[s.detailed].includes(ic.detailedPosition))
+          );
+          return matchingSlot && !usedPositions.has(ic.detailedPosition);
+        }).sort(() => 0.5 - Math.random());
+
+        if (availableIcons.length > 0) {
+          const iconCaptain = availableIcons[0];
+          candidates.push({ ...iconCaptain, isCaptain: true });
+          usedPositions.add(iconCaptain.detailedPosition);
+          usedNations.add(iconCaptain.teamName);
+        }
       }
 
       for (let p of superstars) {
@@ -1031,6 +1352,18 @@ class FutDraftGame {
       }
     }
 
+    // ~20% chance of a Legendary ICON candidate appearing for this position!
+    const compatibleIcons = ICON_PLAYERS.filter(ic => 
+      allowedPositions.includes(ic.detailedPosition) && !chosenIds.has(ic.id) && !usedIds.has(ic.id)
+    ).sort(() => 0.5 - Math.random());
+
+    if (compatibleIcons.length > 0 && Math.random() < 0.20) {
+      const luckyIcon = compatibleIcons[0];
+      candidates.push(luckyIcon);
+      usedIds.add(luckyIcon.id);
+      usedNations.add(luckyIcon.teamName);
+    }
+
     tierSpecs.forEach(spec => {
       if (candidates.length >= 5) return;
       // Find matching players in this rating range
@@ -1081,7 +1414,11 @@ class FutDraftGame {
       // Determine Tier Class
       let tierClass = 'rare-gold';
       const isBirthday = player.cardType === 'birthday' || player.rating === 99;
-      if (isBirthday) {
+      const isIcon = player.isIcon || player.cardType === 'icon';
+
+      if (isIcon) {
+        tierClass = 'icon-card';
+      } else if (isBirthday) {
         tierClass = 'birthday-special';
       } else if (player.rating >= 87) {
         tierClass = 'elite';
@@ -1102,11 +1439,18 @@ class FutDraftGame {
       const posLabel = this.isCaptainDraft 
         ? (player.detailedPosition || player.position) 
         : (this.activeDraftSlotIndex !== null ? this.squadSlots[this.activeDraftSlotIndex].label : (player.detailedPosition || player.position));
-      const captainTagHtml = player.isCaptain ? `<span class="captain-tag">© KAPTAN</span>` : '';
-      const avatarIcon = isBirthday ? '👑' : (player.avatar || '👤');
+      
+      let badgeTagHtml = '';
+      if (player.isCaptain) {
+        badgeTagHtml = `<span class="captain-tag">© KAPTAN</span>`;
+      } else if (isIcon) {
+        badgeTagHtml = `<span class="icon-tag">🏛️ İKON</span>`;
+      }
+
+      const avatarIcon = isBirthday ? '👑' : (isIcon ? '🏛️' : (player.avatar || '👤'));
 
       card.innerHTML = `
-        ${captainTagHtml}
+        ${badgeTagHtml}
         <div class="card-top">
           <div class="card-meta-left">
             <div class="card-rating">${player.rating}</div>
@@ -1268,7 +1612,12 @@ class FutDraftGame {
     // Mevki dışı oynatılan oyuncu 0 kimya alır ve sinerji oluşturamaz
     if (!isCompatible) return 0;
 
-    // Doğru mevkideki oyuncu doğal olarak 1 taban kimya ile başlar
+    // EFSANEVİ İKON KURALI: Doğru mevkideki İkon daima 3/3 Tam Kimya alır!
+    if (player.isIcon || player.cardType === 'icon') {
+      return 3;
+    }
+
+    // Doğru mevkideki normal oyuncu 1 taban kimya ile başlar
     let chem = 1;
 
     // Kaptanı bul
@@ -1288,7 +1637,8 @@ class FutDraftGame {
         sameClubCount++;
       }
       if (s.player.teamName && player.teamName && s.player.teamName === player.teamName) {
-        sameNationCount++;
+        // İkonlar milli takımlarına +2 oyuncu gücünde katkı sağlar!
+        sameNationCount += (s.player.isIcon || s.player.cardType === 'icon') ? 2 : 1;
       }
       if (playerLeague) {
         const otherLeague = CLUB_TO_LEAGUE[s.player.club];
@@ -1326,8 +1676,10 @@ class FutDraftGame {
       const matchClub = captain.club && captain.club === player.club;
       const matchNation = captain.teamName && captain.teamName === player.teamName;
       const matchLeague = playerLeague && captainLeague && playerLeague === captainLeague;
-      if (matchClub || matchNation || matchLeague) {
-        chem += 1; // Kaptanla aynı kulüp, ülke veya lig bağı
+      const isCaptainIcon = captain.isIcon || captain.cardType === 'icon';
+      // Kaptan bir İkonsa tüm takıma ilham verir (+1), veya aynı kulüp/ülke/lig bağı
+      if (matchClub || matchNation || matchLeague || isCaptainIcon) {
+        chem += 1;
       }
     }
 
@@ -1438,9 +1790,15 @@ class FutDraftGame {
       const cardY = py - cardH / 2;
 
       // Card Background
+      const isIcon = slot.player && (slot.player.isIcon || slot.player.cardType === 'icon');
       const isElite = slot.player && slot.player.rating >= 87;
       const cardGrad = ctx.createLinearGradient(cardX, cardY, cardX + cardW, cardY + cardH);
-      if (isElite) {
+      if (isIcon) {
+        cardGrad.addColorStop(0, '#ffffff');
+        cardGrad.addColorStop(0.3, '#fef9ee');
+        cardGrad.addColorStop(0.7, '#e4cd9f');
+        cardGrad.addColorStop(1, '#caa461');
+      } else if (isElite) {
         cardGrad.addColorStop(0, '#1e293b');
         cardGrad.addColorStop(0.5, '#0f172a');
         cardGrad.addColorStop(1, '#334155');
@@ -1455,7 +1813,7 @@ class FutDraftGame {
       ctx.roundRect(cardX, cardY, cardW, cardH, 12);
       ctx.fill();
 
-      ctx.strokeStyle = isElite ? '#00f0ff' : '#ffffff';
+      ctx.strokeStyle = isIcon ? '#ffd700' : (isElite ? '#00f0ff' : '#ffffff');
       ctx.lineWidth = 2.5;
       ctx.stroke();
 
