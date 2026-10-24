@@ -101,6 +101,55 @@ const COMPATIBLE_POSITIONS = {
   'SNT': ['SNT']
 };
 
+const CLUB_TO_LEAGUE = {
+  // Premier League (İngiltere)
+  'Arsenal': 'ENG_PL', 'Aston Villa': 'ENG_PL', 'Brighton': 'ENG_PL', 'Burnley': 'ENG_PL',
+  'Chelsea': 'ENG_PL', 'Crystal Palace': 'ENG_PL', 'Everton': 'ENG_PL', 'Fulham': 'ENG_PL',
+  'Ipswich': 'ENG_PL', 'Leicester City': 'ENG_PL', 'Liverpool': 'ENG_PL', 'Man Utd': 'ENG_PL',
+  'Manchester City': 'ENG_PL', 'Newcastle Utd': 'ENG_PL', "Nott'm Forest": 'ENG_PL', 'QPR': 'ENG_PL',
+  'Spurs': 'ENG_PL', 'Sunderland': 'ENG_PL', 'West Ham': 'ENG_PL', 'West Ham United': 'ENG_PL', 'Wolves': 'ENG_PL',
+
+  // La Liga (İspanya)
+  'Athletic Club': 'ESP_LL', 'Atlético de Madrid': 'ESP_LL', 'FC Barcelona': 'ESP_LL',
+  'Girona FC': 'ESP_LL', 'Leganés': 'ESP_LL', 'Levante UD': 'ESP_LL', 'Real Madrid': 'ESP_LL',
+  'Real Sociedad': 'ESP_LL', 'Real Valladolid': 'ESP_LL', 'Sevilla FC': 'ESP_LL', 'Villarreal CF': 'ESP_LL',
+
+  // Serie A (İtalya)
+  'AC Milan': 'ITA_SA', 'AS Roma': 'ITA_SA', 'Bergamo Calcio': 'ITA_SA', 'Bologna': 'ITA_SA',
+  'Como': 'ITA_SA', 'Genoa': 'ITA_SA', 'Inter': 'ITA_SA', 'Juventus': 'ITA_SA', 'Latium': 'ITA_SA',
+  'Lombardia FC': 'ITA_SA', 'Milano FC': 'ITA_SA', 'SSC Napoli': 'ITA_SA', 'Torino': 'ITA_SA',
+
+  // Bundesliga (Almanya)
+  'Borussia Dortmund': 'GER_BL', 'FC Bayern München': 'GER_BL', 'FC St. Pauli': 'GER_BL',
+  'Frankfurt': 'GER_BL', 'Leverkusen': 'GER_BL', "M'gladbach": 'GER_BL', 'RB Leipzig': 'GER_BL',
+  'SC Freiburg': 'GER_BL', 'St. Pauli': 'GER_BL', 'TSG Hoffenheim': 'GER_BL', 'VfL Wolfsburg': 'GER_BL',
+
+  // Ligue 1 (Fransa)
+  'AS Monaco': 'FRA_L1', 'Caen': 'FRA_L1', 'Monaco': 'FRA_L1', 'Nantes': 'FRA_L1',
+  'OGC Nice': 'FRA_L1', 'OL': 'FRA_L1', 'OM': 'FRA_L1', 'Paris SG': 'FRA_L1',
+  'RC Lens': 'FRA_L1', 'Stade Rennais FC': 'FRA_L1',
+
+  // Süper Lig (Türkiye)
+  'Başakşehir': 'TUR_SL', 'Beşiktaş': 'TUR_SL', 'Fenerbahçe': 'TUR_SL', 'Galatasaray': 'TUR_SL',
+  'Hatayspor': 'TUR_SL', 'Kayserispor': 'TUR_SL', 'Trabzonspor': 'TUR_SL',
+
+  // Saudi Pro League (Suudi Arabistan)
+  'Al Ahli': 'SAU_SPL', 'Al-Ahli': 'SAU_SPL', 'Al Diriyah': 'SAU_SPL', 'Al Hilal': 'SAU_SPL',
+  'Al-Hilal': 'SAU_SPL', 'Al Ittihad': 'SAU_SPL', 'Al Nassr': 'SAU_SPL', 'Al Qadsiah': 'SAU_SPL',
+  'Al Riyadh': 'SAU_SPL', 'Al Shabab': 'SAU_SPL', 'NEOM SC': 'SAU_SPL',
+
+  // Major League Soccer (MLS - ABD)
+  'Atlanta United': 'USA_MLS', 'CF Montréal': 'USA_MLS', 'Chicago Fire FC': 'USA_MLS',
+  'Inter Miami CF': 'USA_MLS', 'LA Galaxy': 'USA_MLS', 'LAFC': 'USA_MLS', 'New England': 'USA_MLS',
+  'Orlando City': 'USA_MLS', 'SJ Earthquakes': 'USA_MLS', 'Sounders FC': 'USA_MLS',
+
+  // Liga Portugal
+  'FC Porto': 'POR_LP', 'SL Benfica': 'POR_LP', 'Sporting CP': 'POR_LP', 'Vitória SC': 'POR_LP',
+
+  // Eredivisie (Hollanda)
+  'Ajax': 'NED_ED'
+};
+
 class FutDraftGame {
   constructor() {
     this.teams = [];
@@ -1198,13 +1247,14 @@ class FutDraftGame {
     return Math.round(filled.reduce((sum, s) => sum + s.player.rating, 0) / filled.length);
   }
 
-  // Gerçekçi EA FC 33 Kimya Sistemi:
+  // Gerçekçi & Dengeli EA FC 33 Kimya Sistemi:
   // Her oyuncu 0 ile 3 elmas (pip) kimya kazanabilir:
-  // 1. Pozisyon uyumu: Doğru mevkide değilse kesinlikle 0 kimya.
-  // 2. Kulüp eşleşmesi: 2 oyuncu (+1), 4 oyuncu (+2), 7 oyuncu (+3)
-  // 3. Ülke eşleşmesi: 2 oyuncu (+1), 4 oyuncu (+2), 7 oyuncu (+3)
-  // 4. Kaptanlık bağı: Kaptan +1 liderlik puanı alır; kaptanla aynı kulüp/ülkeyi paylaşan takım arkadaşı +1 bonus alır.
-  // Toplam takım kimyası = 11 oyuncunun bireysel kimya puanları toplamı (maksimum 33).
+  // 1. Mevki Uyumu: Doğru mevkideyse +1 Taban Elmas kazanır (Mevki dışıysa kesinlikle 0).
+  // 2. Kulüp Eşleşmesi: Kadroda aynı kulüpten 2 oyuncu (+1), 3+ oyuncu (+2)
+  // 3. Ülke Eşleşmesi: Kadroda aynı ülkeden 2 oyuncu (+1), 3+ oyuncu (+2)
+  // 4. Lig Eşleşmesi: Kadroda aynı ligden (Premier Lig, La Liga vb.) 3+ oyuncu (+1), 5+ oyuncu (+2)
+  // 5. Kaptanlık Bağı: Kaptan +1 liderlik elması alır; kaptanla aynı kulüp, ülke veya ligdeki oyuncular +1 sinerji elması kazanır.
+  // Maksimum oyuncu kimyası = 3 elmas; takım toplamı = 33 kimya.
   calculatePlayerChemistry(slot, allFilledSlots) {
     if (!slot || !slot.player) return 0;
     const player = slot.player;
@@ -1215,16 +1265,22 @@ class FutDraftGame {
       || slot.detailed === player.detailedPosition
       || slot.category === player.position;
 
+    // Mevki dışı oynatılan oyuncu 0 kimya alır ve sinerji oluşturamaz
     if (!isCompatible) return 0;
 
-    let chem = 0;
+    // Doğru mevkideki oyuncu doğal olarak 1 taban kimya ile başlar
+    let chem = 1;
 
     // Kaptanı bul
     const captainSlot = filled.find(s => s.player && s.player.isCaptain);
     const captain = captainSlot ? captainSlot.player : null;
 
+    const playerLeague = CLUB_TO_LEAGUE[player.club] || null;
+    const captainLeague = captain ? (CLUB_TO_LEAGUE[captain.club] || null) : null;
+
     let sameClubCount = 0;
     let sameNationCount = 0;
+    let sameLeagueCount = 0;
 
     filled.forEach(s => {
       if (!s.player) return;
@@ -1234,36 +1290,48 @@ class FutDraftGame {
       if (s.player.teamName && player.teamName && s.player.teamName === player.teamName) {
         sameNationCount++;
       }
+      if (playerLeague) {
+        const otherLeague = CLUB_TO_LEAGUE[s.player.club];
+        if (otherLeague && otherLeague === playerLeague) {
+          sameLeagueCount++;
+        }
+      }
     });
 
-    // Kulüp eşiği (EA FC standardı)
-    if (sameClubCount >= 7) {
-      chem += 3;
-    } else if (sameClubCount >= 4) {
+    // Kulüp eşiği (11 kişilik draft için dengeli: 2 oyuncu +1, 3+ oyuncu +2)
+    if (sameClubCount >= 3) {
       chem += 2;
     } else if (sameClubCount >= 2) {
       chem += 1;
     }
 
-    // Ülke eşiği (EA FC standardı)
-    if (sameNationCount >= 7) {
-      chem += 3;
-    } else if (sameNationCount >= 4) {
+    // Ülke eşiği (11 kişilik draft için dengeli: 2 oyuncu +1, 3+ oyuncu +2)
+    if (sameNationCount >= 3) {
       chem += 2;
     } else if (sameNationCount >= 2) {
       chem += 1;
     }
 
+    // Lig eşiği (Premier Lig, La Liga, Serie A vb.: 3 oyuncu +1, 5+ oyuncu +2)
+    if (sameLeagueCount >= 5) {
+      chem += 2;
+    } else if (sameLeagueCount >= 3) {
+      chem += 1;
+    }
+
     // Kaptanlık sinerjisi
     if (player.isCaptain) {
-      chem += 1;
+      chem += 1; // Kaptan liderlik bonusu
     } else if (captain) {
-      if ((captain.club && captain.club === player.club) || (captain.teamName && captain.teamName === player.teamName)) {
-        chem += 1;
+      const matchClub = captain.club && captain.club === player.club;
+      const matchNation = captain.teamName && captain.teamName === player.teamName;
+      const matchLeague = playerLeague && captainLeague && playerLeague === captainLeague;
+      if (matchClub || matchNation || matchLeague) {
+        chem += 1; // Kaptanla aynı kulüp, ülke veya lig bağı
       }
     }
 
-    return Math.min(3, Math.max(0, chem));
+    return Math.min(3, chem);
   }
 
   calculateChemistry(slots) {
