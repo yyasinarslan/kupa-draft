@@ -3001,13 +3001,32 @@ body.tournament-active .pitch-slot {
 /* ==========================================================================
    SETTINGS MODAL & TOGGLES
    ========================================================================== */
-.settings-modal-content,
-.how-modal-content {
+.settings-modal-content {
   max-width: 540px !important;
   background: #111728 !important;
   border: 1px solid rgba(255, 215, 0, 0.25) !important;
   padding: 24px !important;
   text-align: left;
+}
+
+.how-modal-content {
+  max-width: 560px !important;
+  max-height: 86vh !important;
+  overflow-y: auto !important;
+  background: #111728 !important;
+  border: 1px solid rgba(0, 240, 255, 0.3) !important;
+  padding: 24px !important;
+  text-align: left;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 240, 255, 0.4) transparent;
+}
+
+.how-modal-content::-webkit-scrollbar {
+  width: 6px;
+}
+.how-modal-content::-webkit-scrollbar-thumb {
+  background: rgba(0, 240, 255, 0.4);
+  border-radius: 4px;
 }
 
 .settings-modal-header {
@@ -3227,6 +3246,115 @@ input:checked + .slider:before {
   color: var(--text-secondary);
   line-height: 1.4;
   margin: 0;
+}
+
+/* ==========================================================================
+   HOW TO PLAY - DETAILED CHEMISTRY GUIDE (0-33 SİSTEMİ)
+   ========================================================================== */
+.how-chem-guide {
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.85) 0%, rgba(3, 7, 18, 0.95) 100%);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(0, 240, 255, 0.05);
+}
+
+.how-chem-header {
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 8px;
+}
+
+.how-chem-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: var(--accent-cyan);
+  background: rgba(0, 240, 255, 0.12);
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  border-radius: 20px;
+  padding: 3px 10px;
+  margin-bottom: 6px;
+  letter-spacing: 0.8px;
+}
+
+.how-chem-header h4 {
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+}
+
+.how-chem-section {
+  margin-bottom: 14px;
+}
+
+.how-chem-section:last-child {
+  margin-bottom: 0;
+}
+
+.how-chem-section h5 {
+  font-size: 0.86rem;
+  font-weight: 800;
+  color: #ffd700;
+  margin: 0 0 6px 0;
+}
+
+.how-chem-section p {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin: 0 0 8px 0;
+}
+
+.how-chem-section ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.how-chem-section ul li {
+  margin-bottom: 4px;
+}
+
+.how-chem-section ul li strong {
+  color: #fff;
+}
+
+.how-chem-rules-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.how-chem-rule {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-size: 0.77rem;
+  line-height: 1.35;
+  color: var(--text-secondary);
+}
+
+.how-chem-rule .rule-icon {
+  font-size: 1.05rem;
+  flex-shrink: 0;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.how-chem-rule strong {
+  color: #fff;
+  display: inline;
+  margin-right: 4px;
 }
 
 /* ==========================================================================
