@@ -663,13 +663,33 @@ class TournamentEngine {
   // ==========================================
   // RATING TIERS & FINISHING MECHANICS
   // ==========================================
+  formatRatingSuffix(rating) {
+    if (!rating) return 'Efsanevi';
+    const lastDigit = rating % 10;
+    if (lastDigit === 9) return `${rating}'luk`;
+    if (lastDigit === 3 || lastDigit === 4) return `${rating}'lük`;
+    if (lastDigit === 6 || lastDigit === 0) return `${rating}'lık`;
+    return `${rating}'lik`;
+  }
+
+  getPlayerTitle(player) {
+    if (!player) return 'süper yıldız';
+    if (player.rating === 99 || (player.name && player.name.includes('Bera'))) return 'süper yıldız';
+    if (player.isIcon || player.cardType === 'icon') return 'efsanevi ikon';
+    if (player.rating >= 90) return 'dünya yıldızı';
+    return 'yıldız oyuncu';
+  }
+
   getPlayerTier(rating, playerName = '') {
-    const isBera = (playerName && playerName.includes('Bera'));
+    const isBera = (playerName && playerName.includes('Bera')) || rating === 99;
     if (rating >= 96 || isBera) {
+      const isTrue99 = rating === 99 || isBera;
+      const tierName = isTrue99 ? '👑 Efsanevi Bitirici (99 OVR)' : `👑 Efsanevi İkon (${rating} OVR)`;
+      const badgeText = isTrue99 ? '👑 99 SÜPER YILDIZ!' : `👑 ${rating} EFSANEVİ İKON!`;
       return {
         id: 'god',
-        name: '👑 Efsanevi Bitirici (99 OVR)',
-        badgeText: '👑 99 SÜPER YILDIZ!',
+        name: tierName,
+        badgeText: badgeText,
         badgeClass: 'pdec-badge god',
         hintClass: 'pdec-advantage-hint god',
         guaranteedGoals: 2,
@@ -1032,10 +1052,12 @@ class TournamentEngine {
           this.recordGoal(target.name);
         }
       } else if (tier.id === 'god') {
+        const ratingStr = this.formatRatingSuffix(player.rating);
+        const titleStr = this.getPlayerTitle(player);
         if (choiceType === 'plase') {
-          comment = `👑 <strong>GOOOOOOL!</strong> 99'luk süper yıldız ${player.name} adeta fizik kurallarını altüst eden bir plaseyle 90'ı buldu!`;
+          comment = `👑 <strong>GOOOOOOL!</strong> ${ratingStr} ${titleStr} ${player.name} adeta fizik kurallarını altüst eden bir plaseyle 90'ı buldu!`;
         } else if (choiceType === 'power') {
-          comment = `⚡ <strong>ROKET GİBİ GOL!</strong> ${player.name} öyle bir füze yolladı ki top fileleri delecekti!`;
+          comment = `⚡ <strong>ROKET GİBİ GOL!</strong> ${player.name} (${player.rating} OVR) öyle bir füze yolladı ki top fileleri delecekti!`;
         } else {
           comment = `👟 <strong>SANAT ESERİ ASİST!</strong> ${player.name} kaleciyi çalımla ekarte edip ${target.name}'e bıraktı! GOOOOOOL!`;
           this.recordGoal(target.name);
@@ -1068,10 +1090,11 @@ class TournamentEngine {
       this.updateLiveSpiker(comment, 'goal');
     } else {
       if (tier.id === 'god') {
+        const shotDesc = `${this.formatRatingSuffix(player.rating)} füzesi`;
         if (choiceType === 'plase') {
           comment = `🧤 <strong>MUCİZEVİ REFLEKS!</strong> Kaleci inanılmaz uzandı ve ${player.name}'in plasesini köşeden kornere tokatladı!`;
         } else if (choiceType === 'power') {
-          comment = `💥 <strong>ÇATALDA PATLADI!</strong> ${player.name}'in 99'luk füzesi çatalda patlayıp auta gitti!`;
+          comment = `💥 <strong>ÇATALDA PATLADI!</strong> ${player.name}'in ${shotDesc} çatalda patlayıp auta gitti!`;
         } else {
           comment = `🛡️ <strong>ÇİZGİDEN ÇIKARILDI!</strong> ${player.name}'in pasında savunma son salisede topu çizgiden çıkardı!`;
         }
