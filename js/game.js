@@ -440,6 +440,51 @@ const ICON_PLAYERS = [
   }
 ];
 
+const PSG_SPECIAL_PLAYERS = [
+  {
+    id: "psg_dembele",
+    name: "Ousmane Dembélé",
+    rating: 94,
+    position: "FWD",
+    detailedPosition: "SĞK",
+    club: "Paris SG",
+    teamName: "Fransa",
+    teamFlag: "🇫🇷",
+    teamCode: "FRA",
+    isPsgSpecial: true,
+    cardType: "psg",
+    stats: { pac: 97, sho: 91, pas: 90, dri: 97, def: 52, phy: 78 }
+  },
+  {
+    id: "psg_doue",
+    name: "Désiré Doué",
+    rating: 92,
+    position: "MID",
+    detailedPosition: "MOO",
+    club: "Paris SG",
+    teamName: "Fransa",
+    teamFlag: "🇫🇷",
+    teamCode: "FRA",
+    isPsgSpecial: true,
+    cardType: "psg",
+    stats: { pac: 93, sho: 89, pas: 92, dri: 95, def: 64, phy: 82 }
+  },
+  {
+    id: "psg_torres",
+    name: "Ferran Torres",
+    rating: 93,
+    position: "FWD",
+    detailedPosition: "SNT",
+    club: "Paris SG",
+    teamName: "İspanya",
+    teamFlag: "🇪🇸",
+    teamCode: "ESP",
+    isPsgSpecial: true,
+    cardType: "psg",
+    stats: { pac: 94, sho: 93, pas: 88, dri: 92, def: 48, phy: 84 }
+  }
+];
+
 class FutDraftGame {
   constructor() {
     this.teams = [];
@@ -558,6 +603,11 @@ class FutDraftGame {
     // Efsanevi İkon Futbolcuları havuza ekle
     if (typeof ICON_PLAYERS !== 'undefined' && Array.isArray(ICON_PLAYERS)) {
       this.allPlayers.push(...ICON_PLAYERS);
+    }
+
+    // Paris Saint-Germain (PSG) Özel Kartlarını havuza ekle
+    if (typeof PSG_SPECIAL_PLAYERS !== 'undefined' && Array.isArray(PSG_SPECIAL_PLAYERS)) {
+      this.allPlayers.push(...PSG_SPECIAL_PLAYERS);
     }
   }
 
@@ -1128,23 +1178,28 @@ class FutDraftGame {
         const posText = slot.label;
         const isIcon = p.isIcon || p.cardType === 'icon';
         const isBirthday = p.cardType === 'birthday' || p.rating === 99;
+        const isPsg = p.cardType === 'psg' || p.isPsgSpecial;
         let captainBadgeHtml = '';
         if (p.isCaptain) {
           captainBadgeHtml = `<span class="p-card-captain-tag">© C</span>`;
         } else if (isIcon) {
           captainBadgeHtml = `<span class="p-card-icon-tag">🏛️</span>`;
+        } else if (isPsg) {
+          captainBadgeHtml = `<span class="p-card-psg-tag">🗼</span>`;
         }
         let cardTierClass = '';
         if (isIcon) {
           cardTierClass = 'icon-card';
         } else if (isBirthday) {
           cardTierClass = 'birthday-special';
+        } else if (isPsg) {
+          cardTierClass = 'psg-card';
         } else if (p.rating >= 87) {
           cardTierClass = 'elite';
         } else if (p.rating < 77) {
           cardTierClass = 'underdog';
         }
-        const avatarIcon = isBirthday ? '👑' : (isIcon ? '🏛️' : '👤');
+        const avatarIcon = isBirthday ? '👑' : (isIcon ? '🏛️' : (isPsg ? '🗼' : '👤'));
         const displayName = isBirthday ? 'Y. Bera' : p.name.split(' ').pop();
         const pChem = this.calculatePlayerChemistry(slot, filledSlots);
 
@@ -1244,6 +1299,24 @@ class FutDraftGame {
           candidates.push({ ...iconCaptain, isCaptain: true });
           usedPositions.add(iconCaptain.detailedPosition);
           usedNations.add(iconCaptain.teamName);
+        }
+      }
+
+      // ~25% chance of a PSG Special captain candidate!
+      if (Math.random() < 0.25 && typeof PSG_SPECIAL_PLAYERS !== 'undefined') {
+        const availablePsg = PSG_SPECIAL_PLAYERS.filter(psg => {
+          const matchingSlot = this.squadSlots.find(s => 
+            s.detailed === psg.detailedPosition || 
+            (COMPATIBLE_POSITIONS[s.detailed] && COMPATIBLE_POSITIONS[s.detailed].includes(psg.detailedPosition))
+          );
+          return matchingSlot && !usedPositions.has(psg.detailedPosition) && !candidates.some(c => c.id === psg.id);
+        }).sort(() => 0.5 - Math.random());
+
+        if (availablePsg.length > 0) {
+          const psgCaptain = availablePsg[0];
+          candidates.push({ ...psgCaptain, isCaptain: true });
+          usedPositions.add(psgCaptain.detailedPosition);
+          usedNations.add(psgCaptain.teamName);
         }
       }
 
@@ -1364,6 +1437,20 @@ class FutDraftGame {
       usedNations.add(luckyIcon.teamName);
     }
 
+    // ~25% chance of a PSG Special candidate appearing for this position!
+    if (typeof PSG_SPECIAL_PLAYERS !== 'undefined') {
+      const compatiblePsg = PSG_SPECIAL_PLAYERS.filter(psg => 
+        allowedPositions.includes(psg.detailedPosition) && !chosenIds.has(psg.id) && !usedIds.has(psg.id)
+      ).sort(() => 0.5 - Math.random());
+
+      if (compatiblePsg.length > 0 && Math.random() < 0.25) {
+        const luckyPsg = compatiblePsg[0];
+        candidates.push(luckyPsg);
+        usedIds.add(luckyPsg.id);
+        usedNations.add(luckyPsg.teamName);
+      }
+    }
+
     tierSpecs.forEach(spec => {
       if (candidates.length >= 5) return;
       // Find matching players in this rating range
@@ -1415,11 +1502,14 @@ class FutDraftGame {
       let tierClass = 'rare-gold';
       const isBirthday = player.cardType === 'birthday' || player.rating === 99;
       const isIcon = player.isIcon || player.cardType === 'icon';
+      const isPsg = player.cardType === 'psg' || player.isPsgSpecial;
 
       if (isIcon) {
         tierClass = 'icon-card';
       } else if (isBirthday) {
         tierClass = 'birthday-special';
+      } else if (isPsg) {
+        tierClass = 'psg-card';
       } else if (player.rating >= 87) {
         tierClass = 'elite';
       } else if (player.rating >= 82) {
@@ -1445,9 +1535,11 @@ class FutDraftGame {
         badgeTagHtml = `<span class="captain-tag">© KAPTAN</span>`;
       } else if (isIcon) {
         badgeTagHtml = `<span class="icon-tag">🏛️ İKON</span>`;
+      } else if (isPsg) {
+        badgeTagHtml = `<span class="psg-tag">🗼 PSG ÖZEL</span>`;
       }
 
-      const avatarIcon = isBirthday ? '👑' : (isIcon ? '🏛️' : (player.avatar || '👤'));
+      const avatarIcon = isBirthday ? '👑' : (isIcon ? '🏛️' : (isPsg ? '🗼' : (player.avatar || '👤')));
 
       card.innerHTML = `
         ${badgeTagHtml}
@@ -1791,6 +1883,7 @@ class FutDraftGame {
 
       // Card Background
       const isIcon = slot.player && (slot.player.isIcon || slot.player.cardType === 'icon');
+      const isPsg = slot.player && (slot.player.cardType === 'psg' || slot.player.isPsgSpecial);
       const isElite = slot.player && slot.player.rating >= 87;
       const cardGrad = ctx.createLinearGradient(cardX, cardY, cardX + cardW, cardY + cardH);
       if (isIcon) {
@@ -1798,6 +1891,10 @@ class FutDraftGame {
         cardGrad.addColorStop(0.3, '#fef9ee');
         cardGrad.addColorStop(0.7, '#e4cd9f');
         cardGrad.addColorStop(1, '#caa461');
+      } else if (isPsg) {
+        cardGrad.addColorStop(0, '#001c47');
+        cardGrad.addColorStop(0.5, '#da291c');
+        cardGrad.addColorStop(1, '#001c47');
       } else if (isElite) {
         cardGrad.addColorStop(0, '#1e293b');
         cardGrad.addColorStop(0.5, '#0f172a');
@@ -1813,7 +1910,7 @@ class FutDraftGame {
       ctx.roundRect(cardX, cardY, cardW, cardH, 12);
       ctx.fill();
 
-      ctx.strokeStyle = isIcon ? '#ffd700' : (isElite ? '#00f0ff' : '#ffffff');
+      ctx.strokeStyle = isIcon ? '#ffd700' : (isPsg ? '#da291c' : (isElite ? '#00f0ff' : '#ffffff'));
       ctx.lineWidth = 2.5;
       ctx.stroke();
 
@@ -1871,4 +1968,20 @@ class FutDraftGame {
 // Start Game on DOM ready
 window.addEventListener('DOMContentLoaded', () => {
   window.game = new FutDraftGame();
+});
+
+// Quick Testing Helper for PSG Special Cards
+window.testPsg = () => {
+  if (!window.game) return;
+  console.log("PSG Özel Kartları Test Modu Başlatılıyor...", PSG_SPECIAL_PLAYERS);
+  window.game.isCaptainDraft = false;
+  window.game.activeDraftSlotIndex = null;
+  window.game.renderCandidateCards(PSG_SPECIAL_PLAYERS);
+  document.getElementById('draftPickModal').style.display = 'flex';
+};
+
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'p' || e.key === 'P') {
+    window.testPsg();
+  }
 });

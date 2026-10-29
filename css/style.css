@@ -380,6 +380,11 @@ body {
   box-shadow: 0 0 16px rgba(203, 213, 225, 0.8);
 }
 
+.pitch-slot:hover .pitch-card-filled.psg-card {
+  box-shadow: 0 0 22px rgba(218, 41, 28, 0.95), 0 0 25px rgba(0, 240, 255, 0.6);
+  border-color: #ffffff !important;
+}
+
 .p-card-top {
   display: flex;
   justify-content: space-between;
@@ -1075,6 +1080,169 @@ body.tournament-active .pitch-slot {
 .pitch-card-filled.icon-card .p-pip.active {
   color: #ffd700 !important;
   text-shadow: 0 0 5px #ffd700 !important;
+}
+
+/* ==========================================================================
+   PARIS SAINT-GERMAIN (PSG) SPECIAL CARD STYLES (PARİS ÖZEL KARTLARI)
+   Authentic Parisian Hechter vertical band design, navy blue and rouge glow
+   ========================================================================== */
+.fut-card.psg-card {
+  background: 
+    linear-gradient(90deg, 
+      transparent calc(50% - 22px), 
+      rgba(255, 255, 255, 0.88) calc(50% - 22px), 
+      rgba(255, 255, 255, 0.88) calc(50% - 19px), 
+      #da291c calc(50% - 19px), 
+      #b5170d 50%, 
+      #da291c calc(50% + 19px), 
+      rgba(255, 255, 255, 0.88) calc(50% + 19px), 
+      rgba(255, 255, 255, 0.88) calc(50% + 22px), 
+      transparent calc(50% + 22px)
+    ),
+    radial-gradient(ellipse at 50% 0%, #0a2558 0%, #031330 45%, #010714 100%) !important;
+  border: 2.5px solid #da291c !important;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.8), 0 0 25px rgba(218, 41, 28, 0.6), 0 0 35px rgba(3, 25, 75, 0.85), inset 0 0 20px rgba(0, 30, 90, 0.6) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.fut-card.psg-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.24) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.fut-card.psg-card:hover {
+  transform: translateY(-8px) scale(1.06);
+  border-color: #ffffff !important;
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.95), 0 0 42px rgba(218, 41, 28, 0.95), 0 0 45px rgba(0, 240, 255, 0.5), inset 0 0 25px rgba(255, 255, 255, 0.45) !important;
+}
+
+.fut-card.psg-card .card-rating {
+  color: #ffffff !important;
+  text-shadow: 0 0 14px rgba(218, 41, 28, 0.95), 0 2px 4px rgba(0, 0, 0, 0.9);
+  font-weight: 900;
+}
+
+.fut-card.psg-card .card-position {
+  color: #ffd700 !important;
+  font-weight: 900 !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+.fut-card.psg-card .card-silhouette {
+  color: rgba(255, 255, 255, 0.28) !important;
+  text-shadow: 0 0 12px rgba(218, 41, 28, 0.6);
+}
+
+.fut-card.psg-card .card-mid {
+  border-bottom: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+}
+
+.fut-card.psg-card .card-name {
+  color: #ffffff !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.95), 0 0 10px rgba(218, 41, 28, 0.6) !important;
+  font-weight: 900 !important;
+}
+
+.fut-card.psg-card .card-club {
+  color: #f1f5f9 !important;
+  font-weight: 800 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+.fut-card.psg-card .stat-val-fut {
+  color: #ffffff !important;
+  font-weight: 900 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.fut-card.psg-card .stat-label-fut {
+  color: #cbd5e1 !important;
+  font-weight: 800 !important;
+}
+
+.fut-card.psg-card .btn-select-card {
+  background: linear-gradient(135deg, #da291c 0%, #001c47 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6), 0 0 10px rgba(218, 41, 28, 0.4);
+}
+
+.psg-tag {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: linear-gradient(135deg, #001c47 0%, #da291c 100%);
+  color: #ffffff;
+  font-family: var(--font-fut);
+  font-size: 0.72rem;
+  font-weight: 900;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7), 0 0 12px rgba(218, 41, 28, 0.7);
+  z-index: 5;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.p-card-psg-tag {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: linear-gradient(135deg, #001c47 0%, #da291c 100%);
+  color: #ffffff;
+  font-family: var(--font-fut);
+  font-size: 0.55rem;
+  font-weight: 900;
+  padding: 1px 4px;
+  border-radius: 3px;
+  z-index: 5;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+  border: 0.5px solid rgba(255, 255, 255, 0.8);
+}
+
+.pitch-card-filled.psg-card {
+  background: 
+    linear-gradient(90deg, 
+      transparent calc(50% - 9px), 
+      rgba(255, 255, 255, 0.82) calc(50% - 9px), 
+      rgba(255, 255, 255, 0.82) calc(50% - 7px), 
+      #da291c calc(50% - 7px), 
+      #da291c calc(50% + 7px), 
+      rgba(255, 255, 255, 0.82) calc(50% + 7px), 
+      rgba(255, 255, 255, 0.82) calc(50% + 9px), 
+      transparent calc(50% + 9px)
+    ),
+    radial-gradient(ellipse at 50% 0%, #0a2558 0%, #031330 55%, #010714 100%) !important;
+  border: 1.8px solid #da291c !important;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.8), 0 0 16px rgba(218, 41, 28, 0.65) !important;
+}
+
+.pitch-card-filled.psg-card .p-card-rating {
+  color: #ffffff !important;
+  text-shadow: 0 0 6px rgba(218, 41, 28, 0.95), 0 1px 2px #000;
+  font-weight: 900;
+}
+
+.pitch-card-filled.psg-card .p-card-pos {
+  color: #ffd700 !important;
+  font-weight: 900;
+  text-shadow: 0 1px 2px #000;
+}
+
+.pitch-card-filled.psg-card .p-card-name {
+  color: #ffffff !important;
+  font-weight: 900;
+  text-shadow: 0 1px 2px #000;
+}
+
+.pitch-card-filled.psg-card .p-pip.active {
+  color: #00f0ff !important;
+  text-shadow: 0 0 5px #00f0ff !important;
 }
 
 /* ==========================================================================
